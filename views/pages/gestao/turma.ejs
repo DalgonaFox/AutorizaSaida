@@ -1,0 +1,42 @@
+<!--Turma-->
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<%- include('../../partials/head', { title: 'Turma' }) %>
+<%- include('../../partials/headerGestao') %>
+
+    <body>
+        
+<div class="container">
+        <div class="card-container curso">
+          <div class="d-flex align-items-center justify-content-between pt-3 pb-3">
+            <h1 class="nome text-center font-italic font-weight-bold ml-3 justify-self-center">Turmas - <%= nome_curso %></h1>
+          </div>
+          <div class="row"> 
+        <div class="row"> 
+          <% turmas.forEach((turma) => { %>
+            <div class="col-lg-4 col-md-6 mb-4">
+              <a class="text-decoration-none" href="/listaAlunos">
+                <div class="card m-3" style="width: 100%;">
+                  <img class="card-img-top" src="/images/curso.png" alt="Card image cap">
+                  <div class="card-body">
+                    <h5><%= turma.nome_turma %></h5>
+                    <p class="card-text"><%= turma.nome_curso %></p>
+                  </div>
+                </div>
+              </a>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+
+    </div>
+  </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+        <%- include('../../partials/footer') %>
+    </body>
+
+</html>

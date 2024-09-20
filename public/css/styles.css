@@ -1,0 +1,311 @@
+
+/*Geral*/
+body {
+    background-color: #e0e0e0;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: Inter;
+}
+
+.background {
+    background-size: 100%;
+}
+
+html,
+body {
+    height: 100%;
+    justify-content: center;
+}
+
+.btn-red {
+    background-color: #BD0003;
+    color: white;
+    border-color: white;
+}
+
+.btn-red:hover {
+    background-color: white;
+    color: #BD0003;
+    border-color: #BD0003;
+}
+
+.btn-blue {
+    background-color: #2F2C79;
+    color: white;
+    border-color: white;
+}
+
+.btn-blue:hover {
+    background-color: white;
+    color: #2F2C79;
+    border-color: #2F2C79;
+}
+
+.btn-gray {
+    background-color: #B4B4B4;
+    color: white;
+    border-color: white;
+}
+
+.btn-gray:hover {
+    background-color: white;
+    color: #B4B4B4;
+    border-color: #B4B4B4;
+}
+
+.container {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 83.1vh;
+}
+
+/*Rodapé*/
+
+.rodape {
+    position: relative;
+    align-self: flex-end;
+    background-color: #BD0003;
+    font-style: italic;
+    color: white;
+    font-size: 13px;
+    line-height: 1px;
+    padding: 10px;
+}
+
+.texto-rodape {
+    display: flex;
+    justify-content: center;
+    text-align: left;
+}
+
+.margem-rodape {
+    margin-right: 5%;
+}
+
+/*Login*/
+
+.btn-lg {
+    margin-top: 5%;
+}
+
+.login-container {
+    width: 521px;
+    height: 531px;
+    margin: auto;
+    align-items: center;
+}
+
+.title {
+    font-size: 64px;
+    font-family: "Inter";
+    font-style: italic;
+    font-weight: 800;
+    display: flex;
+    justify-content: center;
+    margin-top: 20%;
+}
+
+.subtitle {
+    font-size: 40px;
+    font-family: "Inter";
+    font-style: italic;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+}
+
+.inputLogin {
+    display: inline;
+    justify-content: left;
+    align-items: end;
+    width: 375px;
+}
+
+.login-background {
+    background-image: url(../images/Login.png);
+}
+
+/*Navbar*/
+
+.navbar,
+.container-red {
+    border: none !important;
+    border-width: 0 !important;
+    background-color: #BD0003 !important;
+}
+
+.navbar-brand,
+.nav-link {
+    color: white;
+}
+
+.navbar-brand:hover,
+.nav-link:hover {
+    color: white;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-style: italic;
+}
+
+.active {
+    font-weight: bold;
+}
+
+/*Perfil Aluno*/
+
+.campo {
+    display: block;
+    margin: 1%;
+}
+
+.info {
+    display: block;
+    width: 85%;
+}
+
+.profilePicture {
+    width: 227px;
+    height: 227px;
+    border-radius: 100%;
+    margin-bottom: 10px;
+}
+
+.informacao-aluno {
+    background-color: white;
+    border: 1px solid grey;
+    padding: 10px;
+    box-shadow: 0px 3px 5px grey;
+}
+
+.form-select {
+    background-image: none;
+    width: 20%;
+    height: 30px;
+    color: white;
+}
+
+.nome {
+    margin-bottom: 10px;
+}
+
+.dividir {
+    padding-top: 30px;
+    display: flex;
+}
+
+.botoes {
+    display: flex;
+    justify-content: space-between;
+    display: flex;
+}
+
+/*Home do Aluno*/
+
+.bem-vindo {
+    font-style: italic;
+    font-size: 32px;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+
+.requisicao {
+    width: 18rem;
+    width: 300px;
+    height: 256px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+}
+
+.requisicao:hover {
+    text-decoration: none;
+}
+
+.card-image {
+    height: 198px;
+}
+
+.card-saida {
+    margin-bottom: 1%;
+}
+
+.grafico-saida {
+    width: 428px;
+    height: 328px;
+    border-radius: 10px;
+}
+
+/*Home da Gestão*/
+
+.grafico-periodo {
+    width: 600px;
+    height: 300px;
+    border-radius: 10px;
+}
+
+.grafico-pendencia {
+    width: 500px;
+    height: 300px;
+    border-radius: 10px;
+}
+
+.grafico-trio {
+    width: 475px;
+    height: 265px;
+    border-radius: 10px;
+}
+
+
+/* Curso */
+
+.curso {
+    display: inline;
+}
+
+
+
+@media screen and (max-width: 550px) {
+    .login-container {
+        width: 320px;
+        height: 600px;
+        margin: auto;
+        align-items: center;
+    }
+
+    /* navbar */
+
+.container-fluid {
+    border: none !important;
+    border-width: 0 !important;
+    background-color: #BD0003 !important;
+}
+
+.navbar-brand,
+.nav-link {
+    color: white;
+}
+
+.navbar-brand:hover,
+.nav-link:hover {
+    color: white;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-style: italic;
+}
+
+.active {
+    font-weight: bold;
+}
+
+}
+
+.h-x {
+    height: 25%;
+}

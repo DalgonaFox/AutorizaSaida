@@ -1,0 +1,125 @@
+<!--Lista de Alunos-->
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<%- include('../../partials/head', { title: 'Lista de Alunos' }) %>
+<%- include('../../partials/headerGestao') %>
+
+<body>
+  <!--check-circle-fill-->
+  <!--dash-circle-fill-->
+  <!--exclamation-triangle-fill-->
+
+  <div class="container h-100">
+
+    <div class="card shadow m-5 p-5 d-flex flex-column align-items-center justify-content-center" style="width: 90%">
+      <h2 class="font-italic font-weight-bold">Mecânica - Turma I</h2>
+      <div class="w-100 d-flex justify-content-between">
+        <select class="form-select form-select-sm w-25" style="color: black;">
+          <option selected>Ordenar por</option>
+          <option value="1">Mais Antigo</option>
+          <option value="2">Mais Recente</option>
+          <option value="2">Ordem Alfabética</option>
+        </select>
+        <select class="form-select form-select-sm w-25" style="color: black;">
+          <option selected>Filtrar por situação</option>
+          <option value="1">Regular</option>
+          <option value="2">Irregular</option>
+          <option value="3">Alerta</option>
+        </select>
+      </div>
+      <table class="table mt-5">
+        <thead>
+          <tr>
+            <th scope="col">Aluno</th>
+            <th scope="col">Telefone</th>
+            <th scope="col">Situação</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>Drauzio Varella</td>
+            <td>(11) 91213-6565</td>
+            <td><i class="bi bi-check-circle-fill" style="color: #34c759;"></i></td>
+            <td><a href="/alunoGestao"><i class="bi bi-chevron-compact-right  text-dark"></i></td>
+          </tr>
+
+          <tr>
+            <td>Laura Marinho</td>
+            <td>(11) 98765-1234</td>
+            <td><i class="bi bi-dash-circle-fill" style="color: #ff3a30;"></i></td>
+            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
+          </tr>
+
+          <tr>
+            <td>Mariana Marcondes</td>
+            <td>(11) 98765-1234</td>
+            <td><i class="bi bi-dash-circle-fill" style="color: #ff3a30;"></i></td>
+            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
+          </tr>
+
+          <tr>
+            <td>Sabrina Vilela</td>
+            <td>(11) 91213-6565</td>
+            <td><i class="bi bi-exclamation-triangle-fill" style="color: #ffcc00;"></i></td>
+            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
+          </tr>
+
+          <tr>
+            <td>João Pedro</td>
+            <td>(11) 98765-1234</td>
+            <td><i class="bi bi-exclamation-triangle-fill" style="color: #ffcc00;"></i></td>
+            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
+          </tr>
+
+          <tr>
+            <td>Milena Oliveira</td>
+            <td>(11) 91213-6565</td>
+            <td><i class="bi bi-dash-circle-fill" style="color: #ff3a30;"></i></td>
+            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
+          </tr>
+
+          <tr>
+            <td>João Aparecido</td>
+            <td>(11) 98765-1234</td>
+            <td><i class="bi bi-check-circle-fill" style="color: #34c759;"></i></td>
+            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
+          </tr>
+
+          <tr>
+            <td>Isadora Oliveira</td>
+            <td>(11) 98765-1234</td>
+            <td><i class="bi bi-dash-circle-fill" style="color: #ff3a30;"></i></td>
+            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
+          </tr>
+
+          <tr>
+            <td>Murilo Victorino</td>
+            <td>(11) 91213-6565</td>
+            <td><i class="bi bi-exclamation-triangle-fill" style="color: #ffcc00;"></i></td>
+            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
+          </tr>
+
+          <tr>
+            <td>Julia Cardoso</td>
+            <td>(11) 98765-1234</td>
+            <td ><i class="bi bi-dash-circle-fill" style="color: #ff3a30;"></i></td>
+            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></a>
+          </tr>
+        </tbody>
+      </table>
+      <div class="texto d-flex w-100">
+        <h4>Total de Saídas:</h4>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"></script>
+  <%- include('../../partials/footer') %>
+</body>
+
+</html>

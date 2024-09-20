@@ -1,0 +1,91 @@
+<!--Home do Aluno-->
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<%- include('../../partials/head', { title: 'Home' }) %>
+  <%- include('../../partials/headerAluno') %>
+
+    <body>
+      <div class="container" style="width: 55%;">
+      <div style="min-height: 79%;">
+
+        <!--Bem-vindo-->
+        <h2 class="bem-vindo">Seja Bem-vindo, <%= nome_aluno %>.</h2>
+
+
+        <div class="d-flex flex-column">
+          <!--Cards-->
+          <div class="d-flex justify-content-between">
+            <a class="requisicao" href="/requisicaoAluno">
+              <div class="card">
+                <img src="/images/frente_senai.png" class="card-img-top card-image"
+                  alt="Requisição de Saída Antecipada">
+                <div class="card-body">
+                  <p class="card-text">Requisição de Saída Antecipada</p>
+                </div>
+              </div>
+            </a>
+
+            <a class="requisicao" href="/justificarFaltaAluno">
+              <div class="card">
+                <img src="/images/SALAMEDICO.png" class="card-img-top card-image" alt="Justificar Falta com Atestado">
+                <div class="card-body">
+                  <p class="card-text">Justificar Falta com Atestado</p>
+                </div>
+              </div>
+            </a>
+
+            <a class="requisicao" href="/justificarSaidaAluno">
+              <div class="card">
+                <img src="/images/corredor_senai.png" class="card-img-top card-image"
+                  alt="Justificar Saída com Atestado">
+                <div class="card-body">
+                  <p class="card-text">Justificar Saída com Atestado</p>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div>
+            <!--Avisos-->
+            <div class="d-flex mt-4">
+              <div class="d-flex flex-column mr-5">
+                <div class="card mb-3 shadow">
+                  <div class="card-body">
+                    <h5 class="card-title">Justificar Saídas</h5>
+                    <p class="card-text">Você tem 4 saídas antecipadas não justificadas. Deseja justificar com atestado?
+                    </p>
+                    <a href="/justificarSaidaAluno" class="btn btn-red">Sim</a>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-body shadow">
+                    <h5 class="card-title">Saídas Antecipadas</h5>
+                    <p class="card-text">Você saiu antecipadamente 4 vezes.</p>
+                    <a href="/manutencao" class="btn btn-red">Verificar</a>
+                  </div>
+                </div>
+              </div>
+
+              <!--Gráfico-->
+              <div>
+                <iframe class="grafico-saida shadow border"
+                  src="https://e.infogram.com/9f24c3a6-733c-41fc-8ea7-d40367798070?src=embed" scrolling="no"
+                  frameborder="0" style="border:none;"></iframe>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+      <%- include('../../partials/footer') %>
+    </body>
+
+</html>

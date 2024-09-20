@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<%- include('../../partials/head', { title: 'Resultados Encontrados' }) %>
+<%- include('../../partials/headerGestao') %>
+
+<body>
+    <div class="container-sm flex-column p-5">
+
+        <div class="card shadow w-100 p-4 h-15 mb-3">
+            <h2 style="font-style: italic; margin-left: 20px;">Resultados para:</h2>
+            <p style="margin-left: 20px;"><%= query %></p>
+        </div>
+
+        <div class="d-flex justify-content-between">
+
+            <!-- Alunos Encontrados -->
+            <div class="card p-5 d-flex flex-column w-100 mr-4 shadow">
+                <h2 class="d-flex" style="font-style: italic;">Alunos Encontrados</h2>
+
+                <table class="table mt-1">
+                    <thead>
+                        <tr>
+                            <th scope="col">Aluno</th>
+                            <th scope="col">Telefone</th>
+                            <th scope="col">Situação</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (alunos.length > 0) { %>
+                            <% alunos.forEach(aluno => { %>
+                                <tr>
+                                    <td><%= aluno.nome_aluno %></td>
+                                    <td><%= aluno.telefone_aluno %></td>
+                                    <td>
+                                        <% if (aluno.situacao === 'ativo') { %>
+                                            <i class="bi bi-check-circle-fill" style="color: #34c759;"></i>
+                                        <% } else if (aluno.situacao === 'inativo') { %>
+                                            <i class="bi bi-dash-circle-fill" style="color: #ff3a30;"></i>
+                                        <% } else if (aluno.situacao === 'pendente') { %>
+                                            <i class="bi bi-exclamation-triangle-fill" style="color: #ffcc00;"></i>
+                                        <% } %>
+                                    </td>
+                                    <td><a href="/alunoGestao/<%= aluno.id %>"><i class="bi bi-chevron-compact-right text-dark"></i></a></td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="4">Nenhum aluno encontrado.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Cursos Encontrados -->
+            <div class="card shadow w-25">
+                <div class="card-text p-3">
+                    <h5 class="card-title" style="font-style: italic; font-weight: bold;">Cursos Encontrados</h5>
+                    <div class="card-body">
+                        <% if (cursos.length > 0) { %>
+                            <% cursos.forEach(curso => { %>
+                                <h5 class="card-text"><%= curso.tipo_curso %></h5>
+                                <p><%= curso.nome_curso %></p>
+                                <a href="/cursoDetalhes/<%= curso.id %>" class="btn btn-red btn-sm">Detalhes</a>
+                            <% }) %>
+                        <% } else { %>
+                            <p>Nenhum curso encontrado.</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../../partials/footer') %>
+</body>
+</html>

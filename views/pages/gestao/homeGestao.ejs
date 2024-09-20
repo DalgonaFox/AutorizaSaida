@@ -1,0 +1,63 @@
+<!--Home da Gestão-->
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<%- include('../../partials/head', { title: 'Home' }) %>
+<%- include('../../partials/headerGestao') %>
+
+<body>
+    <div class="container">
+        <div class="d-block">
+            <!--Bem-vindo-->
+            <p class="bem-vindo">Bem-vindo, <%= nome_gestao %> </p>
+            <div class="superior d-flex justify-content-between">
+                <!--Gráfico Períodos do ano-->
+                <iframe class="grafico-periodo ml-5 mr-5 mb-5 shadow border"
+                    src="https://e.infogram.com/2e085507-3de9-449d-9091-df006709e714?src=embed" scrolling="no"
+                    frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+
+                <!--Gráfico Pendências do dia-->
+                <iframe class="grafico-pendencia mb-5 shadow border"
+                    src="https://e.infogram.com/6bc2ef5d-b3e8-413e-9976-e54136c687fa?src=embed" scrolling="no"
+                    frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+
+                <!--Avisos-->
+                <div class="d-flex flex-column pb-5" style="justify-content: space-between;">
+                    <div class="card card-saida shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">Você tem 5 pendências restantes</h5>
+                            <a href="/manutencao" class="btn btn-red">Verificar</a>
+                        </div>
+                    </div>
+                    <div class="card card-saida shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">Deseja cadastrar novo aluno?</h5>
+                            <a href="/cadastroAluno" class="btn btn-red">Cadastrar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="inferior d-flex justify-content-between">
+                <!--Trio de Gráficos-->
+                <iframe class="grafico-trio ml-5 mr-5 mb-5 shadow border"
+                    src="https://e.infogram.com/cb56e93e-1de1-4a4f-bff4-1433f435af0d?src=embed" scrolling="no"
+                    frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+
+                <iframe class="grafico-trio ml-5 mr-5 mb-5 shadow border"
+                    src="https://e.infogram.com/71e78566-9bc3-43f7-aa1f-2827a376230d?src=embed" scrolling="no"
+                    frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+
+                <iframe class="grafico-trio ml-5 mr-5 mb-5 shadow border"
+                    src="https://e.infogram.com/2152b75e-f8ca-4dd1-8cf0-97441054c5fb?src=embed" scrolling="no"
+                    frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <%- include('../../partials/footer') %>
+</body>
+
+</html>
