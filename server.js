@@ -9,7 +9,8 @@ var app = express();
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const path = require('path');
-const bcrypt = require('bcrypt');
+const port = process.env.PORT || 3001;
+//const bcrypt = require('bcrypt');
 
                                                                                                                         //NAO PODE DAR CTRL Z
 // Configuração do middleware de sessão
@@ -20,11 +21,6 @@ app.use(session({
     cookie: { secure: false } // Define como `true` se estiver usando HTTPS
 }));
 // porta
-const port = 8080;
-app.listen(port, () => {
-    console.log(`Servidor rodando na porta ${port}`); // oii milena mirena milena 
-    console.log(`Acesse pelo link 10.107.10.54:${port} ou pelo link 192.168.15.8:${port}`); //milenaa oii milenaaa milena milena milena OII MULE NA OII 
-});
 
 // pasta public
 app.use(express.static(__dirname + '/public'));
