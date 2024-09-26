@@ -1,5 +1,4 @@
-CREATE DATABASE tcc;
-USE tcc;
+USE u610580921_tcc;
 
 #Cursos
 create table curso (
@@ -93,7 +92,7 @@ cod_req int not null,
 constraint foreign key (cod_req) references requisicao (cod_req),
 rm int not null,
 constraint foreign key (rm) references aluno (rm),
-observacao varchar (255) not null,
+observacao varchar (255) not null
 #arquivo [não sabemos o tipo ainda]
 );
 
@@ -190,3 +189,12 @@ INSERT INTO justsaida (cod_req, rm, observacao) VALUES
 INSERT INTO justfalta (rm, cod_turma, data_emissao, data_inicio, data_termino, observacao) VALUES 
 (1003, 1, '2024-09-10', '2024-09-08', '2024-09-10', 'Falta justificada por motivos de saúde.'),
 (1004, 2, '2024-09-12', '2024-09-11', '2024-09-12', 'Falta justificada por compromissos familiares.');
+
+INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, email_aluno, senha, tel_aluno, cod_curso, cod_turma) VALUES 
+(1011, 'Milena Oliveira', '41112223334', '2005-11-03', 'milena.oliveira@mail.com', 'milena12', '12234567890', 3, 3);
+
+INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, email_aluno, senha, tel_aluno, cod_curso, cod_turma) VALUES 
+(1012, 'Sabrina Oliveira', '11122233345', '2005-11-03', 'sabrina.oliveira@mail.com', 'sabrina1', '12234567890', 3, 3);
+
+INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, email_aluno, senha, tel_aluno, cod_curso, cod_turma) VALUES 
+(1013, 'Sabrina Vilela', '11122233345', '2005-11-03', 'sabrina.vilela@mail.com', 'sabrina1', '12234567890', 3, 3);

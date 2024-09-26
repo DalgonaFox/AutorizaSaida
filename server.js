@@ -1,26 +1,40 @@
 
 /*link de acesso ao localhost*/
 /*10.107.10.54:8080*/
-
+// bom dia galerinha, vamos lá? 
 // Extensões
 var express = require('express');
-var session = require('express-session'); // Adicione esta linha
+var session = require('express-session'); // Adicione esta linha oi mirena mirena mirena mirena mirena mirena mirena mirena mirena mirena
 var app = express();
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const path = require('path');
-const port = process.env.PORT || 3001;
-//const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 
                                                                                                                         //NAO PODE DAR CTRL Z
 // Configuração do middleware de sessão
+
+//Nova porta
+const port = process.env.PORT || 3001;
+const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+//Configuração do banco de dados na nuvem
+const db = mysql.createPool({
+host: process.env.DB_HOST,
+user: process.env.DB_USERNAME,
+password: process.env.DB_PASSWORD,
+database: process.env.DB_DBNAME,
+waitForConnections: true,
+connectionLimit: 10,
+queueLimit: 0
+});
+
 app.use(session({
     secret: 'desespero', // Substitua por um segredo aleatório
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false } // Define como `true` se estiver usando HTTPS
 }));
-// porta
 
 // pasta public
 app.use(express.static(__dirname + '/public'));
@@ -28,23 +42,6 @@ app.use(express.static(__dirname + '/public'));
 // pasta views
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-// Configuração do banco de dados
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'mila',
-    password: '2002',
-    database: 'tcc'
-});
-
-// Conexão com o banco de dados
-db.connect((error) => {
-    if (error) {
-        console.log("Erro ao conectar com o banco de dados:", error);
-    } else {
-        console.log("Conectado ao MySQL");
-    }
-});
 
 // Configurações do Express
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -78,16 +75,27 @@ app.get("/", (req, res) => {
 // Navbar
 app.set('view engine', 'ejs');
 
-// Rota para a página do histórico do aluno
+
 app.get("/historicoAluno", (req, res) => {
-    console.log("Dados da sessão em /historicoAluno:", req.session);
 
-    const rm = req.session.rm; // Obtém o RM da sessão
-    // Consultas SQL atualizadas
-    const queryJustFalta = "SELECT * FROM justfalta WHERE rm = ?";
-    const queryJustSaida = "SELECT * FROM justsaida WHERE rm = ?";
-
+    const rm = req.session.rm;
+    if (!email_aluno) {
+        // Se o aluno não estiver logado ou a sessão expirou
+        return res.redirect('/');
+    }
     
+    const queryHistorico = `
+    SELECT
+    cod_req, rm, data_saida, ciencia_gestor, justificativa
+    FROM requisicao
+    JOIN
+    SELECT 
+    rm, cod_req
+    FROM justsaida
+    JOIN
+    FROM justfalta
+    WHERE rm = ?`;
+
     db.query(queryJustFalta, [rm], (errorFalta, resultadosFalta) => {
         if (errorFalta) {
             console.log("Erro ao buscar faltas:", errorFalta);
@@ -99,9 +107,7 @@ app.get("/historicoAluno", (req, res) => {
                 console.log("Erro ao buscar saídas:", errorSaida);
                 return res.redirect("/Erro.html");
             }
-
-            // Combine os resultados e envie para a view
-            const historico = resultadosFalta.concat(resultadosSaida);
+            const historico = [...resultadosFalta, ...resultadosSaida];
             res.render("pages/aluno/historicoAluno", { historico });
         });
     });
@@ -109,10 +115,8 @@ app.get("/historicoAluno", (req, res) => {
 
 
 
-  
-  
 
-app.get("/perfilAlunomenor", (req, res) => {
+app.get("/perfilAluno", (req, res) => {
     // Supondo que o 'email_aluno' foi armazenado na sessão durante o login 
     const email_aluno = req.session.email_user;
 
@@ -121,29 +125,43 @@ app.get("/perfilAlunomenor", (req, res) => {
         return res.redirect('/');
     }
 
-    // Consulta para pegar os dados do aluno
-    const query = `SELECT 
-    aluno.nome_aluno,
-    aluno.data_nasc,
-    aluno.rm,
-    aluno.tel_aluno,
-    aluno.cpf,
-    aluno.email_aluno,
-    aluno.cod_curso,
-    responsavel.email_resp,
-    responsavel.tel_resp,
-    responsavel.nome_resp
-FROM 
-    aluno
-INNER JOIN 
-    inforesp ON aluno.rm = inforesp.rm
-INNER JOIN 
-    responsavel ON inforesp.cod_resp = responsavel.cod_resp
-WHERE 
-    aluno.email_aluno = ?;
-`; 
+    // Consulta para pegar os dados do aluno, responsável e trabalho em um único JOIN
+    const queryAluno = `
+        SELECT 
+            aluno.nome_aluno,
+            aluno.data_nasc,
+            aluno.rm,
+            aluno.tel_aluno,
+            aluno.cpf,
+            aluno.email_aluno,
+            aluno.cod_curso,
+            curso.nome_curso,         
+            turma.nome_turma,       
+            responsavel.nome_resp,
+            responsavel.email_resp,
+            responsavel.tel_resp,
+            empresa.nome_empresa,
+            empresa.email_empresa,
+            empresa.tel_empresa
+        FROM 
+            aluno
+        LEFT JOIN 
+            inforesp ON aluno.rm = inforesp.rm
+        LEFT JOIN 
+            responsavel ON inforesp.cod_resp = responsavel.cod_resp
+        LEFT JOIN 
+            infotrabalho ON aluno.rm = infotrabalho.rm
+        LEFT JOIN 
+            empresa ON infotrabalho.cod_empresa = empresa.cod_empresa
+        LEFT JOIN 
+            curso ON aluno.cod_curso = curso.cod_curso 
+        LEFT JOIN 
+            turma ON aluno.cod_turma = turma.cod_turma
+        WHERE 
+            aluno.email_aluno = ?;
+    `;
 
-    db.query(query, [email_aluno], (error, results) => {
+    db.query(queryAluno, [email_aluno], (error, results) => {
         if (error) {
             console.log("Erro ao buscar os dados do aluno:", error);
             return res.status(500).send("Erro ao buscar os dados.");
@@ -152,19 +170,56 @@ WHERE
         if (results.length > 0) {
             const aluno = results[0]; // Pega o primeiro resultado da consulta
 
-            // Renderiza a página e envia os dados do aluno para a view
-            res.render("pages/aluno/perfilAlunomenor", {
-                nome_aluno: aluno.nome_aluno,
-                cod_curso: aluno.cod_curso,
-                cpf: aluno.cpf,
-                rm: aluno.rm,
-                tel_aluno: aluno.tel_aluno,
-                data_nasc: aluno.data_nasc,
-                email_aluno: aluno.email_aluno,
-                email_resp: aluno.email_resp,
-                nome_resp: aluno.nome_resp,
-                tel_resp: aluno.tel_resp
-            });
+            // Verifica se o aluno tem um responsável e/ou trabalho
+            if (aluno.nome_resp) {
+                // Se o aluno tiver um responsável, redireciona para o perfil de aluno menor
+                console.log("Redirecionando para página de aluno menor");
+                res.render("pages/aluno/perfilAlunomenor", {
+                    nome_aluno: aluno.nome_aluno,
+                    cod_curso: aluno.cod_curso,
+                    cpf: aluno.cpf,
+                    rm: aluno.rm,
+                    tel_aluno: aluno.tel_aluno,
+                    data_nasc: aluno.data_nasc,
+                    email_aluno: aluno.email_aluno,
+                    nome_curso: aluno.nome_curso,
+                    nome_turma: aluno.nome_turma,
+                    nome_resp: aluno.nome_resp,
+                    email_resp: aluno.email_resp,
+                    tel_resp: aluno.tel_resp
+                });
+            } else if (aluno.nome_empresa) {
+                // Se o aluno tiver um trabalho, redireciona para o perfil de aluno trabalhador
+                console.log("Redirecionando para página de aluno trabalhador");
+                res.render("pages/aluno/perfilAlunoempresa", {
+                    nome_aluno: aluno.nome_aluno,
+                    cod_curso: aluno.cod_curso,
+                    cpf: aluno.cpf,
+                    rm: aluno.rm,
+                    tel_aluno: aluno.tel_aluno,
+                    data_nasc: aluno.data_nasc,
+                    email_aluno: aluno.email_aluno,
+                    nome_curso: aluno.nome_curso,
+                    nome_turma: aluno.nome_turma,
+                    nome_empresa: aluno.nome_empresa,
+                    email_empresa: aluno.email_empresa,
+                    tel_empresa: aluno.tel_empresa
+                });
+            } else {
+                // Se o aluno não tiver nem responsável nem trabalho, redireciona para o perfil de aluno maior
+                console.log("Redirecionando para página de aluno maior");
+                res.render("pages/aluno/perfilAlunomaior", {
+                    nome_aluno: aluno.nome_aluno,
+                    cod_curso: aluno.cod_curso,
+                    cpf: aluno.cpf,
+                    rm: aluno.rm,
+                    tel_aluno: aluno.tel_aluno,
+                    data_nasc: aluno.data_nasc,
+                    email_aluno: aluno.email_aluno,
+                    nome_curso: aluno.nome_curso,
+                    nome_turma: aluno.nome_turma
+                });
+            }
         } else {
             // Caso não encontre o aluno, redireciona ou exibe uma mensagem de erro
             res.status(404).send("Aluno não encontrado.");
@@ -172,45 +227,6 @@ WHERE
     });
 });
 
-
-
-app.get("/perfilAlunomaior", (req, res) => {
-    // Supondo que o 'email_aluno' foi armazenado na sessão durante o login 
-    const email_aluno = req.session.email_user;
-
-    if (!email_aluno) {
-        // Se o aluno não estiver logado ou a sessão expirou
-        return res.redirect('/');
-    }
-
-    // Consulta para pegar os dados do aluno
-    const query = `SELECT nome_aluno, cod_curso, cpf, tel_aluno, data_nasc, email_aluno FROM aluno WHERE email_aluno = ?`;
-
-    db.query(query, [email_aluno], (error, results) => {
-        if (error) {
-            console.log("Erro ao buscar os dados do aluno:", error);
-            return res.status(500).send("Erro ao buscar os dados.");
-        }
-
-        if (results.length > 0) {
-            const aluno = results[0]; // Pega o primeiro resultado da consulta
-
-            // Renderiza a página e envia os dados do aluno para a view
-            res.render("pages/aluno/perfilAlunomenor", {
-                nome_aluno: aluno.nome_aluno,
-                cod_curso: aluno.cod_curso,
-                cpf: aluno.cpf,
-                rm: aluno.rm,
-                tel_aluno: aluno.tel_aluno,
-                data_nasc: aluno.data_nasc,
-                email_aluno: aluno.email_aluno
-            });
-        } else {
-            // Caso não encontre o aluno, redireciona ou exibe uma mensagem de erro
-            res.status(404).send("Aluno não encontrado.");
-        }
-    });
-});
 
 // Formularios
 app.get("/justificarFaltaAluno", (req, res) => {
@@ -374,10 +390,120 @@ app.get("/cadastroAluno", (req, res) => {
 app.get("/listaAlunos", (req, res) => {
     res.render("pages/gestao/listaAlunos");
 });
-                                                                                                                     //NAO PODE DAR CTRL Z
-app.get("/alunoGestao", (req, res) => {
-    res.render("pages/gestao/alunoGestao");
+ //NAO PODE DAR CTRL Z
+
+
+ app.get("/alunoGestao", (req, res) => {
+    // Supondo que o 'email_aluno' foi armazenado na sessão durante o login 
+    const rm_aluno = req.params.rm;
+
+    if (!rm_aluno) {
+        // Se o aluno não estiver logado ou a sessão expirou
+        return res.redirect('/');
+    }
+
+    // Consulta para pegar os dados do aluno, responsável e trabalho em um único JOIN
+    const queryAluno = `
+        SELECT 
+            aluno.nome_aluno,
+            aluno.data_nasc,
+            aluno.rm,
+            aluno.tel_aluno,
+            aluno.cpf,
+            aluno.email_aluno,
+            aluno.cod_curso,
+            curso.nome_curso,         
+            turma.nome_turma,       
+            responsavel.nome_resp,
+            responsavel.email_resp,
+            responsavel.tel_resp,
+            empresa.nome_empresa,
+            empresa.email_empresa,
+            empresa.tel_empresa
+        FROM 
+            aluno
+        LEFT JOIN 
+            inforesp ON aluno.rm = inforesp.rm
+        LEFT JOIN 
+            responsavel ON inforesp.cod_resp = responsavel.cod_resp
+        LEFT JOIN 
+            infotrabalho ON aluno.rm = infotrabalho.rm
+        LEFT JOIN 
+            empresa ON infotrabalho.cod_empresa = empresa.cod_empresa
+        LEFT JOIN 
+            curso ON aluno.cod_curso = curso.cod_curso 
+        LEFT JOIN 
+            turma ON aluno.cod_turma = turma.cod_turma
+        WHERE 
+            aluno.email_aluno = ?;
+    `;
+
+    db.query(queryAluno, [email_aluno], (error, results) => {
+        if (error) {
+            console.log("Erro ao buscar os dados do aluno:", error);
+            return res.status(500).send("Erro ao buscar os dados.");
+        }
+
+        if (results.length > 0) {
+            const aluno = results[0]; // Pega o primeiro resultado da consulta
+
+            // Verifica se o aluno tem um responsável e/ou trabalho
+            if (aluno.nome_resp) {
+                // Se o aluno tiver um responsável, redireciona para o perfil de aluno menor
+                console.log("Redirecionando para página de aluno menor");
+                res.render("pages/gestao/alunoMenor", {
+                    nome_aluno: aluno.nome_aluno,
+                    cod_curso: aluno.cod_curso,
+                    cpf: aluno.cpf,
+                    rm: aluno.rm,
+                    tel_aluno: aluno.tel_aluno,
+                    data_nasc: aluno.data_nasc,
+                    email_aluno: aluno.email_aluno,
+                    nome_curso: aluno.nome_curso,
+                    nome_turma: aluno.nome_turma,
+                    nome_resp: aluno.nome_resp,
+                    email_resp: aluno.email_resp,
+                    tel_resp: aluno.tel_resp
+                });
+            } else if (aluno.nome_empresa) {
+                // Se o aluno tiver um trabalho, redireciona para o perfil de aluno trabalhador
+                console.log("Redirecionando para página de aluno trabalhador");
+                res.render("pages/gestao/alunoEmpresa", {
+                    nome_aluno: aluno.nome_aluno,
+                    cod_curso: aluno.cod_curso,
+                    cpf: aluno.cpf,
+                    rm: aluno.rm,
+                    tel_aluno: aluno.tel_aluno,
+                    data_nasc: aluno.data_nasc,
+                    email_aluno: aluno.email_aluno,
+                    nome_curso: aluno.nome_curso,
+                    nome_turma: aluno.nome_turma,
+                    nome_empresa: aluno.nome_empresa,
+                    email_empresa: aluno.email_empresa,
+                    tel_empresa: aluno.tel_empresa
+                });
+            } else {
+                // Se o aluno não tiver nem responsável nem trabalho, redireciona para o perfil de aluno maior
+                console.log("Redirecionando para página de aluno maior");
+                res.render("pages/gestao/alunoMaior", {
+                    nome_aluno: aluno.nome_aluno,
+                    cod_curso: aluno.cod_curso,
+                    cpf: aluno.cpf,
+                    rm: aluno.rm,
+                    tel_aluno: aluno.tel_aluno,
+                    data_nasc: aluno.data_nasc,
+                    email_aluno: aluno.email_aluno,
+                    nome_curso: aluno.nome_curso,
+                    nome_turma: aluno.nome_turma
+                });
+            }
+        } else {
+            // Caso não encontre o aluno, redireciona ou exibe uma mensagem de erro
+            res.status(404).send("Aluno não encontrado.");
+        }
+    });
 });
+
 
 app.get("/autorizaSaida", (req, res) => {
     res.render("pages/gestao/autorizaSaida");
@@ -473,7 +599,7 @@ app.post("/login", (req, res) => {
                     }
                 }
             } else {
-                return res.send("Senha Errada!");
+                return res.send("Senha incorreta");
             }
         } else {
             return res.redirect("/Cadastrar.html");
@@ -484,7 +610,7 @@ app.post("/login", (req, res) => {
 
 
 
-//Primeiro Acesso Estamos em fase de testes AAAAAAAAAAAA blz
+//Primeiro Acesso Estamos em fase de testes AAAAAAAAAAAA blz/ ue mas o primeiro acesso ta funcionando bon
 app.post('/primeiroAcesso', (req, res) => {
     const { senhaAtual, nova_senha, confirmacaoSenha } = req.body;
     const email_aluno = req.session.email_user; // Email do aluno armazenado na sessão
@@ -564,7 +690,7 @@ app.post('/primeiroacessoGestao', (req, res) => {
                 return res.send("Senha atual incorreta.");
             }
         } else {
-            return res.send("Usuário não encontrado.");
+            alert("Usuário não encontrado.");
         }
 
         console.log("E-mail do gestor na sessão:", email_gestor);
@@ -573,7 +699,7 @@ app.post('/primeiroacessoGestao', (req, res) => {
 });
 
 
-//Gente, o gestor voltou a dar problema, não sei o que fazer
+//Gente, o gestor voltou a dar problema, não sei o que fazer/ problema aonde??
 
 
 

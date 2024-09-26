@@ -25,20 +25,13 @@
           </select>
         </div>
         <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Motivo</th>
-              <th>Justificativa</th>
-            </tr>
-          </thead>
           <tbody>
-            <% if (faltas && faltas.length > 0) { %>
-              <% faltas.forEach(function(falta) { %>
+            <% if (historico && historico.length > 0) { %>
+              <% historico.forEach(function(item) { %>
                 <tr>
-                  <td><%= falta.data_falta %></td>
-                  <td><%= falta.motivo %></td>
-                  <td><%= falta.justificativa %></td>
+                  <th><%= item.data_falta %></th>
+                  <th><%= item.motivo %></th>
+                  <th><%= item.justificativa %></th>
                 </tr>
               <% }) %>
             <% } else { %>
@@ -46,7 +39,7 @@
                 <td colspan="3">Nenhuma falta registrada.</td>
               </tr>
             <% } %>
-          </tbody>
+          </tbody> 
         </table>
         
         <div class="texto d-flex w-100">

@@ -9,33 +9,35 @@
 <div class="container">
     <div class="card shadow m-5 d-flex justify-content-center align-items-center" style="width: 100%;">
       <div class="d-block justify-content-center">
-        <img class="profilePicture mt-4" src="/public/images/drauzio.jpg" alt="Foto de Perfil">
+        <img class="profilePicture mt-4" src="/images/drauzio.jpg" alt="Foto de Perfil">
       </div> 
       <h1 class="nome text-center font-italic font-weight-bold mt-3"><%= nome_aluno %></h1>
       <div class="info">
+
+        
         <div class="dividir d-flex justify-content-between">
-          <div class="campo">
+          <div class="campo w-25">
             <div class="card pb-2 pt-2 pl-2 pr-5">
               <label for="formGroupExampleInput" class="form-label font-weight-bold">Curso</label>
-              <p>Estamos testando</p>
+              <p><%= nome_curso %></p>
             </div>
           </div>
 
-          <div class="campo">
+          <div class="campo w-25">
             <div class="card pb-2 pt-2 pl-2 pr-5">
               <label for="formGroupExampleInput" class="form-label font-weight-bold">CPF</label>
               <p><%= cpf %></p>
             </div>
           </div>
 
-          <div class="campo">
+          <div class="campo w-25">
             <div class="card pb-2 pt-2 pl-2 pr-5">
               <label for="formGroupExampleInput" class="form-label font-weight-bold">RM</label>
               <p><%= rm %></p>
             </div>
           </div>
 
-          <div class="campo">
+          <div class="campo w-25">
             <div class="card pb-2 pt-2 pl-2 pr-5">
               <label for="formGroupExampleInput" class="form-label font-weight-bold">Telefone</label>
               <p><%= tel_aluno %></p>
@@ -45,32 +47,28 @@
         </div>
 
         <div class="dividir d-flex justify-content-between">
-          <div class="campo">
+          <div class="campo w-25">
             <div class="card pb-2 pt-2 pl-2 pr-5">
               <label for="formGroupExampleInput" class="form-label font-weight-bold">Turma</label>
-              <p>Turma</p>
+              <p><%= nome_turma %></p>
             </div>
           </div>
 
-          <div class="campo">
+          <div class="campo w-25">
             <div class="card pb-2 pt-2 pl-2 pr-5">
               <label for="formGroupExampleInput" class="form-label font-weight-bold">Data de Nascimento</label>
               <p><%= new Date(data_nasc).toLocaleDateString('pt-BR') %></p>
             </div>
           </div>
 
-          <div class="campo">
+          <div class="campo w-50">
             <div class="card pb-2 pt-2 pl-2 pr-5">
               <label for="formGroupExampleInput" class="form-label font-weight-bold">E-mail</label>
               <p><%= email_aluno %></p>
             </div>
           </div>
-
-         
-
         </div>
 
-     
 
         <div class="botoes mb-5">
           <a href="/mudarSenha" type="button" class="btn btn-red btn-lg">Alterar senha</a>
@@ -84,27 +82,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"></script>
-      <footer class="rodape">
-        <div class="text-center p-3">
-      
-          <div class="texto-rodape">
-            <div class="margem-rodape">
-              <p>SENAI "Luis Eulalio de Bueno Vidigal Filho”</p>
-              <p>R. Inácio García, 321 - Cidade </p>
-              <p>Edson, Suzano - SP, 08665-120</p>
-            </div>
-            <div>
-              <p>ATENDIMENTO VIA SECRETARIA</p>
-              <p>(11) 4741-3500 (Telefone)</p>
-            </div>
-          </div>
-      
-          <div>
-            © 2024 - Todos os direitos reservados. TDS-TURMA 2
-          </div>
-      
-        </div>
-      </footer>
+      <%- include('../../partials/footer') %>
   </body>
 
 </html>
