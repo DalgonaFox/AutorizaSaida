@@ -25,10 +25,10 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Configuração do banco de dados
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'mila',
-    password: '2002',
-    database: 'tcc'
+    host: 'srv1595.hstgr.io',
+    user: 'u610580921_marianachaves',
+    password: 'SesiSen@i2024',
+    database: 'u610580921_tcc'
 });
 
 // Conexão com o banco de dados
