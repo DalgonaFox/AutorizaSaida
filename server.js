@@ -4,7 +4,7 @@ var session = require('express-session');
 var app = express();
 const multer = require('multer');
 const fs = require('fs');
-const mysql = require('mysql2');
+const mysql = require('mysql2'); //Sabrina? oi isa, eu tava testando um ngc, pq eu vi q o cadastro aluno nao esta mais funcionando pq ta cheio de await, eu ia falar isso aí, qu eu ia mudar o mysql para o promise e tudo mais... Pq essas coisas acontecem comigo? KKKKKKKKKKKKKKK, pergunta para a Milena se pode mudar? Porque tem que mudar todos os post também será q nao vai dar ainda mais trabalho? Não tem nada errado além disso, o código está certinho, para usar o promise tem que mudar a forma de pesquisa ta abom vou perguntar pra ela, tá bom aguardo o retorno
 const bodyParser = require('body-parser');
 const path = require('path');
 const nodemailer = require("nodemailer");
@@ -153,7 +153,7 @@ app.post("/login", (req, res) => {
                 return res.render('index', { errorMessage: 'Senha incorreta. Tente novamente.' });
             }
         } else {
-            return res.redirect("/Cadastrar.html");
+            return res.render('index', {errorMessage: 'Aluno não cadastra.'});
         }
     });
 });
@@ -675,6 +675,7 @@ app.post('/uploadSaida', upload.single('arquivo'), (req, res) => {
     const cod_req = req.body.cod_req;
     const rm = req.session.rm;
     const ciencia_gestor = 0;
+    const data_envio = new Date().toISOString().slice(0, 10);
 
     const arquivo = req.file ? req.file.path : null;
 
@@ -682,15 +683,16 @@ app.post('/uploadSaida', upload.single('arquivo'), (req, res) => {
         return res.status(400).send('Nenhum arquivo enviado.');
     }
 
-    const values = [cod_req, rm, observacao, arquivo, ciencia_gestor];
-    const sql = 'INSERT INTO justsaida (cod_req, rm, observacao, arquivo) VALUES (?, ?, ?, ?)';
+    const values = [cod_req, rm, observacao, arquivo, ciencia_gestor, data_envio];
+    const sql = 'INSERT INTO justsaida (cod_req, rm, observacao, arquivo, ciencia_gestor, data_envio) VALUES (?, ?, ?, ?, ?, ?)';
 
-    db.query(sql, values, (err, result) => {
+    db.query(sql, values, (err, results) => {
         if (err) {
             console.error('Erro ao inserir dados no banco:', err);
             res.status(500).send('Erro ao processar o formulário.');
         } else {
             console.log('Formulário enviado com sucesso!');
+            console.log(results)
             return res.redirect('/homeAluno');
         }
     });
@@ -725,18 +727,19 @@ app.post('/uploadFalta', upload.single('arquivo'), (req, res) => {
     const data_termino = req.body.data_termino;
     const cod_turma = req.body.cod_turma;
     const ciencia_gestor = 0;
-
+    const data_envio = moment().format("MMMM DD YYYY");
     const arquivo = req.file ? req.file.path : null;
 
-    const values = [rm, cod_turma, data_emissao, data_inicio, data_termino, observacao, ciencia_gestor];
-    const sql = 'INSERT INTO justfalta (rm, cod_turma, data_emissao, data_inicio, data_termino, observacao, ciencia_gestor) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const values = [rm, cod_turma, data_emissao, data_inicio, data_termino, observacao, arquivo, ciencia_gestor, data_envio];
+    const sql = 'INSERT INTO justfalta (rm, cod_turma, data_emissao, data_inicio, data_termino, observacao, arquivo, ciencia_gestor, data_envio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-    db.query(sql, values, (err, result) => {
+    db.query(sql, values, (err, results) => {
         if (err) {
             console.error('Erro ao inserir dados no banco:', err);
             res.status(500).send('Erro ao processar o formulário.');
         } else {
             console.log('Formulário enviado com sucesso!');
+            console.log(results)
             return res.redirect('/homeAluno');
         }
     });
@@ -746,10 +749,12 @@ app.post('/uploadFalta', upload.single('arquivo'), (req, res) => {
 app.post('/requisicao', (req, res) => {
     const rm = req.session.rm;
     const cod_turma = req.body.cod_turma;
-    const data_saida = req.body.data_saida;
+    const dataObj = new Date();
+    const data_saida = `${String(dataObj.getDate()).padStart(2, '0')}-${String(dataObj.getMonth() + 1).padStart(2, '0')}-${dataObj.getFullYear()}`;
     const hora_saida = req.body.hora_saida;
     const justificativa = req.body.justificativa;
     const ciencia_gestor = 0;
+    
 
     const values = [rm, cod_turma, data_saida, hora_saida, justificativa, ciencia_gestor];
     const sql = 'INSERT INTO requisicao (rm, cod_turma, data_saida, hora_saida, justificativa, ciencia_gestor) VALUES (?, ?, ?, ?, ?, ?)';
@@ -760,6 +765,7 @@ app.post('/requisicao', (req, res) => {
             res.status(500).send('Erro ao processar o formulário.');
         } else {
             console.log('Formulário enviado com sucesso!');
+            console.log(results)
             return res.redirect('/homeAluno');
         }
     });
@@ -795,7 +801,6 @@ app.get("/mudarSenhaAluno", (req, res) => {
 app.post('/mudarSenhaAluno', (req, res) => {
     const { senhaAtual, nova_senha, confirmacaoSenha } = req.body;
     const email_aluno = req.session.email_user;
-
 
     console.log("Requisição para mudar senha recebida");
     if (!req.session.email_user) {
@@ -897,24 +902,49 @@ app.post('/primeiroacessoGestao', (req, res) => {
 
 // Navbar
 //HomeGestao
-app.get("/homeGestao", (req, res) => {
+app.get("/homeGestao", async (req, res) => {
     if (!req.session.email_user) {
         return res.redirect('/');
     }
+
     const email_gestor = req.session.email_user;
     const nome_gestao = req.session.nome;
+
     const total = `
     SELECT SUM(totalPendencias) AS totalPendencias
     FROM (
-        SELECT COUNT(cod_req) AS totalPendencias FROM requisicao where ciencia_gestor = 0
+        SELECT COUNT(cod_req) AS totalPendencias FROM requisicao WHERE ciencia_gestor = 0
         UNION ALL
-        SELECT COUNT(cod_saida) AS totalPendencias FROM justsaida where ciencia_gestor = 0
+        SELECT COUNT(cod_saida) AS totalPendencias FROM justsaida WHERE ciencia_gestor = 0
         UNION ALL
-        SELECT COUNT(cod_falta) AS totalPendencias FROM justfalta where ciencia_gestor = 0
+        SELECT COUNT(cod_falta) AS totalPendencias FROM justfalta WHERE ciencia_gestor = 0
     ) AS pendenciasTotais;
     `;
+                    // oii milenaa NUUU O TAMNAHO DO SELECT :)  
+    const totalGrafico = `
+        SELECT 
+            SUM(total) AS total,
+            SUM(CASE WHEN ciencia_gestor = 0 THEN total ELSE 0 END) AS pendenciasRestantes,
+            SUM(CASE WHEN ciencia_gestor = 1 THEN total ELSE 0 END) AS pendenciasLidas
+        FROM (
+            SELECT COUNT(cod_req) AS total, ciencia_gestor 
+            FROM requisicao 
+            WHERE data_saida = CURDATE()
+            GROUP BY ciencia_gestor
+            UNION ALL
+            SELECT COUNT(cod_saida) AS total, ciencia_gestor 
+            FROM justsaida 
+            WHERE data_envio = CURDATE()
+            GROUP BY ciencia_gestor
+            UNION ALL
+            SELECT COUNT(cod_falta) AS total, ciencia_gestor 
+            FROM justfalta 
+            WHERE data_envio = CURDATE()
+            GROUP BY ciencia_gestor
+        ) AS pendenciasTotais;`
+
     const achargenero = `
-    select cod_genero AS genero from gestor where email_gestor = ?`;
+    SELECT cod_genero AS genero FROM gestor WHERE email_gestor = ?`;
 
     db.query(total, (err, results) => {
         if (err) {
@@ -923,23 +953,36 @@ app.get("/homeGestao", (req, res) => {
         }
         const totalPendencias = results[0].totalPendencias;
         console.log("Pendências:", totalPendencias);
+
         db.query(achargenero, email_gestor, (err, results) => {
             if (err) {
                 console.error('Erro ao encontrar o gênero:', err);
                 return res.status(500).send('Erro ao encontrar o gênero.');
             } else {
-                // results[0] contém o resultado da query
                 const genero = results[0].genero;
 
-                // Renderiza a view 'homeGestao.ejs' passando os dados
-                res.render("pages/gestao/homeGestao", { nome_gestao, totalPendencias, genero });
-                console.log("Gênero:", genero);
+                db.query(totalGrafico, (err, results) => {
+                    if (err) {
+                        console.log(err)
+                        res.send('Erro.')
+                    } else {
+                        const total = results[0].total;
+                        console.log("Total:", total)
+                        const successMessage = req.session.successMessage;
+                        req.session.successMessage = null;
+
+                        // Renderiza a view 'homeGestao.ejs' passando os dados
+                        res.render("pages/gestao/homeGestao", { nome_gestao, totalPendencias, genero, successMessage, total});
+                        console.log("Gênero:", genero);
+                            }
+                })
+
+                
             }
-        })
-
-
+        });
     });
 });
+
 
 //HistoricoGestao
 app.get('/historicoGestao', async (req, res) => {
@@ -1070,6 +1113,45 @@ app.get('/historicoGestao', async (req, res) => {
     }
 });
 
+app.get("/dadosPendencias", (req, res) => {
+    const totalQuery = `
+        SELECT 
+            SUM(total) AS total,
+            SUM(CASE WHEN ciencia_gestor = 0 THEN total ELSE 0 END) AS pendenciasRestantes,
+            SUM(CASE WHEN ciencia_gestor = 1 THEN total ELSE 0 END) AS pendenciasLidas
+        FROM (
+            SELECT COUNT(cod_req) AS total, ciencia_gestor 
+            FROM requisicao 
+            WHERE data_saida = CURDATE()
+            GROUP BY ciencia_gestor
+            UNION ALL
+            SELECT COUNT(cod_saida) AS total, ciencia_gestor 
+            FROM justsaida 
+            WHERE data_envio = CURDATE()
+            GROUP BY ciencia_gestor
+            UNION ALL
+            SELECT COUNT(cod_falta) AS total, ciencia_gestor 
+            FROM justfalta 
+            WHERE data_envio = CURDATE()
+            GROUP BY ciencia_gestor
+        ) AS pendenciasTotais;
+    `;
+
+    db.query(totalQuery, (err, results) => {
+        if (err) {
+            console.error('Erro ao buscar pendências:', err);
+            return res.status(500).json({ error: 'Erro ao buscar pendências' });
+        } else {
+            console.log(results)
+        }
+        const data = {
+            total: results[0].total,
+            pendenciasRestantes: results[0].pendenciasRestantes,
+            pendenciasLidas: results[0].pendenciasLidas
+        };
+        res.json(data);
+    });
+});
 
 
 
@@ -1478,33 +1560,36 @@ app.get('/turma', (req, res) => {
 app.post('/cadastroCurso', (req, res) => {
     const { nome_curso, tipo_curso, turno } = req.body;
 
+    // Validação dos campos
     if (!nome_curso || !tipo_curso || !turno) {
         console.log(nome_curso, tipo_curso, turno);
-        return res.status(400).send('Todos os campos devem ser preenchidos!');
+        return res.status(400).send('Todos os campos devem ser preenchidos corretamente!');
     }
+
+
+    // Verifica se os valores de tipo_curso e turno são válidos
+    if (tipo_curso === 'Selecione o Curso' || turno === 'Selecione o Turno') {
+        console.log(nome_curso, tipo_curso, turno);
+        return res.status(400).send('Por favor, selecione um curso e um turno válidos!');
+    }
+
+    // Se a validação passar, insira o novo curso
     db.query(
         `INSERT INTO curso (nome_curso, tipo_curso, turno) VALUES (?, ?, ?)`,
         [nome_curso, tipo_curso, turno],
         (error, results) => {
             if (error) {
-                console.log(nome_curso, tipo_curso, turno);
-                res.status(500).send('Erro ao cadastrar curso');
-                console.log(error)
+                console.log('Erro ao cadastrar curso:', error);
+                return res.status(500).send('Erro ao cadastrar curso');
             } else {
-                if (tipo_curso = 'Selecione o Curso') {
-
-                } else if (turno = 'Selecione o Turno') {
-                    
-                } else {
-                    console.log(`Curso ${nome_curso} cadastrado com sucesso.`);
-                    console.log(results);
-                    res.redirect('/cursos')  
-                }
+                console.log(`Curso ${nome_curso} cadastrado com sucesso.`);
+                res.redirect('/cursos');  
             }
-
         }
     );
 });
+
+
 
 app.post('/cadastro1Turma', (req, res) => {
     const { nome_turma, cod_curso } = req.body;
@@ -1533,7 +1618,7 @@ app.post('/cadastro1Turma', (req, res) => {
 
 
 //CadastroAluno
-app.get('/cadastroAluno', async (req, res) => {
+app.get('/cadastroAluno', (req, res) => {
     if (!req.session.email_user) {
         return res.redirect('/');
     }
@@ -1544,24 +1629,24 @@ app.get('/cadastroAluno', async (req, res) => {
             return res.status(500).send('Erro ao buscar genero');
         }
 
-    db.query('SELECT * FROM curso', (error, cursos) => {
-        if (error) {
-            console.error(error);
-            return res.status(500).send('Erro ao buscar cursos');
-        }
-
-        db.query('SELECT * FROM turma', (error, turmas) => {
+        db.query('SELECT * FROM curso', (error, cursos) => {
             if (error) {
                 console.error(error);
-                return res.status(500).send('Erro ao buscar turmas');
+                return res.status(500).send('Erro ao buscar cursos');
             }
-            res.render("pages/gestao/cadastroAluno", { cursos, turmas, genero });
+
+            db.query('SELECT * FROM turma', (error, turmas) => {
+                if (error) {
+                    console.error(error);
+                    return res.status(500).send('Erro ao buscar turmas');
+                }
+                res.render("pages/gestao/cadastroAluno", { cursos, turmas, genero });
+            });
         });
     });
- });
 });
 
-app.post('/cadastroAluno', async (req, res) => {
+app.post('/cadastroAluno', (req, res) => {
     const {
         rm, data_nasc, nome_aluno, email_aluno, senha,
         cpf, tel_aluno, nome_resp, email_resp, tel_resp,
@@ -1569,52 +1654,113 @@ app.post('/cadastroAluno', async (req, res) => {
         cod_curso, cod_turma, tipo_aluno, cod_genero
     } = req.body;
 
+    // Verifica se todos os campos obrigatórios estão preenchidos
     if (!rm || !data_nasc || !nome_aluno || !email_aluno || !senha || !cpf || !tel_aluno || !cod_curso || !cod_turma || !cod_genero) {
         return res.render('cadastroAluno', { errorMessage: 'Preencha todos os campos!' });
     }
 
-    try {
-        await db.query('INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, email_aluno, senha, tel_aluno, cod_curso, cod_turma, cod_genero) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [rm, nome_aluno, cpf, data_nasc, email_aluno, senha, tel_aluno, cod_curso, cod_turma, cod_genero]
-        );
-
-        if (tipo_aluno === 'responsavel') {
-            if (!nome_resp || !email_resp || !tel_resp) {
-                return res.status(400).send('Por favor, preencha os campos do responsável.');
-            }
-            const result = await db.query('INSERT INTO responsavel (nome_resp, email_resp, tel_resp) VALUES (?, ?, ?)', [nome_resp, email_resp, tel_resp]);
-            const cod_resp = result.insertId;
-            await db.query('INSERT INTO inforesp (rm, cod_resp) VALUES (?, ?)', [rm, cod_resp]);
-            return res.send(`Aluno ${nome_aluno} cadastrado com sucesso com responsável.`);
-        } 
-
-        else if (tipo_aluno === 'empresa') {
-            if (!nome_empresa || !email_empresa || !tel_empresa) {
-                return res.status(400).send('Por favor, preencha os campos da empresa.');
-            }
-
-            let cod_empresa;
-            const [result] = await db.query('SELECT cod_empresa FROM empresa WHERE nome_empresa = ?', [nome_empresa]);
-
-            if (result.length > 0) {
-                cod_empresa = result[0].cod_empresa;
-            } else {
-                const result = await db.query('INSERT INTO empresa (nome_empresa, email_empresa, tel_empresa) VALUES (?, ?, ?)', [nome_empresa, email_empresa, tel_empresa]);
-                cod_empresa = result.insertId;
-            }
-
-            await db.query('INSERT INTO infotrabalho (rm, cod_empresa) VALUES (?, ?)', [rm, cod_empresa]);
-            return res.send(`Aluno ${nome_aluno} cadastrado com sucesso vinculado à empresa.`);
-        } 
-
-        else {
-            return res.send(`Aluno ${nome_aluno} cadastrado com sucesso.`);
+        //Verifica a idade minima para iniciar um curso no Senai
+        const currentYear = new Date().getFullYear();
+        const birthYear = new Date(data_nasc).getFullYear();
+        const age = currentYear - birthYear;
+    
+        if (age < 14) {
+            return res.status(400).send('O aluno deve ter pelo menos 14 anos de idade.');
         }
+
+        
+    try {
+        // Insere os dados do aluno na tabela aluno
+        db.query('INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, email_aluno, senha, tel_aluno, cod_curso, cod_turma, cod_genero) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [rm, nome_aluno, cpf, data_nasc, email_aluno, senha, tel_aluno, cod_curso, cod_turma, cod_genero],
+            (error) => {
+                if (error) {
+                    console.error(error);
+                    return res.status(500).send('Erro ao cadastrar o aluno.');
+                }
+
+                // Verifica o tipo de aluno para inserir os dados do responsável ou da empresa
+                if (tipo_aluno === 'responsavel') {
+                    if (!nome_resp || !email_resp || !tel_resp) {
+                        return res.status(400).send('Por favor, preencha os campos do responsável.');
+                    }
+                    db.query('INSERT INTO responsavel (nome_resp, email_resp, tel_resp) VALUES (?, ?, ?)', [nome_resp, email_resp, tel_resp], (error, result) => {
+                        if (error) {
+                            console.error(error);
+                            return res.status(500).send('Erro ao cadastrar o responsável.');
+                        }
+                        const cod_resp = result.insertId;
+                        db.query('INSERT INTO inforesp (rm, cod_resp) VALUES (?, ?)', [rm, cod_resp], (error) => {
+                            if (error) {
+                                console.error(error);
+                                return res.status(500).send('Erro ao vincular o responsável ao aluno.');
+                            }
+                            // Define a mensagem de sucesso e redireciona
+                            req.session.successMessage = `Aluno ${nome_aluno} cadastrado com sucesso com responsável.`;
+                            return res.redirect('/homeGestao');
+                        });
+                    });
+                } else if (tipo_aluno === 'empresa') {
+                    if (!nome_empresa || !email_empresa || !tel_empresa) {
+                        return res.status(400).send('Por favor, preencha os campos da empresa.');
+                    }
+
+                    let cod_empresa;
+                    db.query('SELECT cod_empresa FROM empresa WHERE nome_empresa = ?', [nome_empresa], (error, result) => {
+                        if (error) {
+                            console.error(error);
+                            return res.status(500).send('Erro ao buscar a empresa.');
+                        }
+
+                        if (result.length > 0) {
+                            cod_empresa = result[0].cod_empresa;
+                        } else {
+                            db.query('INSERT INTO empresa (nome_empresa, email_empresa, tel_empresa) VALUES (?, ?, ?)', [nome_empresa, email_empresa, tel_empresa], (error, result) => {
+                                if (error) {
+                                    console.error(error);
+                                    return res.status(500).send('Erro ao cadastrar a empresa.');
+                                }
+                                cod_empresa = result.insertId;
+                            });
+                        }
+
+                        // Insere os dados de informação de trabalho
+                        db.query('INSERT INTO infotrabalho (rm, cod_empresa) VALUES (?, ?)', [rm, cod_empresa], (error) => {
+                            if (error) {
+                                console.error(error);
+                                return res.status(500).send('Erro ao vincular a empresa ao aluno.');
+                            }
+                            // Define a mensagem de sucesso e redireciona
+                            req.session.successMessage = `Aluno ${nome_aluno} cadastrado com sucesso vinculado à empresa.`;
+                            return res.redirect('/homeGestao');
+                        });
+                    });
+                } else {
+                    // Define a mensagem de sucesso e redireciona
+                    req.session.successMessage = `Aluno ${nome_aluno} cadastrado com sucesso.`;
+                    return res.redirect('/homeGestao');
+                }
+            }
+        );
     } catch (error) {
         console.error(error);
         return res.status(500).send('Erro ao cadastrar o aluno.');
     }
 });
+
+app.get('/turmas/:cursoId', (req, res) => {
+    const cursoId = req.params.cursoId;
+
+    db.query('SELECT * FROM turma WHERE cod_curso = ?', [cursoId], (error, results) => {
+        if (error) {
+            return res.status(500).send('Erro ao buscar turmas');
+        }
+        res.json(results); // Retorna as turmas como um JSON
+    });
+});
+
+
+
 //CadastroTurma
 app.get("/cadastroTurma", (req, res) => {
     if (!req.session.email_user) {
@@ -1695,6 +1841,7 @@ app.get("/alunoGestao", (req, res) => {
     // Consulta SQL com JOIN para pegar os dados do aluno e suas saídas
     const query = `
         SELECT 
+            aluno.rm,
             aluno.nome_aluno,
             aluno.data_nasc,
             aluno.nome_aluno,
@@ -1728,7 +1875,7 @@ app.get("/alunoGestao", (req, res) => {
             aluno.rm = ?;
     `;
 
-    const querySaida = 'SELECT data_saida, hora_saida FROM requisicao WHERE rm = ?';
+    const querySaida = 'SELECT cod_req, data_saida, hora_saida FROM requisicao WHERE rm = ?';
 
     db.query(query, [rm_aluno], (error, results) => {
         if (error) {
@@ -1815,7 +1962,7 @@ app.get('/detalhesSaida/:id', (req, res) => {
     console.log('Tipo de pendência:', tipo_historico);
 
     // Verifique se tipo_historico é válido
-    if (!tipo_historico || !['Saída Antecipada', 'Justificativa de Falta', 'Justificativa de Saída'].includes(tipo_historico)) {
+    if (!tipo_historico || typeof tipo_historico !== 'string' || !['Saída Antecipada', 'Justificativa de Falta', 'Justificativa de Saída'].includes(tipo_historico)) {
         return res.status(400).send('Tipo de pendência inválido.');
     }
 
@@ -1917,3 +2064,6 @@ app.get('/sair', (req, res) => {
         res.redirect('/');
     });
 });
+
+
+// Sessão expirada
