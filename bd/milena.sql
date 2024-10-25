@@ -12,14 +12,14 @@ turno varchar (255) not null
 #Turmas
 create table turma (
  cod_turma int primary key auto_increment,
- nome_turma varchar (20) not null,
+ nome_turma varchar (20) not null UNIQUE,
  cod_curso int not null,
  constraint foreign key (cod_curso) references curso (cod_curso)
  );
  
  create table genero (
  cod_genero int primary key not null,
- nome_genero varchar (18) not null
+ nome_genero varchar (18) not null UNIQUE
  );
  
 
@@ -27,11 +27,11 @@ create table turma (
 create table aluno (
 rm int (4) primary key, 
 nome_aluno varchar (255) not null,
-cpf  varchar (11) not null,
+cpf  varchar (11) not null UNIQUE,
 data_nasc date not null,
-email_aluno varchar (255) not null,
+email_aluno varchar (255) not null UNIQUE,
 senha varchar (8) not null,
-tel_aluno varchar (11) not null,
+tel_aluno varchar (11) not null UNIQUE,
 primeiro_acesso boolean default true,
 cod_genero int not null,
 constraint foreign key (cod_genero) references genero (cod_genero),
@@ -44,15 +44,15 @@ constraint foreign key (cod_turma) references turma (cod_turma)
 create table responsavel (
 cod_resp int primary key auto_increment,
 nome_resp varchar (255) not null,
-email_resp varchar (255) not null,
-tel_resp varchar (11) not null
+email_resp varchar (255) not null UNIQUE,
+tel_resp varchar (11) not null UNIQUE
 );
 
 create table empresa (
 cod_empresa int primary key auto_increment,
 nome_empresa varchar (255) not null,
-email_empresa varchar (255) not null,
-tel_empresa varchar (11) not null
+email_empresa varchar (255) not null UNIQUE,
+tel_empresa varchar (11) not null UNIQUE
 );
 
 create table inforesp (
@@ -75,9 +75,9 @@ constraint foreign key (cod_empresa) references empresa (cod_empresa)
 create table gestor(
 nif int primary key,
 nome_gestor varchar (250) not null,
-email_gestor varchar(255) not null,
+email_gestor varchar(255) not null UNIQUE,
 senha varchar (8) not null,
-tel_gestor varchar (11) not null,
+tel_gestor varchar (11) not null UNIQUE,
 cargo varchar(255) not null,
 primeiro_acesso boolean default true,
 cod_genero int not null,
@@ -105,7 +105,8 @@ rm int not null,
 constraint foreign key (rm) references aluno (rm),
 observacao varchar (255) not null,
 arquivo longblob not null,
-ciencia_gestor boolean not null
+ciencia_gestor boolean not null,
+data_envio date not null
 );
 
 create table justfalta (
@@ -119,7 +120,8 @@ data_inicio date not null,
 data_termino date not null,
 observacao varchar (255) not null,
 arquivo longblob not null,
-ciencia_gestor boolean not null
+ciencia_gestor boolean not null,
+data_envio date not null
 );
 
 
@@ -199,19 +201,19 @@ INSERT INTO requisicao (rm, cod_turma, data_saida, hora_saida, justificativa, ci
 (1001, 1, '2024-09-12', '14:00:00', 'Consulta médica', TRUE),
 (1002, 2, '2024-09-11', '10:00:00', 'Compromisso familiar', TRUE);
 
-INSERT INTO justsaida (cod_req, rm, observacao, ciencia_gestor) VALUES 
-(1, 1001, 'Saída para consulta médica aprovada.', FALSE),
-(2, 1002, 'Compromisso familiar justificado.', FALSE);
+INSERT INTO justsaida (cod_req, rm, observacao, ciencia_gestor, data_envio) VALUES 
+(1, 1001, 'Saída para consulta médica aprovada.', FALSE, '2024-09-13'),
+(2, 1002, 'Compromisso familiar justificado.', FALSE, '2024-09-13');
 
-INSERT INTO justfalta (rm, cod_turma, data_emissao, data_inicio, data_termino, observacao, ciencia_gestor) VALUES 
-(1003, 1, '2024-09-10', '2024-09-08', '2024-09-10', 'Falta justificada por motivos de saúde.', FALSE),
-(1004, 2, '2024-09-12', '2024-09-11', '2024-09-12', 'Falta justificada por compromissos familiares.', FALSE);
+INSERT INTO justfalta (rm, cod_turma, data_emissao, data_inicio, data_termino, observacao, ciencia_gestor, data_envio) VALUES 
+(1003, 1, '2024-09-10', '2024-09-08', '2024-09-10', 'Falta justificada por motivos de saúde.', FALSE, '2024-09-10'),
+(1004, 2, '2024-09-12', '2024-09-11', '2024-09-12', 'Falta justificada por compromissos familiares.', FALSE, '2024-09-12');
 
 INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, cod_genero, email_aluno, senha, tel_aluno, cod_curso, cod_turma) VALUES 
 (1011, 'Milena Oliveira', '41112223334', '2005-11-03', 2, 'milena.oliveira@mail.com', 'milena12', '12234567890', 3, 3);
 
 INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, cod_genero, email_aluno, senha, tel_aluno, cod_curso, cod_turma) VALUES 
-(1012, 'Sabrina Oliveira', '11122233345', '2005-11-03', 2, 'sabrina.oliveira@mail.com', 'sabrina1', '12234567890', 3, 3);
+(1012, 'Sabrina Oliveira', '11122233145', '2005-11-03', 2, 'sabrina.oliveira@mail.com', 'sabrina1', '12234567891', 3, 3);
 
 INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, cod_genero, email_aluno, senha, tel_aluno, cod_curso, cod_turma) VALUES 
-(1013, 'Sabrina Vilela', '11122233345', '2005-11-03', 2, 'sabrina.vilela@mail.com', 'sabrina1', '12234567890', 3, 3);
+(1013, 'Sabrina Vilela', '11122233345', '2005-11-03', 2, 'sabrina.vilela@mail.com', 'sabrina1', '12234567830', 3, 3);

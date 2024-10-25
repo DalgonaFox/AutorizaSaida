@@ -95,22 +95,30 @@
                     </div>
                 </div>
             </div>
-            <div class="card shadow w-25 mt-5 mb-5 mr-5">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Saídas Recentes</h5>
-            
-                        <% if (data_saida && data_saida !== "Nenhuma saída registrada") { %>
-                            <p class="card-text">
-                                Data: <%= new Date(data_saida).toLocaleDateString('pt-BR') %>
-                                Horário: <%= hora_saida ? hora_saida : "Horário não registrado" %>
-                            </p>
-                        <% } else { %>
-                            <p class="card-text">Nenhuma saída registrada.</p>
-                        <% } %>
-            
-                        <a href="#" class="btn btn-red btn-sm">Detalhes</a>
-                    </div>
+            <div class="card shadow mt-5 mb-5 mr-5 w-25">
+                <div class="card-body">
+                    <h5 class="card-title">Saídas Recentes</h5>
+                    <% if (saidas.length> 0) { %>
+                        <% saidas.slice(0, 5).forEach(function(saida) { %>
+                            <div class="card mt-5 mb-5 mr-5">
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        Data: <%= new Date(saida.data_saida).toLocaleDateString('pt-BR') %><br>
+                                            Horário: <%= saida.hora_saida ? saida.hora_saida
+                                                : "Horário não registrado" %>
+                                    </p>
+                                    <a href="#" class="btn btn-red btn-sm">Detalhes</a>
+                                </div>
+                            </div>
+
+                        <% }) %>
+                    <% } else { %>
+                        <div class="card shadow mt-5 mb-5 mr-5">
+                            <div class="card-body">
+                                <h5 class="card-title">Nenhuma saída recente</h5>
+                            </div>
+                        </div>
+                    <% } %>
                 </div>
             </div>
             

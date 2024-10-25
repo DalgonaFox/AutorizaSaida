@@ -1,19 +1,16 @@
-<!--http://127.0.0.1:5500/html/cadastroAluno.html-->
-
 <!DOCTYPE html>
 <html lang="pt-br">
   <%- include('../../partials/head', { title: 'Cadastrar Aluno' }) %>
   <%- include('../../partials/headerGestao', { activePage: '' }) %>
 
   <body>
-
     <div class="container">
         <div class="card w-75 shadow m-5" style="padding: 40px;">
             <a href="/homeGestao" class="text-dark">
                 <h3><i class="bi bi-arrow-left"></i></h3>
             </a>
             <h2 style="font-family: Inter; font-style: italic; text-align: center; margin-bottom: 60px;">Cadastrar Novo Aluno</h2>
-            <form action='/cadastroAluno' method="post"> <!-- Corrigido para '/cadastroAluno' -->
+            <form action='/cadastroAluno' method="post">
     
                 <div class="d-flex">
                     <div class="form-group w-50 mr-4">
@@ -58,7 +55,7 @@
                 <div class="d-flex">
                     <div class="form-group w-50 mr-4">
                         <label for="cod_curso">Curso</label>
-                        <select class="form-select w-100 h-50 text-muted" aria-label="Default select example" id="cod_curso" name="cod_curso" required>
+                        <select class="form-select w-100 h-50 text-muted" aria-label="Default select example" id="cod_curso" name="cod_curso" onchange="updateTurmas()" required>
                             <option selected>Selecione o Curso</option>
                             <% cursos.forEach(curso => { %>
                                 <option value="<%= curso.cod_curso %>"><%= curso.nome_curso %> - <%= curso.turno %></option>
@@ -70,9 +67,6 @@
                         <label for="cod_curso">Turma</label>
                         <select class="form-select w-100 h-50 text-muted" aria-label="Default select example" id="cod_turma" name="cod_turma" required>
                             <option selected>Selecione a Turma</option>
-                            <% turmas.forEach(turma => { %>
-                                <option value="<%= turma.cod_turma %>"><%= turma.nome_turma %></option>
-                            <% }); %>
                         </select>
                     </div>
 
@@ -104,8 +98,8 @@
                     </select>
                 </div>
 
-                <div id="fields_responsavel" style="display: none;">
-                    <h4>Dados do Responsável</h4>
+                <div class="mt-5" id="fields_responsavel" style="display: none;">
+                    <h4 class="mb-3">Dados do Responsável</h4>
                     <div class="d-flex">
                         <div class="form-group w-50 mr-4">
                             <label for="nome_resp">Nome do Responsável</label>
@@ -124,8 +118,8 @@
                     </div>
                 </div>
 
-                <div id="fields_empresa" style="display: none;">
-                    <h4>Dados da Empresa</h4>
+                <div class="mt-5" id="fields_empresa" style="display: none;">
+                    <h4 class="mb-3">Dados da Empresa</h4>
                     <div class="d-flex">
                         <div class="form-group w-50 mr-4">
                             <label for="nome_empresa">Nome da Empresa</label>
@@ -165,5 +159,26 @@
             document.getElementById('fields_empresa').style.display = 'block';
         }
     }
+
+    function updateTurmas() {
+    const cursoId = document.getElementById('cod_curso').value;
+
+    // Faz uma requisição para obter as turmas do curso selecionado
+    fetch(`/turmas/${cursoId}`)
+        .then(response => response.json())
+        .then(turmas => {
+            const turmaSelect = document.getElementById('cod_turma');
+            turmaSelect.innerHTML = '<option selected>Selecione a Turma</option>'; // Limpa opções existentes
+
+            turmas.forEach(turma => {
+                const option = document.createElement('option');
+                option.value = turma.cod_turma;
+                option.textContent = turma.nome_turma; // Ajuste conforme a coluna que contém o nome da turma
+                turmaSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Erro ao carregar turmas:', error));
+}
+
     </script>
 </body>

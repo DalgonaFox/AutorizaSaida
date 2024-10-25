@@ -5,6 +5,22 @@
 <%- include('../../partials/head', { title: 'Home' }) %>
 <%- include('../../partials/headerAluno', { activePage: 'home' }) %>
 
+<script>
+  function checkSession() {
+      fetch('/protected')
+          .then(response => {
+              if (response.status === 401) {
+                  alert('Sua sessão expirou. Por favor, faça login novamente.');
+                  // Redirecionar para a página de login ou home
+                  window.location.href = '/login'; // Altere para sua página de login
+              }
+          });
+  }
+
+  // Verifica a sessão a cada 30 segundos
+  setInterval(checkSession, 30000);
+</script>
+
     <body>
       <div class="container" style="width: 80%;">
       <div style="min-height: 79%;">
