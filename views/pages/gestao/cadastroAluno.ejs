@@ -3,110 +3,167 @@
 <!DOCTYPE html>
 <html lang="pt-br">
   <%- include('../../partials/head', { title: 'Cadastrar Aluno' }) %>
-  <%- include('../../partials/headerGestao') %>
+  <%- include('../../partials/headerGestao', { activePage: '' }) %>
 
-<body>
+  <body>
 
     <div class="container">
         <div class="card w-75 shadow m-5" style="padding: 40px;">
-          <a href="/homeGestao" class="text-dark">
-            <h3><i class="bi bi-arrow-left"></i></h3>
-          </a>
-          <h2 style="font-family: Inter; font-style: italic; text-align: center; margin-bottom: 60px;">Cadastrar Novo Aluno</h2>
-          <form action='/cadastroALuno' method="post">
-
-            <div class="d-flex">
-                <div class="form-group w-50 mr-4">
-                  <label for="data">Nome Completo</label>
-                  <div>
-                    <input type="text" class="form-control w-100" id="nome_aluno"> </input>
-                  </div>
-                </div>
-                  <div class="form-group w-25 mr-4">
-                <label for="data">CPF</label>
-                <div class="d-flex justify-content-between">
-                  <input type="text" class="form-control" id="cpf" >
-                </div>
-                  </div>
-  
-                  <div class="form-group w-50">
-                <label for="justificativa">Data de Nascimento</label>
-                <input type="date" class="form-control w-100" id="data_nasc"> </input>
-                  </div>
-              </div>
-            
-          
+            <a href="/homeGestao" class="text-dark">
+                <h3><i class="bi bi-arrow-left"></i></h3>
+            </a>
+            <h2 style="font-family: Inter; font-style: italic; text-align: center; margin-bottom: 60px;">Cadastrar Novo Aluno</h2>
+            <form action='/cadastroAluno' method="post"> <!-- Corrigido para '/cadastroAluno' -->
     
-            <div class="d-flex">
-              <div class="form-group w-50 mr-4">
-                <label for="data">Telefone</label>
-                <div>
-                  <input type="text" class="form-control w-100" id="tel_aluno"> </input>
-                </div>
-              </div>
-                <div class="form-group w-25 mr-4">
-              <label for="data">RM</label>
-              <div class="d-flex justify-content-between">
-                <input type="text" class="form-control" id="rm" >
-              </div>
+                <div class="d-flex">
+                    <div class="form-group w-50 mr-4">
+                        <label for="nome_aluno">Nome Completo</label>
+                        <div>
+                            <input type="text" class="form-control w-100" id="nome_aluno" name="nome_aluno" required> 
+                        </div>
+                    </div>
+                    <div class="form-group w-25 mr-4">
+                        <label for="cpf">CPF</label>
+                        <div class="d-flex justify-content-between">
+                            <input type="text" class="form-control" id="cpf" name="cpf" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group w-50">
+                        <label for="data_nasc">Data de Nascimento</label>
+                        <input type="date" class="form-control w-100" id="data_nasc" name="data_nasc" required> 
+                    </div>
                 </div>
 
-                <div class="form-group w-50">
-              <label for="justificativa">Email</label>
-              <input type="email" class="form-control w-100" id="email_aluno"> </input>
+                <div class="d-flex">
+                    <div class="form-group w-50 mr-4">
+                        <label for="tel_aluno">Telefone</label>
+                        <div>
+                            <input type="text" class="form-control w-100" id="tel_aluno" name="tel_aluno" required>
+                        </div>
+                    </div>
+                    <div class="form-group w-25 mr-4">
+                        <label for="rm">RM</label>
+                        <div class="d-flex justify-content-between">
+                            <input type="text" class="form-control" id="rm" name="rm" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group w-50">
+                        <label for="email_aluno">Email</label>
+                        <input type="email" class="form-control w-100" id="email_aluno" name="email_aluno" required> 
+                    </div>
                 </div>
-            </div>
-    
-            
-            <div class="d-flex">
-                <div class="form-group w-50 mr-4">
-                <label for="data">Curso</label>
-                <select class="form-select w-100 h-50 text-muted" aria-label="Default select example" id="cod_curso">
-                    <option selected>Selecione o Curso</option>
-                    <option value="1">Desenvolvimento de Sistemas</option>
-                    <option value="2">Logística</option>
-                    <option value="3">Eletroeletrônica</option>
-                    <option value="4">Eletromecânica</option>
-                    <option value="5">Mecânica</option>
-                  </select>
-              </div>
 
-              <div class="form-group w-50">
-                <label for="justificativa">Senha Padrão</label>
-                <input type="password" class="form-control w-100" id="senha"> </input>
-                  </div>
+                <div class="d-flex">
+                    <div class="form-group w-50 mr-4">
+                        <label for="cod_curso">Curso</label>
+                        <select class="form-select w-100 h-50 text-muted" aria-label="Default select example" id="cod_curso" name="cod_curso" required>
+                            <option selected>Selecione o Curso</option>
+                            <% cursos.forEach(curso => { %>
+                                <option value="<%= curso.cod_curso %>"><%= curso.nome_curso %> - <%= curso.turno %></option>
+                            <% }); %>
+                        </select>
+                    </div>
 
-            </div>
+                    <div class="form-group w-50 mr-4">
+                        <label for="cod_curso">Turma</label>
+                        <select class="form-select w-100 h-50 text-muted" aria-label="Default select example" id="cod_turma" name="cod_turma" required>
+                            <option selected>Selecione a Turma</option>
+                            <% turmas.forEach(turma => { %>
+                                <option value="<%= turma.cod_turma %>"><%= turma.nome_turma %></option>
+                            <% }); %>
+                        </select>
+                    </div>
 
-            <div class="d-flex">
-              <div class="form-group w-50 mr-4">
-                <label for="data">Nome do Responsável</label>
-                <div>
-                  <input type="text" class="form-control w-100" id="nome_resp">
+                    <div class="form-group w-50">
+                        <label for="senha">Senha Padrão</label>
+                        <input type="password" class="form-control w-100" id="senha" name="senha" required> 
+                    </div>
                 </div>
-              </div>
 
-              <div class="form-group  w-75 mr-4 ">
-                <label for="data">Email do Responsável</label>
-                <div>
-                  <input type="text" class="form-control w-100" id="email_resp">
+                <div class="d-flex">
+                    <div class="form-group w-50 mr-4">
+                        <label for="cod_genero">Gênero</label>
+                        <select class="form-select w-100 h-50 text-muted" aria-label="Default select example" id="cod_genero" name="cod_genero" required>
+                            <option selected>Selecione o Gênero</option>
+                            <% genero.forEach(genero => { %>
+                                <option value="<%= genero.cod_genero %>"><%= genero.nome_genero %></option>
+                            <% }); %>
+                        </select>
+                    </div>                    
                 </div>
-              </div>
 
-              <div class="form-group w-50 ">
-                <label for="data">Telefone do Responsável</label>
-                <div>
-                  <input type="text" class="form-control w-100" id="tel_resp">
+                <div class="form-group w-100">
+                    <label for="tipo_aluno">Tipo de Aluno</label>
+                    <select class="form-select w-50 h-50 text-muted" id="tipo_aluno" name="tipo_aluno" onchange="toggleFields()" required>
+                        <option selected>Selecione o Tipo de Aluno</option>
+                        <option value="responsavel">Aluno Menor de Idade</option>
+                        <option value="empresa">Aluno de Empresa</option>
+                        <option value="solo">Aluno Maior de Idade</option>
+                    </select>
                 </div>
-              </div>
-            </div>
-    
-            <div class="d-flex justify-content-end">
-              <button type="submit" class="btn btn-red btn-lg">Cadastrar Aluno</button>
-            </div>
-          </form>
+
+                <div id="fields_responsavel" style="display: none;">
+                    <h4>Dados do Responsável</h4>
+                    <div class="d-flex">
+                        <div class="form-group w-50 mr-4">
+                            <label for="nome_resp">Nome do Responsável</label>
+                            <input type="text" class="form-control w-100" id="nome_resp" name="nome_resp">
+                        </div>
+
+                        <div class="form-group  w-75 mr-4">
+                            <label for="email_resp">Email do Responsável</label>
+                            <input type="email" class="form-control w-100" id="email_resp" name="email_resp">
+                        </div>
+
+                        <div class="form-group w-50 ">
+                            <label for="tel_resp">Telefone do Responsável</label>
+                            <input type="text" class="form-control w-100" id="tel_resp" name="tel_resp">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="fields_empresa" style="display: none;">
+                    <h4>Dados da Empresa</h4>
+                    <div class="d-flex">
+                        <div class="form-group w-50 mr-4">
+                            <label for="nome_empresa">Nome da Empresa</label>
+                            <input type="text" class="form-control w-100" id="nome_empresa" name="nome_empresa">
+                        </div>
+
+                        <div class="form-group  w-75 mr-4">
+                            <label for="email_empresa">Email da Empresa</label>
+                            <input type="email" class="form-control w-100" id="email_empresa" name="email_empresa">
+                        </div>
+
+                        <div class="form-group w-50 ">
+                            <label for="tel_empresa">Telefone da Empresa</label>
+                            <input type="text" class="form-control w-100" id="tel_empresa" name="tel_empresa">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-red btn-lg">Cadastrar Aluno</button>
+                </div>
+            </form>
         </div>
-      </div>
+    </div>
 
-      <%- include('../../partials/footer') %>
+    <%- include('../../partials/footer') %>
+
+    <script>
+    function toggleFields() {
+        const tipoAluno = document.getElementById('tipo_aluno').value;
+        document.getElementById('fields_responsavel').style.display = 'none';
+        document.getElementById('fields_empresa').style.display = 'none';
+
+        if (tipoAluno === 'responsavel') {
+            document.getElementById('fields_responsavel').style.display = 'block';
+        } else if (tipoAluno === 'empresa') {
+            document.getElementById('fields_empresa').style.display = 'block';
+        }
+    }
+    </script>
 </body>

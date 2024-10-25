@@ -3,14 +3,14 @@
 <html lang="pt-br">
 
 <%- include('../../partials/head', { title: 'Perfil do Aluno' }) %>
-<%- include('../../partials/headerGestao') %>
+<%- include('../../partials/headerGestao', { activePage: '' }) %>
 
 <body>
     <div class="d-flex justify-content-between">
         <div class="d-flex w-100">
             <div class="card shadow m-5 p-4 d-flex justify-content-center align-items-center w-100">
                 <div class="d-block justify-content-center">
-                    <img class="profilePicture mt-4" src="/images/drauzio.jpg" alt="Foto de Perfil">
+                    <img class="profilePicture mt-4" src="/images/user.png" alt="Foto de Perfil">
                 </div>
                 <h1 class="nome text-center font-italic font-weight-bold mt-3"><%= nome_aluno %></h1>
                 <div class="info pb-4">
@@ -80,32 +80,41 @@
                     <div class="dividir">
                         <div class="campo">
                             <div class="card pb-2 pt-2 pl-2 pr-5 mr-3">
-                                <label for="formGroupExampleInput" class="form-label font-weight-bold">Nome do
-                                    Responsável</label>
-                                <p>Fulano Ciclano da Silva</p>
+                                <label for="formGroupExampleInput" class="form-label font-weight-bold">Nome da Empresa</label>
+                                <p><%= nome_empresa %></p>
                             </div>
                         </div>
 
                         <div class="campo">
                             <div class="card pb-2 pt-2 pl-2 pr-5">
-                                <label for="formGroupExampleInput" class="form-label font-weight-bold">Telefone do
-                                    Responsável</label>
-                                <p>(11)92223-1332</p>
+                                <label for="formGroupExampleInput" class="form-label font-weight-bold">Telefone da Empresa</label>
+                                <p><%= tel_empresa %></p>
                             </div>
                         </div>
 
                     </div>
                 </div>
             </div>
-            <div class="card shadow w-25 mt-5 mb-5 mr-5 ">
+            <div class="card shadow w-25 mt-5 mb-5 mr-5">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Saídas Recentes</h5>
-                        <p class="card-text">Data : 02/08/2024 Horário : 13:00h</p>
-                        <a href="#" class="btn btn-red btn-sm ">Detalhes</a>
+            
+                        <% if (data_saida && data_saida !== "Nenhuma saída registrada") { %>
+                            <p class="card-text">
+                                Data: <%= new Date(data_saida).toLocaleDateString('pt-BR') %>
+                                Horário: <%= hora_saida ? hora_saida : "Horário não registrado" %>
+                            </p>
+                        <% } else { %>
+                            <p class="card-text">Nenhuma saída registrada.</p>
+                        <% } %>
+            
+                        <a href="#" class="btn btn-red btn-sm">Detalhes</a>
                     </div>
                 </div>
             </div>
+            
+            
         </div>
 
     </div>

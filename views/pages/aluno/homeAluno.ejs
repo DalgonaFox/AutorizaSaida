@@ -3,33 +3,37 @@
 <html lang="pt-br">
 
 <%- include('../../partials/head', { title: 'Home' }) %>
-  <%- include('../../partials/headerAluno') %>
+<%- include('../../partials/headerAluno', { activePage: 'home' }) %>
 
     <body>
-      <div class="container" style="width: 55%;">
+      <div class="container" style="width: 80%;">
       <div style="min-height: 79%;">
 
         <!--Bem-vindo-->
-        <h2 class="bem-vindo">Seja Bem-vindo, <%= nome_aluno %>.</h2>
+        <% if (genero === 2) { %>
+          <h3 class="font-italic font-weight-bold mt-5 mb-5">Bem-vinda, <%= nome_aluno %>.</h3>
+          <% } else { %>
+            <h3 class="font-italic font-weight-bold mt-5 mb-5">Bem-vindo, <%= nome_aluno %>.</h3>
+          <% } %>
 
 
         <div class="d-flex flex-column">
           <!--Cards-->
           <div class="d-flex justify-content-between">
-            <a class="requisicao" href="/requisicaoAluno">
+            <a class="requisicao mr-4" href="/requisicaoAluno">
               <div class="card">
                 <img src="/images/frente_senai.png" class="card-img-top card-image"
                   alt="Requisição de Saída Antecipada">
-                <div class="card-body">
+                <div class="card-body text-center">
                   <p class="card-text">Requisição de Saída Antecipada</p>
                 </div>
               </div>
             </a>
 
-            <a class="requisicao" href="/justificarFaltaAluno">
+            <a class="requisicao mr-4" href="/justificarFaltaAluno">
               <div class="card">
                 <img src="/images/SALAMEDICO.png" class="card-img-top card-image" alt="Justificar Falta com Atestado">
-                <div class="card-body">
+                <div class="card-body text-center">
                   <p class="card-text">Justificar Falta com Atestado</p>
                 </div>
               </div>
@@ -39,31 +43,50 @@
               <div class="card">
                 <img src="/images/corredor_senai.png" class="card-img-top card-image"
                   alt="Justificar Saída com Atestado">
-                <div class="card-body">
+                <div class="card-body text-center">
                   <p class="card-text">Justificar Saída com Atestado</p>
                 </div>
               </div>
             </a>
           </div>
 
-          <div>
+          <div class="mb-5 mt-4">
             <!--Avisos-->
-            <div class="d-flex mt-4">
-              <div class="d-flex flex-column mr-5">
-                <div class="card mb-3 shadow">
+            <div class="d-flex justify-content-between">
+              <div class="d-flex flex-column justify-content-between w-100 mr-5">
+
+                <div class="card">
                   <div class="card-body">
                     <h5 class="card-title">Justificar Saídas</h5>
-                    <p class="card-text">Você tem 4 saídas antecipadas não justificadas. Deseja justificar com atestado?
+                    <% if (saidasInjustificadas > 1) { %>
+                    <p class="card-text">Você tem <%= saidasInjustificadas %> saídas antecipadas não justificadas. Deseja justificar com atestado?
                     </p>
                     <a href="/justificarSaidaAluno" class="btn btn-red">Sim</a>
+                    <%} else if (saidasInjustificadas === 1) { %>
+                      <p class="card-text">Você tem <%= saidasInjustificadas %> saída antecipada não justificada. Deseja justificar com atestado?
+                      </p>
+                      <a href="/justificarSaidaAluno" class="btn btn-red">Sim</a>
+                    <% } else { %>
+                      <p class="card-text">Você não tem nenhuma saída injustificada!
+                      </p>
+                      <a href="/justificarSaidaAluno" class="btn btn-red">Parabéns!
+                      </a>
+                    <% } %>
                   </div>
                 </div>
 
                 <div class="card">
                   <div class="card-body shadow">
                     <h5 class="card-title">Saídas Antecipadas</h5>
-                    <p class="card-text">Você saiu antecipadamente 4 vezes.</p>
-                    <a href="/manutencao" class="btn btn-red">Verificar</a>
+                    <% if (totalSaidas < 1) { %>
+                    <p class="card-text">Você não saiu antecipadamente nenhuma vez!</p>
+                    <%} else if (totalSaidas > 1) { %>
+                    <p class="card-text">Você saiu antecipadamente <%= totalSaidas %> vezes.</p>
+                    <a href="/historicoAluno" class="btn btn-red">Verificar</a>
+                    <% } else { %>
+                      <p class="card-text">Você saiu antecipadamente <%= totalSaidas %> vez.</p>
+                    <a href="/historicoAluno" class="btn btn-red">Verificar</a>
+                    <% } %>
                   </div>
                 </div>
               </div>

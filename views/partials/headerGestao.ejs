@@ -8,26 +8,25 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" style="color: white; font-weight: bold;" aria-current="page"
-                            href="/homeGestao">Home</a>
+                    <li class="nav-item <%= activePage === 'homegestao' ? 'active' : '' %>">
+                        <a class="nav-link" href="/homeGestao">Home</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item <%= activePage === 'pendentes' ? 'active' : '' %>">
                         <a class="nav-link" href="/pendentes">Pendentes</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item <%= activePage === 'historicogestao' ? 'active' : '' %>">
                         <a class="nav-link" href="/historicoGestao">Histórico</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item <%= activePage === 'cursos' ? 'active' : '' %>">
                         <a class="nav-link" href="/cursos">Cursos</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item <%= activePage === 'perfilgestao' ? 'active' : '' %>">
                         <a class="nav-link" href="/perfilGestao">Perfil</a>
                     </li>
                 </ul>
                 <form method="get" action="/pesquisar" class="d-flex" role="search">
                     <input class="form-control me-2" type="search" placeholder="Pesquisar" name="query" aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit">Pesquisar</button>
+                    <button class="btn btn-red" type="submit">Pesquisar</button>
                 </form>                
             </div>
         </div>

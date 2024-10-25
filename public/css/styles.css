@@ -92,21 +92,13 @@ body {
     margin-top: 5%;
 }
 
-.login-container {
-    width: 521px;
-    height: 531px;
-    margin: auto;
-    align-items: center;
-}
-
 .title {
-    font-size: 64px;
+    font-size: 54px;
     font-family: "Inter";
     font-style: italic;
     font-weight: 800;
     display: flex;
     justify-content: center;
-    margin-top: 20%;
 }
 
 .subtitle {

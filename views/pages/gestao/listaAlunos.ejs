@@ -3,29 +3,33 @@
 <html lang="pt-br">
 
 <%- include('../../partials/head', { title: 'Lista de Alunos' }) %>
-<%- include('../../partials/headerGestao') %>
+<%- include('../../partials/headerGestao', { activePage: '' }) %>
 
 <body>
   <!--check-circle-fill-->
   <!--dash-circle-fill-->
   <!--exclamation-triangle-fill-->
 
-  <div class="container h-100">
+  <div class="container">
 
     <div class="card shadow m-5 p-5 d-flex flex-column align-items-center justify-content-center" style="width: 90%">
-      <h2 class="font-italic font-weight-bold">Mecânica - Turma I</h2>
+      <h2 class="font-italic font-weight-bold"><% if (listaAlunos.length > 0) { %>
+        <%= listaAlunos[0].nome_turma %>
+    <% } else { %>
+        Nenhuma turma encontrada
+    <% } %></h2>
       <div class="w-100 d-flex justify-content-between">
         <select class="form-select form-select-sm w-25" style="color: black;">
           <option selected>Ordenar por</option>
-          <option value="1">Mais Antigo</option>
-          <option value="2">Mais Recente</option>
-          <option value="2">Ordem Alfabética</option>
+          <option value="Mais Antigo">Mais Antigo</option>
+          <option value="Mais Recente">Mais Recente</option>
+          <option value="Ordem Alfabética">Ordem Alfabética</option>
         </select>
         <select class="form-select form-select-sm w-25" style="color: black;">
           <option selected>Filtrar por situação</option>
-          <option value="1">Regular</option>
-          <option value="2">Irregular</option>
-          <option value="3">Alerta</option>
+          <option value="Regular">Regular</option>
+          <option value="Irregular">Irregular</option>
+          <option value="Alerta">Alerta</option>
         </select>
       </div>
       <table class="table mt-5">
@@ -34,85 +38,40 @@
             <th scope="col">Aluno</th>
             <th scope="col">Telefone</th>
             <th scope="col">Situação</th>
-            <th scope="col"></th>
+            <th scope="col">Detalhes</th>
           </tr>
         </thead>
 
         <tbody>
-          <tr>
-            <td>Drauzio Varella</td>
-            <td>(11) 91213-6565</td>
-            <td><i class="bi bi-check-circle-fill" style="color: #34c759;"></i></td>
-            <td><a href="/alunoGestao"><i class="bi bi-chevron-compact-right  text-dark"></i></td>
-          </tr>
-
-          <tr>
-            <td>Laura Marinho</td>
-            <td>(11) 98765-1234</td>
-            <td><i class="bi bi-dash-circle-fill" style="color: #ff3a30;"></i></td>
-            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
-          </tr>
-
-          <tr>
-            <td>Mariana Marcondes</td>
-            <td>(11) 98765-1234</td>
-            <td><i class="bi bi-dash-circle-fill" style="color: #ff3a30;"></i></td>
-            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
-          </tr>
-
-          <tr>
-            <td>Sabrina Vilela</td>
-            <td>(11) 91213-6565</td>
-            <td><i class="bi bi-exclamation-triangle-fill" style="color: #ffcc00;"></i></td>
-            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
-          </tr>
-
-          <tr>
-            <td>João Pedro</td>
-            <td>(11) 98765-1234</td>
-            <td><i class="bi bi-exclamation-triangle-fill" style="color: #ffcc00;"></i></td>
-            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
-          </tr>
-
-          <tr>
-            <td>Milena Oliveira</td>
-            <td>(11) 91213-6565</td>
-            <td><i class="bi bi-dash-circle-fill" style="color: #ff3a30;"></i></td>
-            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
-          </tr>
-
-          <tr>
-            <td>João Aparecido</td>
-            <td>(11) 98765-1234</td>
-            <td><i class="bi bi-check-circle-fill" style="color: #34c759;"></i></td>
-            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
-          </tr>
-
-          <tr>
-            <td>Isadora Oliveira</td>
-            <td>(11) 98765-1234</td>
-            <td><i class="bi bi-dash-circle-fill" style="color: #ff3a30;"></i></td>
-            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
-          </tr>
-
-          <tr>
-            <td>Murilo Victorino</td>
-            <td>(11) 91213-6565</td>
-            <td><i class="bi bi-exclamation-triangle-fill" style="color: #ffcc00;"></i></td>
-            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></td>
-          </tr>
-
-          <tr>
-            <td>Julia Cardoso</td>
-            <td>(11) 98765-1234</td>
-            <td ><i class="bi bi-dash-circle-fill" style="color: #ff3a30;"></i></td>
-            <td><a href=""><i class="bi bi-chevron-compact-right  text-dark"></i></a>
-          </tr>
+          <% if (listaAlunos.length > 0) { %>
+            <% listaAlunos.forEach(aluno => { %>
+                <tr>
+                    <td><%= aluno.nome_aluno %></td> 
+                    <td><%= aluno.tel_aluno %></td> 
+                    <td><% if (aluno.saidas_count >= 15) { %>
+                      
+                      <i class="bi bi-exclamation-triangle-fill" style="color: #ff3a30;"></i>
+                  <% } else if (aluno.saidas_count > 5) { %>
+                     
+                      <i class="bi bi-dash-circle-fill" style="color: #ffcc00;"></i>
+                  <% } else if (aluno.saidas_count <= 5) { %>
+                  
+                      <i class="bi bi-check-circle-fill" style="color: #34c759;"></i>
+                  <% } %></td>
+                    <td>
+                        <a href="/alunoGestao?rm=<%= aluno.rm %>">
+                            <i class="bi bi-chevron-right text-dark"></i>
+                        </a>
+                    </td>
+                </tr>
+            <% }); %>
+        <% } else { %>
+            <tr>
+                <td colspan="3">Nenhum aluno encontrado para esta turma.</td>
+            </tr>
+        <% } %>
         </tbody>
       </table>
-      <div class="texto d-flex w-100">
-        <h4>Total de Saídas:</h4>
-      </div>
     </div>
   </div>
 

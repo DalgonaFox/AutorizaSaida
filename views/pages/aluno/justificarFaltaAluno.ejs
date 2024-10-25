@@ -3,7 +3,7 @@
 <html lang="pt-br">
 
 <%- include('../../partials/head', { title: 'Justificar Falta' }) %>
-<%- include('../../partials/headerAluno') %>
+<%- include('../../partials/headerAluno', { activePage: '' }) %>
 
   <body class="background" style="background-image: url(../images/SALAMEDICO.png);">
     <div class="container">
@@ -14,27 +14,20 @@
         <h2 style="font-family: Inter; text-align: center; margin-bottom: 20px;">Justificar Falta com Documento</h2>
         <p style="font-family: Inter; text-align: center; margin-bottom: 30px;">Preencha o formulário de acordo com as
           instruções a seguir.</p>
-        <form class='saida-form' action=''>
-          <div class='form-group'>
-            <label for='checkboxes'>Turma</label>
-            <select class="form-select w-100 h-50 text-dark" aria-label="Default select example">
-              <option selected>Selecione a Turma</option>
-              <option value="1">Turma 1</option>
-              <option value="2">Turma 2</option>
-              <option value="3">Turma 3</option>
-            </select>
-          </div>
+        <form class='saida-form' action='/uploadFalta' method="post">
+          <input type="hidden" name="cod_turma" value="<%= cod_turma %>">
+          <input type="hidden" name="formType" value="justificarFalta">
           <div class="form-group">
             <div class="row">
               <div class="col-md-4">
                 <label for="data-emissao">Data de Emissão</label>
-                <input type="date" id="data-emissao" name="data-emissao" class="form-control">
+                <input type="date" id="data-emissao" name="data_emissao" class="form-control">
               </div>
               <div class="col-md-8">
                 <label for="data-inicio">Data de Início e Término</label>
                 <div class="d-flex">
-                  <input type="date" id="data-inicio" name="data-inicio" class="form-control" class="d-inline-block w-25">
-                  <input type="date" id="data-termino" name="data-termino" class="form-control"
+                  <input type="date" id="data-inicio" name="data_inicio" class="form-control" class="d-inline-block w-25">
+                  <input type="date" id="data-termino" name="data_termino" class="form-control"
                     class="d-inline-block w-25">
                 </div>
               </div>
@@ -47,11 +40,11 @@
           </div>
           <div class="form-group">
             <label for="exampleFormControlFile1">Faça upload do seu documento</label>
-            <input type="file" class="form-control-file" id="exampleFormControlFile1">
+            <input type="file" class="form-control-file" name= "arquivo" id="exampleFormControlFile1">
           </div>
           <div class="d-flex justify-content-between">
             <button type="reset" class="btn btn-gray btn-lg">Limpar</button>
-            <a href="/homeAluno" type="submit" class="btn btn-red btn-lg">Enviar</a>
+            <button type="submit" class="btn btn-red btn-lg">Enviar</button>
           </div>
   
         </form>

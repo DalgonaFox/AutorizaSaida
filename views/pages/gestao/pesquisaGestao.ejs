@@ -2,10 +2,10 @@
 <html lang="pt-br">
 
 <%- include('../../partials/head', { title: 'Resultados Encontrados' }) %>
-<%- include('../../partials/headerGestao') %>
+<%- include('../../partials/headerGestao', { activePage: '' }) %>
 
 <body>
-    <div class="container-sm flex-column p-5">
+    <div class="container-sm flex-column p-5" style="width: 80%; min-height: 83.1vh;">
 
         <div class="card shadow w-100 p-4 h-15 mb-3">
             <h2 style="font-style: italic; margin-left: 20px;">Resultados para:</h2>
@@ -32,17 +32,18 @@
                             <% alunos.forEach(aluno => { %>
                                 <tr>
                                     <td><%= aluno.nome_aluno %></td>
-                                    <td><%= aluno.telefone_aluno %></td>
-                                    <td>
-                                        <% if (aluno.situacao === 'ativo') { %>
-                                            <i class="bi bi-check-circle-fill" style="color: #34c759;"></i>
-                                        <% } else if (aluno.situacao === 'inativo') { %>
-                                            <i class="bi bi-dash-circle-fill" style="color: #ff3a30;"></i>
-                                        <% } else if (aluno.situacao === 'pendente') { %>
-                                            <i class="bi bi-exclamation-triangle-fill" style="color: #ffcc00;"></i>
-                                        <% } %>
-                                    </td>
-                                    <td><a href="/alunoGestao/<%= aluno.id %>"><i class="bi bi-chevron-compact-right text-dark"></i></a></td>
+                                    <td><%= aluno.tel_aluno %></td> <!-- Substitua 'telefone' pela coluna correspondente -->
+                                    <td><% if (aluno.saidas_count >= 15) { %>
+                                    <!-- Ícone de alerta vermelho se o aluno tiver mais de 5 saídas -->
+                                    <i class="bi bi-exclamation-triangle-fill" style="color: #ff3a30;"></i>
+                                <% } else if (aluno.saidas_count > 5) { %>
+                                    <!-- Ícone amarelo se o aluno tiver entre 1 e 5 saídas -->
+                                    <i class="bi bi-dash-circle-fill" style="color: #ffcc00;"></i>
+                                <% } else if (aluno.saidas_count <= 5) { %>
+                                    <!-- Ícone verde se o aluno não tiver saídas -->
+                                    <i class="bi bi-check-circle-fill" style="color: #34c759;"></i>
+                                <% } %></td>
+                                    <td><a href="/alunoGestao?rm=<%= aluno.rm %>"><i class="bi bi-chevron-compact-right text-dark"></i></a></td>
                                 </tr>
                             <% }) %>
                         <% } else { %>

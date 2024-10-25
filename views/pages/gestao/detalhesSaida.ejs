@@ -3,70 +3,104 @@
 <html lang="pt-br">
 
 <%- include('../../partials/head', { title: 'Detalhes da Saída' }) %>
-<%- include('../../partials/headerGestao') %>
+<%- include('../../partials/headerGestao', { activePage: '' }) %>
 
 <body>
 
   <div class="container">
     <div class="card w-75 shadow m-5" style="padding: 40px;">
-      <a href="/pendentes" class="text-dark">
+      <a href="/historicoGestao" class="text-dark">
         <h3><i class="bi bi-arrow-left"></i></h3>
       </a>
-      <h2 style="font-family: Inter; text-align: center; margin-bottom: 20px;">Autorizar Saída Antecipada</h2>
-      <p style="font-family: Inter; text-align: center; margin: 30px;">Preencha o formulário de acordo com as instruções
-        a seguir. </p>
-      <form action=''>
-        <div class="d-flex justify-content-between">
-          <div class="form-group w-75 mr-4">
-            <label for="data">Nome</label>
-            <div>
-              <input type="text" class="form-control w-100" value="Eduardo Irineu" disabled>
-            </div>
-          </div>
-
-          <div class="form-group w-25">
-            <label for="data">RM</label>
-            <div>
-              <input type="text" class="form-control w-100" value="1234" disabled>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="d-flex">
-          <div class="form-group w-75 mr-4">
-            <label for="data">Curso</label>
-            <div>
-              <input type="text" class="form-control w-100" value="Análise e Desenvolvimento de Sistemas" disabled>
-            </div>
-          </div>
-          
-          <div class="form-group w-25">
-            <label for="data">Turma</label>
-            <div>
-              <input type="text" class="form-control w-100" value="II" disabled> </input>
-            </div>
-          </div>
-        
-        </div>
-
-        <div class="form-group">
-          <label for="data">Data e Hora da Saída</label>
+      <h2 style="font-family: Inter; text-align: center; margin-bottom: 20px;">Detalhes da <%= tipo_historico %></h2>
+        <form>
           <div class="d-flex justify-content-between">
-            <input type="date" id="data" name="data" class="form-control mr-4" disabled>
-            <input type="time" id="hora" name="hora" class="form-control" disabled>
+            <div class="form-group w-75 mr-4">
+              <label for="nome">Nome</label>
+              <input type="text" class="form-control w-100" value="<%= historico.nome_aluno %>" disabled>
+            </div>
+  
+            <div class="form-group w-25">
+              <label for="rm">RM</label>
+              <input type="text" class="form-control w-100" value="<%= historico.rm %>" disabled>
+            </div>
           </div>
-        </div>
-        <div class="form-group">
-          <label for="justificativa">Justificativa</label>
-          <textarea id="justificativa" name="justificativa" class="form-control"
-            disabled>To com dor de barriga</textarea>
-        </div>
+  
+          <div class="d-flex">
+            <div class="form-group w-75 mr-4">
+              <label for="curso">Curso</label>
+              <input type="text" class="form-control w-100" value="<%= historico.nome_curso %>" disabled>
+            </div>
+  
+            <div class="form-group w-25">
+              <label for="turma">Turma</label>
+              <input type="text" class="form-control w-100" value="<%= historico.nome_turma || 'N/A' %>" disabled>
+            </div>
+          </div>
+  
+          <% if (tipo_historico === 'Saída Antecipada') { %>
+  
+            <div class="form-group">
+            <label for="data">Data e Hora da Saída</label>
+            <div class="d-flex justify-content-between">
+              <input type="date" id="data" name="data" class="form-control mr-4" value="<%= historico.data_saida.toISOString().split('T')[0] %>" disabled>
+              <input type="time" id="hora" name="hora" class="form-control" value="<%= historico.hora_saida %>" disabled>
+            </div>
+          </div>
+  
+          <div class="form-group">
+            <label for="justificativa">Justificativa</label>
+            <textarea id="justificativa" name="justificativa" class="form-control" disabled><%= historico.justificativa %></textarea>
+          </div>
+  
+          <% } else if (tipo_historico === 'Justificativa de Falta') { %>
+  
+            <div class="row">
+              <div class="col-md-4">
+                <label for="data-emissao">Data de Emissão</label>
+                <input type="date" id="data-emissao" name="data_emissao" class="form-control" value="<%= historico.data_saida.toISOString().split('T')[0] %>" disabled>
+              </div>
+              <div class="col-md-8">
+                <label for="data-inicio">Data de Início e Término</label>
+                <div class="d-flex">
+                  <input type="date" id="data-inicio" name="data_inicio" class="form-control" class="d-inline-block w-25" value="<%= historico.data_inicio.toISOString().split('T')[0] %>" disabled>
+                  <input type="date" id="data-termino" name="data_termino" class="form-control" class="d-inline-block w-25" value="<%= historico.data_termino.toISOString().split('T')[0] %>" disabled>
+                </div>
+              </div>
+            </div>
+  
+            <div class="form-group">
+              <label for="observacoes">Observações</label>
+              <textarea id="observacoes" name="observacoes" class="form-control" disabled><%= historico.justificativa %></textarea>
+            </div>
+  
+            <div class="d-flex justify-content-start">
+              <a href="/manutencao" type="submit" class="btn btn-red btn-lg">Baixe o seu arquivo</a>
+            </div>
+  
+          <% } else { %>
+  
+            <div class="form-group">
+              <label for="data">Data e Hora da Saída</label>
+              <div class="d-flex justify-content-between">
+                <input type="date" id="data" name="data" class="form-control mr-4" value="<%= historico.data_saida.toISOString().split('T')[0] %>" disabled>
+                <input type="time" id="hora" name="hora" class="form-control" value="<%= historico.hora_saida %>" disabled>
+              </div>
+            </div>
+    
+            <div class="form-group">
+              <label for="justificativa">Justificativa</label>
+              <textarea id="justificativa" name="justificativa" class="form-control" disabled><%= historico.justificativa %></textarea>
+            </div>
+  
+            <div class="d-flex justify-content-start">
+              <!-- <label for="justificativa">Baixe o seu arquivo de justificativa abaixo</label> -->
+              <a href="/manutencao" type="submit" class="btn btn-red btn-lg">Baixe o seu arquivo</a>
+            </div>
+  
+          <% } %>
 
-        <div class="d-flex justify-content-start">
-          <a href="/manutencao" type="submit" class="btn btn-red btn-lg">Baixe o seu arquivo</a>
-        </div>
-      </form>
+        </form>
     </div>
   </div>
 

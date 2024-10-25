@@ -3,21 +3,28 @@
 <html lang="pt-br">
 
 <%- include('../../partials/head', { title: 'Home' }) %>
-<%- include('../../partials/headerGestao') %>
+<%- include('../../partials/headerGestao', { activePage: 'homegestao' }) %>
 
 <body>
-    <div class="container">
-        <div class="d-block">
+    <div class="container-fluid" style="width: 80%; min-height: 83.1vh;">
+        <div style="min-height: 79%;">
+            
             <!--Bem-vindo-->
-            <p class="bem-vindo">Bem-vindo, <%= nome_gestao %> </p>
-            <div class="superior d-flex justify-content-between">
+            <% if (genero === 2) { %>
+                    <h3 class="font-italic font-weight-bold mt-5 mb-5">Bem-vinda, <%= nome_gestao %>. </h3>
+                <% } else { %>
+                    <h3 class="font-italic font-weight-bold mt-5 mb-5">Bem-vindo, <%= nome_gestao %>. </h3>
+                <% } %>
+                
+
+            <div class="d-flex mb-5 justify-content-between">
                 <!--Gráfico Períodos do ano-->
-                <iframe class="grafico-periodo ml-5 mr-5 mb-5 shadow border"
+                <iframe class="grafico-periodo shadow border"
                     src="https://e.infogram.com/2e085507-3de9-449d-9091-df006709e714?src=embed" scrolling="no"
                     frameborder="0" allowfullscreen="allowfullscreen"></iframe>
 
                 <!--Gráfico Pendências do dia-->
-                <iframe class="grafico-pendencia mb-5 shadow border"
+                <iframe class="grafico-pendencia shadow border"
                     src="https://e.infogram.com/6bc2ef5d-b3e8-413e-9976-e54136c687fa?src=embed" scrolling="no"
                     frameborder="0" allowfullscreen="allowfullscreen"></iframe>
 
@@ -25,29 +32,34 @@
                 <div class="d-flex flex-column pb-5" style="justify-content: space-between;">
                     <div class="card card-saida shadow">
                         <div class="card-body">
-                            <h5 class="card-title">Você tem 5 pendências restantes</h5>
-                            <a href="/manutencao" class="btn btn-red">Verificar</a>
+                            <% if (totalPendencias > 0) { %>
+                                    <h5 class="card-title">Você tem <%= totalPendencias %> pendências restantes</h5>
+                                    <a href="/pendentes" class="btn btn-red">Verificar</a>
+                            <% } else { %>
+                                <h5 class="card-title">Você não tem nenhuma pendência!</h5>
+                            <% } %>
+    
                         </div>
                     </div>
                     <div class="card card-saida shadow">
                         <div class="card-body">
-                            <h5 class="card-title">Deseja cadastrar novo aluno?</h5>
+                            <h5 class="card-title">Deseja cadastrar um novo aluno?</h5>
                             <a href="/cadastroAluno" class="btn btn-red">Cadastrar</a>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="inferior d-flex justify-content-between">
+            <div class="d-flex justify-content-between">
                 <!--Trio de Gráficos-->
-                <iframe class="grafico-trio ml-5 mr-5 mb-5 shadow border"
+                <iframe class="grafico-trio shadow border"
                     src="https://e.infogram.com/cb56e93e-1de1-4a4f-bff4-1433f435af0d?src=embed" scrolling="no"
                     frameborder="0" allowfullscreen="allowfullscreen"></iframe>
 
-                <iframe class="grafico-trio ml-5 mr-5 mb-5 shadow border"
+                <iframe class="grafico-trio shadow border"
                     src="https://e.infogram.com/71e78566-9bc3-43f7-aa1f-2827a376230d?src=embed" scrolling="no"
                     frameborder="0" allowfullscreen="allowfullscreen"></iframe>
 
-                <iframe class="grafico-trio ml-5 mr-5 mb-5 shadow border"
+                <iframe class="grafico-trio shadow border"
                     src="https://e.infogram.com/2152b75e-f8ca-4dd1-8cf0-97441054c5fb?src=embed" scrolling="no"
                     frameborder="0" allowfullscreen="allowfullscreen"></iframe>
             </div>

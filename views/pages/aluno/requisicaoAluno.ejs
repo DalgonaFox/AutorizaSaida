@@ -3,7 +3,7 @@
 <html lang="pt-br">
 
 <%- include('../../partials/head', { title: 'Requisição de Saída' }) %>
-  <%- include('../../partials/headerAluno') %>
+<%- include('../../partials/headerAluno', { activePage: '' }) %>
 
     <body class="background" style="background-image: url(../images/frente_senai.png);">
 
@@ -16,21 +16,14 @@
           <p style="font-family: Inter; text-align: center; margin: 30px;">Preencha o formulário de acordo com as
             instruções
             a seguir. </p>
-          <form class='saida-form' action=''>
-            <div class='form-group'>
-              <label for='checkboxes'>Turma</label>
-              <select class="form-select w-100 h-50 text-dark" aria-label="Default select example">
-                <option selected>Selecione a Turma</option>
-                <option value="1">Turma 1</option>
-                <option value="2">Turma 2</option>
-                <option value="3">Turma 3</option>
-              </select>
-            </div>
+          <form class='saida-form' action='/requisicao' method="post">
+            <input type="hidden" name="formType" value="requisicao">
+            <input type="hidden" name="cod_turma" value="<%= cod_turma %>">
             <div class="form-group">
               <label for="data">Data e Hora da Saída</label>
               <div class="d-flex justify-content-between">
-                <input type="date" id="data" name="data" class="form-control" style="width: 48%;">
-                <input type="time" id="hora" name="hora" class="form-control" style="width: 48%;">
+                <input type="date" id="data" name="data_saida" class="form-control" style="width: 48%;">
+                <input type="time" id="hora" name="hora_saida" class="form-control" style="width: 48%;">
               </div>
             </div>
             <div class="form-group">
@@ -40,7 +33,7 @@
             </div>
             <div class="d-flex justify-content-between">
               <button type="reset" class="btn btn-gray btn-lg">Limpar</button>
-              <a href="/homeAluno" type="submit" class="btn btn-red btn-lg">Enviar</a>
+              <button type="submit" class="btn btn-red btn-lg">Enviar</button>
             </div>
           </form>
         </div>
