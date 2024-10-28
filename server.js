@@ -24,15 +24,12 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Configuração do banco de dados
-const db = mysql.createPool({
+const db = mysql.createConnection({
     host: 'srv1595.hstgr.io',
     user: 'u610580921_marianachaves',
     password: 'SesiSen@i2024',
     database: 'u610580921_tcc',
-    ssl: { rejectUnauthorized: false },
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+    ssl: { rejectUnauthorized: false }
 });
 
 // Conexão com o banco de dados
@@ -276,128 +273,119 @@ app.get("/homeAluno", (req, res) => {
 });
 
 //HistoricoAluno
-app.get('/historicoAluno', async (req, res) => {
+app.get('/historicoAluno', (req, res) => {
     if (!req.session.email_user) {
         return res.redirect('/');
     }
     const rm = req.session.rm;
-    try {
-        const { ordenar, justificativa } = req.query;
 
-        console.log("Parâmetros recebidos:", { ordenar, justificativa });
+    const { ordenar, justificativa } = req.query;
 
-        // Encapsulando toda a consulta UNION ALL em uma subquery
-        let historicoQuery = `
-            SELECT * FROM (
-                SELECT 
-                    a.nome_aluno AS nome_aluno,
-                    a.rm AS rm,
-                    c.tipo_curso AS tipo_curso,
-                    r.data_saida AS data_saida,
-                    js.cod_req AS justificativa,
-                    'Saída Antecipada' AS tipo_historico,
-                    r.cod_req AS cod_historico
-                FROM 
-                    requisicao r
-                JOIN 
-                    aluno a ON r.rm = a.rm
-                JOIN 
-                    curso c ON a.cod_curso = c.cod_curso
-                LEFT JOIN
-                    justsaida js ON r.cod_req = js.cod_req
-                WHERE 
-                    r.ciencia_gestor = TRUE
+    console.log("Parâmetros recebidos:", { ordenar, justificativa });
 
-                UNION ALL
+    let historicoQuery = `
+        SELECT * FROM (
+            SELECT 
+                a.nome_aluno AS nome_aluno,
+                a.rm AS rm,
+                c.tipo_curso AS tipo_curso,
+                r.data_saida AS data_saida,
+                js.cod_req AS justificativa,
+                'Saída Antecipada' AS tipo_historico,
+                r.cod_req AS cod_historico
+            FROM 
+                requisicao r
+            JOIN 
+                aluno a ON r.rm = a.rm
+            JOIN 
+                curso c ON a.cod_curso = c.cod_curso
+            LEFT JOIN
+                justsaida js ON r.cod_req = js.cod_req
+            WHERE 
+                r.ciencia_gestor = TRUE
 
-                SELECT 
-                    a.nome_aluno AS nome_aluno,
-                    a.rm AS rm,
-                    c.tipo_curso AS tipo_curso,
-                    r.data_saida AS data_saida,
-                    js.cod_req AS justificativa,
-                    'Justificativa de Saída' AS tipo_historico,
-                    js.cod_saida AS cod_historico
-                FROM 
-                    justsaida js
-                JOIN 
-                    requisicao r ON js.cod_req = r.cod_req
-                JOIN 
-                    aluno a ON js.rm = a.rm
-                JOIN 
-                    curso c ON a.cod_curso = c.cod_curso
-                WHERE 
-                    js.ciencia_gestor = TRUE
+            UNION ALL
 
-                UNION ALL
+            SELECT 
+                a.nome_aluno AS nome_aluno,
+                a.rm AS rm,
+                c.tipo_curso AS tipo_curso,
+                r.data_saida AS data_saida,
+                js.cod_req AS justificativa,
+                'Justificativa de Saída' AS tipo_historico,
+                js.cod_saida AS cod_historico
+            FROM 
+                justsaida js
+            JOIN 
+                requisicao r ON js.cod_req = r.cod_req
+            JOIN 
+                aluno a ON js.rm = a.rm
+            JOIN 
+                curso c ON a.cod_curso = c.cod_curso
+            WHERE 
+                js.ciencia_gestor = TRUE
 
-                SELECT 
-                    a.nome_aluno AS nome_aluno,
-                    a.rm AS rm,
-                    c.tipo_curso AS tipo_curso,
-                    jf.data_emissao AS data_saida,
-                    jf.arquivo AS justificativa,
-                    'Justificativa de Falta' AS tipo_historico,
-                    jf.cod_falta AS cod_historico
-                FROM 
-                    justfalta jf
-                JOIN 
-                    aluno a ON jf.rm = a.rm
-                JOIN 
-                    curso c ON a.cod_curso = c.cod_curso
-                WHERE 
-                    jf.ciencia_gestor = TRUE
-            ) AS historicos
-            WHERE historicos.rm = ?
-        `;
+            UNION ALL
 
-        // Condições para o filtro de justificativa
-        let whereConditions = [];
+            SELECT 
+                a.nome_aluno AS nome_aluno,
+                a.rm AS rm,
+                c.tipo_curso AS tipo_curso,
+                jf.data_emissao AS data_saida,
+                jf.arquivo AS justificativa,
+                'Justificativa de Falta' AS tipo_historico,
+                jf.cod_falta AS cod_historico
+            FROM 
+                justfalta jf
+            JOIN 
+                aluno a ON jf.rm = a.rm
+            JOIN 
+                curso c ON a.cod_curso = c.cod_curso
+            WHERE 
+                jf.ciencia_gestor = TRUE
+        ) AS historicos
+        WHERE historicos.rm = ?
+    `;
 
-        if (justificativa) {
-            if (justificativa === "saida") {
-                whereConditions.push("tipo_historico = 'Saída Antecipada'");
-            } else if (justificativa === "falta") {
-                whereConditions.push("tipo_historico = 'Justificativa de Falta'");
-            } else if (justificativa === "justsaida") {
-                whereConditions.push("tipo_historico = 'Justificativa de Saída'");
-            }
+    let whereConditions = [];
+
+    if (justificativa) {
+        if (justificativa === "saida") {
+            whereConditions.push("tipo_historico = 'Saída Antecipada'");
+        } else if (justificativa === "falta") {
+            whereConditions.push("tipo_historico = 'Justificativa de Falta'");
+        } else if (justificativa === "justsaida") {
+            whereConditions.push("tipo_historico = 'Justificativa de Saída'");
         }
+    }
 
-        // Adicionar as condições de filtro, se houver
-        if (whereConditions.length > 0) {
-            historicoQuery += " AND (" + whereConditions.join(" OR ") + ")";
-        }
+    if (whereConditions.length > 0) {
+        historicoQuery += " AND (" + whereConditions.join(" OR ") + ")";
+    }
 
-        // Ordenar os resultados, se necessário
-        if (ordenar) {
-            if (ordenar === "maisAntigo") {
-                historicoQuery += " ORDER BY data_saida ASC";
-            } else if (ordenar === "recente") {
-                historicoQuery += " ORDER BY data_saida DESC";
-            }
-        } else {
+    if (ordenar) {
+        if (ordenar === "maisAntigo") {
+            historicoQuery += " ORDER BY data_saida ASC";
+        } else if (ordenar === "recente") {
             historicoQuery += " ORDER BY data_saida DESC";
         }
-
-        console.log("Consulta SQL:", historicoQuery);
-
-        // Executar a consulta ao banco de dados
-        db.query(historicoQuery, [rm], (err, results) => {
-            if (err) {
-                console.error('Erro ao buscar o histórico:', err);
-                return res.status(500).send('Erro ao buscar o histórico.');
-            } else {
-                const totalHistoricos = results.length;
-                res.render('pages/aluno/historicoAluno', { historico: results, totalHistoricos });
-            }
-        });
-
-    } catch (error) {
-        console.error('Erro:', error);
-        res.status(500).send('Erro ao buscar histórico.');
+    } else {
+        historicoQuery += " ORDER BY data_saida DESC";
     }
+
+    console.log("Consulta SQL:", historicoQuery);
+
+    db.query(historicoQuery, [rm], (err, results) => {
+        if (err) {
+            console.error('Erro ao buscar o histórico:', err);
+            return res.status(500).send('Erro ao buscar o histórico.');
+        } else {
+            const totalHistoricos = results.length;
+            res.render('pages/aluno/historicoAluno', { historico: results, totalHistoricos });
+        }
+    });
 });
+
 
 
 app.get('/detalhesHistorico/:id', (req, res) => {
@@ -906,7 +894,7 @@ app.post('/primeiroacessoGestao', (req, res) => {
 
 // Navbar
 //HomeGestao
-app.get("/homeGestao", async (req, res) => {
+app.get("/homeGestao", (req, res) => {
     if (!req.session.email_user) {
         return res.redirect('/');
     }
@@ -989,133 +977,127 @@ app.get("/homeGestao", async (req, res) => {
 
 
 //HistoricoGestao
-app.get('/historicoGestao', async (req, res) => {
+app.get('/historicoGestao', (req, res) => {
     if (!req.session.email_user) {
         return res.redirect('/');
     }
     const rm = req.session.rm;
-    try {
-        const { ordenar, justificativa } = req.query;
 
-        // Adicionando mais logs para diagnosticar os parâmetros recebidos
-        console.log("Parâmetros recebidos:", { ordenar, justificativa });
+    const { ordenar, justificativa } = req.query;
 
-        // Encapsulando toda a consulta UNION ALL em uma subquery
-        let historicoQuery = `
-            SELECT * FROM (
-                SELECT 
-                    a.nome_aluno AS nome_aluno,
-                    a.rm AS rm,
-                    c.tipo_curso AS tipo_curso,
-                    r.data_saida AS data_saida,
-                    js.cod_req AS justificativa,
-                    'Saída Antecipada' AS tipo_historico,
-                    r.cod_req AS cod_historico
-                FROM 
-                    requisicao r
-                JOIN 
-                    aluno a ON r.rm = a.rm
-                JOIN 
-                    curso c ON a.cod_curso = c.cod_curso
-                LEFT JOIN
-                    justsaida js ON r.cod_req = js.cod_req
-                WHERE 
-                    r.ciencia_gestor = TRUE
+    console.log("Parâmetros recebidos:", { ordenar, justificativa });
 
-                UNION ALL
+    let historicoQuery = `
+        SELECT * FROM (
+            SELECT 
+                a.nome_aluno AS nome_aluno,
+                a.rm AS rm,
+                c.tipo_curso AS tipo_curso,
+                r.data_saida AS data_saida,
+                js.cod_req AS justificativa,
+                'Saída Antecipada' AS tipo_historico,
+                r.cod_req AS cod_historico
+            FROM 
+                requisicao r
+            JOIN 
+                aluno a ON r.rm = a.rm
+            JOIN 
+                curso c ON a.cod_curso = c.cod_curso
+            LEFT JOIN
+                justsaida js ON r.cod_req = js.cod_req
+            WHERE 
+                r.ciencia_gestor = TRUE
 
-                SELECT 
-                    a.nome_aluno AS nome_aluno,
-                    a.rm AS rm,
-                    c.tipo_curso AS tipo_curso,
-                    r.data_saida AS data_saida,
-                    js.cod_req AS justificativa,
-                    'Justificativa de Saída' AS tipo_historico,
-                    js.cod_saida AS cod_historico
-                FROM 
-                    justsaida js
-                JOIN 
-                    requisicao r ON js.cod_req = r.cod_req
-                JOIN 
-                    aluno a ON js.rm = a.rm
-                JOIN 
-                    curso c ON a.cod_curso = c.cod_curso
-                WHERE 
-                    js.ciencia_gestor = TRUE
+            UNION ALL
 
-                UNION ALL
+            SELECT 
+                a.nome_aluno AS nome_aluno,
+                a.rm AS rm,
+                c.tipo_curso AS tipo_curso,
+                r.data_saida AS data_saida,
+                js.cod_req AS justificativa,
+                'Justificativa de Saída' AS tipo_historico,
+                js.cod_saida AS cod_historico
+            FROM 
+                justsaida js
+            JOIN 
+                requisicao r ON js.cod_req = r.cod_req
+            JOIN 
+                aluno a ON js.rm = a.rm
+            JOIN 
+                curso c ON a.cod_curso = c.cod_curso
+            WHERE 
+                js.ciencia_gestor = TRUE
 
-                SELECT 
-                    a.nome_aluno AS nome_aluno,
-                    a.rm AS rm,
-                    c.tipo_curso AS tipo_curso,
-                    jf.data_emissao AS data_saida,
-                    jf.arquivo AS justificativa,
-                    'Justificativa de Falta' AS tipo_historico,
-                    jf.cod_falta AS cod_historico
-                FROM 
-                    justfalta jf
-                JOIN 
-                    aluno a ON jf.rm = a.rm
-                JOIN 
-                    curso c ON a.cod_curso = c.cod_curso
-                WHERE 
-                    jf.ciencia_gestor = TRUE
-            ) AS historicos
-            WHERE 1 = 1
-        `;
+            UNION ALL
 
-        let whereConditions = [];
+            SELECT 
+                a.nome_aluno AS nome_aluno,
+                a.rm AS rm,
+                c.tipo_curso AS tipo_curso,
+                jf.data_emissao AS data_saida,
+                jf.arquivo AS justificativa,
+                'Justificativa de Falta' AS tipo_historico,
+                jf.cod_falta AS cod_historico
+            FROM 
+                justfalta jf
+            JOIN 
+                aluno a ON jf.rm = a.rm
+            JOIN 
+                curso c ON a.cod_curso = c.cod_curso
+            WHERE 
+                jf.ciencia_gestor = TRUE
+        ) AS historicos
+        WHERE 1 = 1
+    `;
 
-        // Filtro de justificativa
-        if (justificativa) {
-            console.log("Aplicando filtro de justificativa:", justificativa); // Diagnóstico
-            if (justificativa === "saida") {
-                whereConditions.push("tipo_historico = 'Saída Antecipada'");
-            } else if (justificativa === "falta") {
-                whereConditions.push("tipo_historico = 'Justificativa de Falta'");
-            } else if (justificativa === "justsaida") {
-                whereConditions.push("tipo_historico = 'Justificativa de Saída'");
-            }
+    let whereConditions = [];
+
+    // Filtro de justificativa
+    if (justificativa) {
+        console.log("Aplicando filtro de justificativa:", justificativa); 
+        if (justificativa === "saida") {
+            whereConditions.push("tipo_historico = 'Saída Antecipada'");
+        } else if (justificativa === "falta") {
+            whereConditions.push("tipo_historico = 'Justificativa de Falta'");
+        } else if (justificativa === "justsaida") {
+            whereConditions.push("tipo_historico = 'Justificativa de Saída'");
         }
+    }
 
-        // Adicionar as condições de filtro, se houver
-        if (whereConditions.length > 0) {
-            historicoQuery += " AND (" + whereConditions.join(" OR ") + ")";
-        }
+    // Adicionar as condições de filtro, se houver
+    if (whereConditions.length > 0) {
+        historicoQuery += " AND (" + whereConditions.join(" OR ") + ")";
+    }
 
-        // Filtro de ordenação
-        if (ordenar) {
-            console.log("Aplicando ordenação:", ordenar); // Diagnóstico
-            if (ordenar === "maisAntigo") {
-                historicoQuery += " ORDER BY data_saida ASC";
-            } else if (ordenar === "recente") {
-                historicoQuery += " ORDER BY data_saida DESC";
-            }
-        } else {
+    // Filtro de ordenação
+    if (ordenar) {
+        console.log("Aplicando ordenação:", ordenar);
+        if (ordenar === "maisAntigo") {
+            historicoQuery += " ORDER BY data_saida ASC";
+        } else if (ordenar === "recente") {
             historicoQuery += " ORDER BY data_saida DESC";
         }
-
-        // Verificar a query final antes de executá-la
-        console.log("Consulta SQL final:", historicoQuery); // Diagnóstico
-
-        // Executar a consulta ao banco de dados
-        db.query(historicoQuery, [rm], (err, results) => {
-            if (err) {
-                console.error('Erro ao buscar o histórico:', err);
-                return res.status(500).send('Erro ao buscar o histórico.');
-            } else {
-                const totalHistoricos = results.length;
-                console.log("Resultados encontrados:", results); // Diagnóstico
-                res.render('pages/gestao/historicoGestao', { historico: results, totalHistoricos });
-            }
-        });
-
-    } catch (error) {
-        console.error('Erro:', error);
-        res.status(500).send('Erro ao buscar histórico.');
+    } else {
+        historicoQuery += " ORDER BY data_saida DESC";
     }
+
+    console.log("Consulta SQL final:", historicoQuery); 
+
+    // Executar a consulta ao banco de dados
+    db.query(historicoQuery, [rm], (err, results) => {
+        if (err) {
+            console.error('Erro ao buscar o histórico:', err);
+            return res.status(500).send('Erro ao buscar o histórico.');
+        } else {
+            const totalHistoricos = results.length;
+            console.log("Resultados encontrados:", results); 
+            res.render('pages/gestao/historicoGestao', { historico: results, totalHistoricos });
+        }
+    });
 });
+
+
 
 app.get("/dadosPendencias", (req, res) => {
     const totalQuery = `
@@ -1160,19 +1142,18 @@ app.get("/dadosPendencias", (req, res) => {
 
 
 //Pendentes
-app.get('/pendentes', async (req, res) => {
+app.get('/pendentes', (req, res) => {
     if (!req.session.email_user) {
         return res.redirect('/');
     }
-    try {
-        const { ordenar, justificativa } = req.query;
 
-        console.log("Parâmetros recebidos:", { ordenar, justificativa });
+    const { ordenar, justificativa } = req.query;
 
-        // Encapsulando toda a consulta UNION ALL em uma subquery
-        let pendenciasQuery = `
-        
-            SELECT * FROM (
+    console.log("Parâmetros recebidos:", { ordenar, justificativa });
+
+    // Encapsulando toda a consulta UNION ALL em uma subquery
+    let pendenciasQuery = `
+        SELECT * FROM (
             SELECT 
                 a.nome_aluno AS nome_aluno,
                 c.tipo_curso AS tipo_curso,
@@ -1229,56 +1210,52 @@ app.get('/pendentes', async (req, res) => {
             WHERE 
                 jf.ciencia_gestor = FALSE
         ) AS pendencias
-        `;
+    `;
 
-        // Condições para o filtro de justificativa
-        let whereConditions = [];
+    // Condições para o filtro de justificativa
+    let whereConditions = [];
 
-        if (justificativa) {
-            if (justificativa === "saida") {
-                whereConditions.push("tipo_pendencia = 'Saída Antecipada'");
-            } else if (justificativa === "falta") {
-                whereConditions.push("tipo_pendencia = 'Justificativa de Falta'");
-            } else if (justificativa === "justsaida") {
-                whereConditions.push("tipo_pendencia = 'Justificativa de Saída'");
-            }
+    if (justificativa) {
+        if (justificativa === "saida") {
+            whereConditions.push("tipo_pendencia = 'Saída Antecipada'");
+        } else if (justificativa === "falta") {
+            whereConditions.push("tipo_pendencia = 'Justificativa de Falta'");
+        } else if (justificativa === "justsaida") {
+            whereConditions.push("tipo_pendencia = 'Justificativa de Saída'");
         }
+    }
 
-        if (whereConditions.length > 0) {
-            pendenciasQuery += " WHERE " + whereConditions.join(" OR ");
-        }
+    if (whereConditions.length > 0) {
+        pendenciasQuery += " WHERE " + whereConditions.join(" OR ");
+    }
 
-        if (ordenar) {
-            if (ordenar === "maisAntigo") {
-                pendenciasQuery += " ORDER BY data_saida ASC";
-            } else if (ordenar === "recente") {
-                pendenciasQuery += " ORDER BY data_saida DESC";
-            }
-        } else {
+    if (ordenar) {
+        if (ordenar === "maisAntigo") {
+            pendenciasQuery += " ORDER BY data_saida ASC";
+        } else if (ordenar === "recente") {
             pendenciasQuery += " ORDER BY data_saida DESC";
         }
-
-        console.log("Consulta SQL:", pendenciasQuery);
-
-        // Executa a consulta
-        db.query(pendenciasQuery, (err, results) => {
-            if (err) {
-                console.error('Erro ao buscar pendências:', err);
-                return res.status(500).send('Erro ao buscar pendências.');
-            }
-
-            // Calcula o total de pendências
-            const totalPendencias = results.length;
-
-            // Renderiza a view 'pendentes.ejs' passando os dados
-            res.render('pages/gestao/pendentes', { pendencias: results, totalPendencias });
-        });
-
-    } catch (error) {
-        console.error('Erro:', error);
-        res.status(500).send('Erro ao buscar pendências.');
+    } else {
+        pendenciasQuery += " ORDER BY data_saida DESC";
     }
+
+    console.log("Consulta SQL:", pendenciasQuery);
+
+    // Executa a consulta
+    db.query(pendenciasQuery, (err, results) => {
+        if (err) {
+            console.error('Erro ao buscar pendências:', err);
+            return res.status(500).send('Erro ao buscar pendências.');
+        }
+
+        // Calcula o total de pendências
+        const totalPendencias = results.length;
+
+        // Renderiza a view 'pendentes.ejs' passando os dados
+        res.render('pages/gestao/pendentes', { pendencias: results, totalPendencias });
+    });
 });
+
 
 
 // Autorização da pendência
@@ -1663,71 +1640,63 @@ app.post('/cadastroAluno', (req, res) => {
         return res.render('cadastroAluno', { errorMessage: 'Preencha todos os campos!' });
     }
 
-        //Verifica a idade minima para iniciar um curso no Senai
-        const currentYear = new Date().getFullYear();
-        const birthYear = new Date(data_nasc).getFullYear();
-        const age = currentYear - birthYear;
-    
-        if (age < 14) {
-            return res.status(400).send('O aluno deve ter pelo menos 14 anos de idade.');
-        }
+    // Verifica a idade mínima para iniciar um curso no Senai
+    const currentYear = new Date().getFullYear();
+    const birthYear = new Date(data_nasc).getFullYear();
+    const age = currentYear - birthYear;
 
-        
-    try {
-        // Insere os dados do aluno na tabela aluno
-        db.query('INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, email_aluno, senha, tel_aluno, cod_curso, cod_turma, cod_genero) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [rm, nome_aluno, cpf, data_nasc, email_aluno, senha, tel_aluno, cod_curso, cod_turma, cod_genero],
-            (error) => {
-                if (error) {
-                    console.error(error);
-                    return res.status(500).send('Erro ao cadastrar o aluno.');
+    if (age < 14) {
+        return res.status(400).send('O aluno deve ter pelo menos 14 anos de idade.');
+    }
+
+    // Insere os dados do aluno na tabela aluno
+    db.query('INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, email_aluno, senha, tel_aluno, cod_curso, cod_turma, cod_genero) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [rm, nome_aluno, cpf, data_nasc, email_aluno, senha, tel_aluno, cod_curso, cod_turma, cod_genero],
+        (error) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).send('Erro ao cadastrar o aluno.');
+            }
+
+            // Verifica o tipo de aluno para inserir os dados do responsável ou da empresa
+            if (tipo_aluno === 'responsavel') {
+                if (!nome_resp || !email_resp || !tel_resp) {
+                    return res.status(400).send('Por favor, preencha os campos do responsável.');
                 }
 
-                // Verifica o tipo de aluno para inserir os dados do responsável ou da empresa
-                if (tipo_aluno === 'responsavel') {
-                    if (!nome_resp || !email_resp || !tel_resp) {
-                        return res.status(400).send('Por favor, preencha os campos do responsável.');
+                db.query('INSERT INTO responsavel (nome_resp, email_resp, tel_resp) VALUES (?, ?, ?)', [nome_resp, email_resp, tel_resp], (error, result) => {
+                    if (error) {
+                        console.error(error);
+                        return res.status(500).send('Erro ao cadastrar o responsável.');
                     }
-                    db.query('INSERT INTO responsavel (nome_resp, email_resp, tel_resp) VALUES (?, ?, ?)', [nome_resp, email_resp, tel_resp], (error, result) => {
+
+                    const cod_resp = result.insertId;
+                    db.query('INSERT INTO inforesp (rm, cod_resp) VALUES (?, ?)', [rm, cod_resp], (error) => {
                         if (error) {
                             console.error(error);
-                            return res.status(500).send('Erro ao cadastrar o responsável.');
+                            return res.status(500).send('Erro ao vincular o responsável ao aluno.');
                         }
-                        const cod_resp = result.insertId;
-                        db.query('INSERT INTO inforesp (rm, cod_resp) VALUES (?, ?)', [rm, cod_resp], (error) => {
-                            if (error) {
-                                console.error(error);
-                                return res.status(500).send('Erro ao vincular o responsável ao aluno.');
-                            }
-                            // Define a mensagem de sucesso e redireciona
-                            req.session.successMessage = `Aluno ${nome_aluno} cadastrado com sucesso com responsável.`;
-                            return res.redirect('/homeGestao');
-                        });
+
+                        // Define a mensagem de sucesso e redireciona
+                        req.session.successMessage = `Aluno ${nome_aluno} cadastrado com sucesso com responsável.`;
+                        return res.redirect('/homeGestao');
                     });
-                } else if (tipo_aluno === 'empresa') {
-                    if (!nome_empresa || !email_empresa || !tel_empresa) {
-                        return res.status(400).send('Por favor, preencha os campos da empresa.');
+                });
+            } else if (tipo_aluno === 'empresa') {
+                if (!nome_empresa || !email_empresa || !tel_empresa) {
+                    return res.status(400).send('Por favor, preencha os campos da empresa.');
+                }
+
+                db.query('SELECT cod_empresa FROM empresa WHERE nome_empresa = ?', [nome_empresa], (error, result) => {
+                    if (error) {
+                        console.error(error);
+                        return res.status(500).send('Erro ao buscar a empresa.');
                     }
 
                     let cod_empresa;
-                    db.query('SELECT cod_empresa FROM empresa WHERE nome_empresa = ?', [nome_empresa], (error, result) => {
-                        if (error) {
-                            console.error(error);
-                            return res.status(500).send('Erro ao buscar a empresa.');
-                        }
 
-                        if (result.length > 0) {
-                            cod_empresa = result[0].cod_empresa;
-                        } else {
-                            db.query('INSERT INTO empresa (nome_empresa, email_empresa, tel_empresa) VALUES (?, ?, ?)', [nome_empresa, email_empresa, tel_empresa], (error, result) => {
-                                if (error) {
-                                    console.error(error);
-                                    return res.status(500).send('Erro ao cadastrar a empresa.');
-                                }
-                                cod_empresa = result.insertId;
-                            });
-                        }
-
+                    if (result.length > 0) {
+                        cod_empresa = result[0].cod_empresa;
                         // Insere os dados de informação de trabalho
                         db.query('INSERT INTO infotrabalho (rm, cod_empresa) VALUES (?, ?)', [rm, cod_empresa], (error) => {
                             if (error) {
@@ -1738,19 +1707,37 @@ app.post('/cadastroAluno', (req, res) => {
                             req.session.successMessage = `Aluno ${nome_aluno} cadastrado com sucesso vinculado à empresa.`;
                             return res.redirect('/homeGestao');
                         });
-                    });
-                } else {
-                    // Define a mensagem de sucesso e redireciona
-                    req.session.successMessage = `Aluno ${nome_aluno} cadastrado com sucesso.`;
-                    return res.redirect('/homeGestao');
-                }
+                    } else {
+                        db.query('INSERT INTO empresa (nome_empresa, email_empresa, tel_empresa) VALUES (?, ?, ?)', [nome_empresa, email_empresa, tel_empresa], (error, result) => {
+                            if (error) {
+                                console.error(error);
+                                return res.status(500).send('Erro ao cadastrar a empresa.');
+                            }
+
+                            cod_empresa = result.insertId;
+
+                            // Insere os dados de informação de trabalho
+                            db.query('INSERT INTO infotrabalho (rm, cod_empresa) VALUES (?, ?)', [rm, cod_empresa], (error) => {
+                                if (error) {
+                                    console.error(error);
+                                    return res.status(500).send('Erro ao vincular a empresa ao aluno.');
+                                }
+                                // Define a mensagem de sucesso e redireciona
+                                req.session.successMessage = `Aluno ${nome_aluno} cadastrado com sucesso vinculado à empresa.`;
+                                return res.redirect('/homeGestao');
+                            });
+                        });
+                    }
+                });
+            } else {
+                // Define a mensagem de sucesso e redireciona
+                req.session.successMessage = `Aluno ${nome_aluno} cadastrado com sucesso.`;
+                return res.redirect('/homeGestao');
             }
-        );
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send('Erro ao cadastrar o aluno.');
-    }
+        }
+    );
 });
+
 
 app.get('/turmas/:cursoId', (req, res) => {
     const cursoId = req.params.cursoId;
