@@ -24,14 +24,16 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Configuração do banco de dados
-const db = mysql.createConnection({
-    host: '193.203.175.120',
+const db = mysql.createPool({
+    host: 'srv1595.hstgr.io',
     user: 'u610580921_marianachaves',
     password: 'SesiSen@i2024',
     database: 'u610580921_tcc',
-    ssl: { rejectUnauthorized: false }
+    ssl: { rejectUnauthorized: false },
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
-
 
 // Conexão com o banco de dados
 db.connect((error) => {
