@@ -9,11 +9,18 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const nodemailer = require("nodemailer");
 
-// Porta
-const port = 8080;
-app.listen(port, () => {
-    console.log(`Servidor rodando na porta ${port}`);
-    console.log(`Acesse pelo ip que eu mandar no zap + :${port}`);
+const port = process.env.PORT || 3001;
+
+const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+const db = mysql.createPool({
+host: process.env.DB_HOST,
+user: process.env.DB_USERNAME,
+password: process.env.DB_PASSWORD,
+database: process.env.DB_DBNAME,
+waitForConnections: true,
+connectionLimit: 10,
+queueLimit: 0
 });
 
 // pasta public
@@ -22,24 +29,6 @@ app.use(express.static(__dirname + '/public'));
 // pasta views
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-// Configuração do banco de dados
-const db = mysql.createConnection({
-    host: 'srv1595.hstgr.io',
-    user: 'u610580921_marianachaves',
-    password: 'SesiSen@i2024',
-    database: 'u610580921_tcc',
-    ssl: { rejectUnauthorized: false }
-});
-
-// Conexão com o banco de dados
-db.connect((error) => {
-    if (error) {
-        console.log("Erro ao conectar com o banco de dados:", error);
-    } else {
-        console.log("Conectado ao MySQL");
-    }
-});
 
 // Sessão
 app.use(session({
