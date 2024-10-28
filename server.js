@@ -28,8 +28,10 @@ const db = mysql.createConnection({
     host: 'srv1595.hstgr.io',
     user: 'u610580921_marianachaves',
     password: 'SesiSen@i2024',
-    database: 'u610580921_tcc'
+    database: 'u610580921_tcc',
+    ssl: { rejectUnauthorized: false }
 });
+
 
 // Conexão com o banco de dados
 db.connect((error) => {
