@@ -4,7 +4,7 @@ var session = require('express-session');
 var app = express();
 const multer = require('multer');
 const fs = require('fs');
-const mysql = require('mysql2'); //Sabrina? oi isa, eu tava testando um ngc, pq eu vi q o cadastro aluno nao esta mais funcionando pq ta cheio de await, eu ia falar isso aí, qu eu ia mudar o mysql para o promise e tudo mais... Pq essas coisas acontecem comigo? KKKKKKKKKKKKKKK, pergunta para a Milena se pode mudar? Porque tem que mudar todos os post também será q nao vai dar ainda mais trabalho? Não tem nada errado além disso, o código está certinho, para usar o promise tem que mudar a forma de pesquisa ta abom vou perguntar pra ela, tá bom aguardo o retorno
+const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const path = require('path');
 const nodemailer = require("nodemailer");
@@ -69,46 +69,41 @@ app.get("/", (req, res) => {
 
 // Esqueceu a senha
 app.post("/esquecerSenha", (req, res) => {
-    if (document.getElementById('recuperarSenha').value == "") {
-        alert('Por favor, preencha o campo');
-    } else {
-        console.log('post encontrado');
-        const userMail = req.body.email;
-
-        // Cria o transporte do email
-        const transport = nodemailer.createTransport({
-            // Usa os termos do Google
-            host: 'smtp.gmail.com',
-            port: 465, 
-            secure: true,
-            auth: {
-                // Email do remetente
-                user: 'autorizasaida@gmail.com',
-                // Senha do sistema de segurança da conta
-                pass: 'abuusatljbqjvcpw',
-            }
-        });
-
-        // Envio do email
-        transport.sendMail({
-            from: 'Autoriza Saída <autorizasaida@gmail.com>',
-            to: userMail,
-            subject: 'Esqueceu a senha',
-            html: '<h1>FOI O EMAIL???</h1>',
-            text: 'FOI O EMAIL???'
-        }).then(() => {
-            console.log('Email enviado!!');
-            // Adicione uma resposta ao cliente se necessário
-            res.send('Email enviado com sucesso!');
-        });
-
-        // Opcional: Lidar com erro fora do Promise, se desejar
-        transport.sendMail().catch(erro => {
-            console.log('Erro ao enviar:', erro);
-            res.status(500).send('Erro ao enviar o email.');
-        });
+    if (!req.body.email) {
+        return res.send('Por favor, preencha o campo');
     }
+
+    console.log('post encontrado');
+    const userMail = req.body.email;
+
+    // Cria o transporte do email
+    const transport = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465, 
+        secure: true,
+        auth: {
+            user: 'autorizasaida@gmail.com',
+            pass: 'abuusatljbqjvcpw',
+        }
+    });
+
+    // Envio do email
+    transport.sendMail({
+        from: 'Autoriza Saída <autorizasaida@gmail.com>',
+        to: userMail,
+        subject: 'Esqueceu a senha',
+        html: '<h1>FOI O EMAIL???</h1>',
+        text: 'FOI O EMAIL???'
+    }, (error, info) => {
+        if (error) {
+            console.log('Erro ao enviar:', error);
+            return res.status(500).send('Erro ao enviar o email.');
+        }
+        console.log('Email enviado!!');
+        res.send('Email enviado com sucesso!');
+    });
 });
+
 
 //Login reformado
 app.post("/login", (req, res) => {
