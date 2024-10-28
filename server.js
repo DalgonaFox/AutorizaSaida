@@ -4,7 +4,7 @@ var session = require('express-session');
 var app = express();
 const multer = require('multer');
 const fs = require('fs');
-const mysql = require('mysql2/promise'); //Sabrina? oi isa, eu tava testando um ngc, pq eu vi q o cadastro aluno nao esta mais funcionando pq ta cheio de await, eu ia falar isso aí, qu eu ia mudar o mysql para o promise e tudo mais... Pq essas coisas acontecem comigo? KKKKKKKKKKKKKKK, pergunta para a Milena se pode mudar? Porque tem que mudar todos os post também será q nao vai dar ainda mais trabalho? Não tem nada errado além disso, o código está certinho, para usar o promise tem que mudar a forma de pesquisa ta abom vou perguntar pra ela, tá bom aguardo o retorno
+const mysql = require('mysql2'); //Sabrina? oi isa, eu tava testando um ngc, pq eu vi q o cadastro aluno nao esta mais funcionando pq ta cheio de await, eu ia falar isso aí, qu eu ia mudar o mysql para o promise e tudo mais... Pq essas coisas acontecem comigo? KKKKKKKKKKKKKKK, pergunta para a Milena se pode mudar? Porque tem que mudar todos os post também será q nao vai dar ainda mais trabalho? Não tem nada errado além disso, o código está certinho, para usar o promise tem que mudar a forma de pesquisa ta abom vou perguntar pra ela, tá bom aguardo o retorno
 const bodyParser = require('body-parser');
 const path = require('path');
 const nodemailer = require("nodemailer");
@@ -24,8 +24,8 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Configuração do banco de dados
-const db = mysql.createPool({
-    host: 'srv1595.hstgr.io',
+const db = mysql.createConnection({
+    host: '193.203.175.120',
     user: 'u610580921_marianachaves',
     password: 'SesiSen@i2024',
     database: 'u610580921_tcc',
