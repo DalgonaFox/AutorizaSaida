@@ -14,8 +14,10 @@
         <h2 style="font-family: Inter; text-align: center; margin-bottom: 20px;">Justificar Falta com Documento</h2>
         <p style="font-family: Inter; text-align: center; margin-bottom: 30px;">Preencha o formulário de acordo com as
           instruções a seguir.</p>
-        <form class='saida-form' action='/uploadFalta' method="post">
+          <form class='saida-form' action='/uploadFalta' method="post" enctype="multipart/form-data">
           <input type="hidden" name="cod_turma" value="<%= cod_turma %>">
+          <%= data_envio %>
+          <input type="hidden" id="data" name="data_envio" value="<%= data_envio %>" style="width: 48%;" readonly>
           <input type="hidden" name="formType" value="justificarFalta">
           <div class="form-group">
             <div class="row">

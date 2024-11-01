@@ -38,23 +38,33 @@
         </thead>
         <tbody>
           <% pendencias.forEach((pendencia) => { %>
-          <tr>
-            <td><%= pendencia.nome_aluno %></td>
-            <td><%= pendencia.tipo_pendencia %></td>
-
-             <% if (pendencia.justificativa !== null) { %>
-              <td> <button class="btn btn-blue btn-sm"><span class="bi-download"> Baixar</button> </td>
-              <% } else { %>
-                <td class="font-italic">Vazio</td>
-              <% } %>
-
-            <td><%= pendencia.tipo_curso %></td>
-            <td><%= new Date(pendencia.data_saida).toLocaleDateString('pt-BR') || 'N/A' %></td> <!-- Formato de data -->
-            <td>
-              <a href="/autorizaPendencia/<%= pendencia.cod_pendencia %>?tipo=<%= pendencia.tipo_pendencia %>" class="btn btn-blue btn-sm">Detalhes</a>
-            </td>
-          </tr>
-          <% }); %>
+            <tr>
+                <td><%= pendencia.nome_aluno %></td>
+                <td><%= pendencia.tipo_pendencia %></td>
+    
+                <% if (pendencia.justificativa !== null ) { %>
+                    <td>
+                        <% if (pendencia.tipo_pendencia === 'Justificativa de Saída') { %>
+                            <a href="/uploads/justsaida/<%= pendencia.cod_pendencia %>" class="btn btn-blue btn-sm">
+                                <span class="bi-download"> Baixar</span>
+                            </a>
+                        <% } else if (pendencia.tipo_pendencia === 'Justificativa de Falta') { %>
+                            <a href="/uploads/justfalta/<%= pendencia.cod_pendencia %>" class="btn btn-blue btn-sm">
+                                <span class="bi-download"> Baixar</span>
+                            </a>
+                        <% } %>
+                    </td>
+                <% } else { %>
+                    <td class="font-italic">Vazio</td>
+                <% } %>
+    
+                <td><%= pendencia.tipo_curso %></td>
+                <td><%= new Date(pendencia.data_saida).toLocaleDateString('pt-BR') || 'N/A' %></td> <!-- Formato de data -->
+                <td>
+                    <a href="/autorizaPendencia/<%= pendencia.cod_pendencia %>?tipo=<%= pendencia.tipo_pendencia %>" class="btn btn-blue btn-sm">Autorizar</a>
+                </td>
+            </tr>
+            <% }); %>
         </tbody>
       </table>
       <div class="texto d-flex w-100 justify-content-between mt-4">

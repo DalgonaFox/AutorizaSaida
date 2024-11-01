@@ -2,7 +2,7 @@
   "name": "justificafalta",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "index.ejs",
   "scripts": {
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"

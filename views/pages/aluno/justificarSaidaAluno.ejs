@@ -26,8 +26,11 @@
                     <option selected>Selecione a data</option>
                     <% saida.forEach(function(item) { %>
                         <option value="<%= item.cod_req %>"><%= new Date(item.data).toLocaleDateString('pt-BR') %></option>
+                        <%= saida.data %>                
+                        <input type="hidden" id="data" name="saida.data" value="<%= saida.data %>" style="width: 48%;" readonly>
                     <% }) %>
                 </select>
+
             <% } else { %>
                 <select class="form-select" name="cod_req" aria-label="Não há saídas antecipadas para justificar!" style="color: black; width: 100%; height: 40px;">
                   <option selected>Não há saídas antecipadas para justificar!</option>

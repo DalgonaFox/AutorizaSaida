@@ -22,7 +22,7 @@
             <div class="form-group">
               <label for="data">Data e Hora da Saída</label>
               <div class="d-flex justify-content-between">
-                <input type="date" id="data" name="data_saida" class="form-control" value="<%= new Date(data_saida).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-') %>" style="width: 48%;" readonly>
+                <input type="date" id="data" name="data_saida" value="<%= data_saida %>" style="width: 48%;" readonly>
                 <input type="time" id="hora" name="hora_saida" class="form-control" style="width: 48%;">
               </div>
             </div>

@@ -42,37 +42,45 @@
         </thead>
 
         <tbody>
-          <% if (historico && historico.length > 0) { %>
-            <% historico.forEach(function(historico) { %>
-            <tr>
-              <td><%= historico.nome_aluno %></td>
-              <td><%= historico.tipo_historico %></td>
-  
-               <% if (historico.justificativa !== null) { %>
-                <td> <button class="btn btn-blue btn-sm"><span class="bi-download"> Baixar</button> </td>
+    <% historico.forEach((historico) => { %>
+        <tr>
+            <td><%= historico.nome_aluno %></td>
+            <td><%= historico.tipo_historico %></td>
+    
+            
+                <% if (historico.justificativa !== null) { %>
+                  <td>
+                    <% if (historico.tipo_historico === 'Justificativa de Saída') { %>
+                        <a href="/uploads/justsaida/<%= historico.cod_historico %>" class="btn btn-blue btn-sm">
+                            <span class="bi-download"> Baixar</span>
+                        </a>
+                    <% } else if (historico.tipo_historico === 'Justificativa de Falta') { %>
+                        <a href="/uploads/justfalta/<%= historico.cod_historico %>" class="btn btn-blue btn-sm">
+                            <span class="bi-download"> Baixar</span>
+                        </a>
+                    <% } %>
+                    </td>
                 <% } else { %>
-                  <td class="font-italic">Vazio</td>
+                    <td class="font-italic">Vazio</td>
                 <% } %>
-  
-              <td><%= historico.tipo_curso %></td>
-              <td><%= new Date(historico.data_saida).toLocaleDateString('pt-BR') || 'N/A' %></td> <!-- Formato de data -->
-              <td>
+            
+    
+            <td><%= historico.tipo_curso %></td>
+            <td><%= new Date(historico.data_saida).toLocaleDateString('pt-BR') || 'N/A' %></td>
+            <td>
                 <a href="/detalhesSaida/<%= historico.cod_historico %>?tipo=<%= historico.tipo_historico %>" class="btn btn-blue btn-sm">Detalhes</a>
-              </td>
-            </tr>
-            <% }) %>
-                    <% } else { %>
-                        <tr>
-                            <td colspan="4">Nenhum histórico registrado.</td>
-                        </tr>
-              <% } %>
-
+            </td>
+        </tr>
+    <% }); %>
+</tbody>
       </table>
       <div class="texto d-flex w-100 justify-content-between mt-4">
         <h4>Total de Registros: <%= totalHistoricos %></h4>
       </div>
     </div>
   </div>
+
+  
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
@@ -98,6 +106,7 @@
       </script>
 
   <%- include('../../partials/footer') %>
+  
 </body>
 
 </html>
