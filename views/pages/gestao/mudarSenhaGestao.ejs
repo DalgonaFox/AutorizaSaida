@@ -6,6 +6,28 @@
 <%- include('../../partials/headerGestao', { activePage: '' }) %>
 
   <body>
+    <% if (senhaMessage) { %>
+      <div class="modal fade" id="senhaModal" tabindex="-1" aria-labelledby="senhaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="senhaModalLabel">Erro</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <%= senhaMessage %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Script para exibir o modal automaticamente -->
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          var senhaModal = new bootstrap.Modal(document.getElementById('senhaModal'));
+          senhaModal.show();
+        });
+      </script>
+      <% } %>
     <div class="container">
       <div class="card shadow m-5 p-5 w-50 primeiro-acesso">
         <div class="form-container">

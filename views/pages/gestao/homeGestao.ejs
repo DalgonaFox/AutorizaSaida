@@ -6,6 +6,29 @@
 <%- include('../../partials/headerGestao', { activePage: 'homegestao' }) %>
 
 <body>
+    <% if (sendMessage) { %>
+        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">Sucesso!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <%= sendMessage %>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+        <!-- Script para exibir o modal automaticamente -->
+        <script>
+          document.addEventListener("DOMContentLoaded", function() {
+            var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+          });
+        </script>
+      <% } %>
     <div class="container-fluid" style="width: 80%; min-height: 83.1vh;">
         <div style="min-height: 79%;">
             <!--Bem-vindo-->
@@ -26,32 +49,30 @@
             <div class="d-flex mb-5 justify-content-between">
 
                 <% if (total > 0) { %>
-                    <div class="card">
+                    <div class="card mr-3 p-3 shadow">
                         <h5 class="card-title">Pendências do dia</h5>
                         <div class="grafico-container">
                             <canvas id="graficoRosca"></canvas>
                         </div>  
                     </div>
                 <% } else { %>
-                    <div class="card">
+                    <div class="card mr-3 p-3 shadow">
                         <h5 class="card-title">Pendências do dia</h5>
                         <p>Não há pendências hoje!</p>
                     </div>
                 <% } %>
 
-                <!--Gráfico Períodos do ano-->
-                <iframe class="grafico-periodo shadow border"
-                    src="https://e.infogram.com/2e085507-3de9-449d-9091-df006709e714?src=embed" scrolling="no"
-                    frameborder="0" allowfullscreen="allowfullscreen"></iframe>
-
-                <!--Gráfico Pendências do dia-->
-                <iframe class="grafico-pendencia shadow border"
-                    src="https://e.infogram.com/6bc2ef5d-b3e8-413e-9976-e54136c687fa?src=embed" scrolling="no"
-                    frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+                <div class="card mr-3 p-3 w-50 shadow">
+                    <h5 class="card-title text-center">Períodos do ano com maiores índices de saída</h5>
+                    <div class="grafico-container">
+                        <canvas id="graficoperiodoano"></canvas>
+                    </div>  
+                </div>
+        
 
                 <!--Avisos-->
-                <div class="d-flex flex-column pb-5" style="justify-content: space-between;">
-                    <div class="card card-saida shadow">
+                <div class="d-flex flex-column pb-5">
+                    <div class="card card-saida mb-5 shadow">
                         <div class="card-body">
                             <% if (totalPendencias > 0) { %>
                                     <h5 class="card-title">Você tem <%= totalPendencias %> pendências restantes</h5>
@@ -69,25 +90,211 @@
                         </div>
                     </div>
                 </div>
+
+    
             </div>
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between mb-4">
                 <!--Trio de Gráficos-->
-                <iframe class="grafico-trio shadow border"
-                    src="https://e.infogram.com/cb56e93e-1de1-4a4f-bff4-1433f435af0d?src=embed" scrolling="no"
-                    frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+                <div class="card mr-3 p-3 shadow" style="width: 30%;">
+                    <h5 class="card-title text-center">Cursos Técnicos com maior índice de saída</h5>
+                    <div class="d-flex justify-content-center">
+                        <div class="grafico-container w-75">
+                            <canvas id="graficotecnico"></canvas>
+                        </div>
+                    </div>
+                      
+                </div>
 
-                <iframe class="grafico-trio shadow border"
-                    src="https://e.infogram.com/71e78566-9bc3-43f7-aa1f-2827a376230d?src=embed" scrolling="no"
-                    frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+                <div class="card mr-3 p-3 shadow" style="width: 30%;">
+                    <h5 class="card-title text-center">CAI com maior índice de saída</h5>
+                    <div class="d-flex justify-content-center">
+                    <div class="grafico-container w-75">
+                        <canvas id="graficocai"></canvas>
+                    </div> 
+                    </div>
+                </div>
 
-                <iframe class="grafico-trio shadow border"
-                    src="https://e.infogram.com/2152b75e-f8ca-4dd1-8cf0-97441054c5fb?src=embed" scrolling="no"
-                    frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+                <div class="card p-3 shadow" style="width: 30%;">
+                    <h5 class="card-title text-center">Cursos FIC com maior índice de saída</h5>
+                    <div class="d-flex justify-content-center">
+                    <div class="grafico-container w-75">
+                        <canvas id="graficofic"></canvas>
+                    </div> 
+                    </div>
+                </div>
+                
             </div>
         </div>
     </div>
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            fetch('/periodoano')
+                .then(response => response.json())
+                .then(data => {
+                    const ctx = document.getElementById('graficoperiodoano').getContext('2d');
+                    new Chart(ctx, {
+                type: 'bar', // Gráfico de colunas
+                data: {
+                    labels: data.labels, // Nomes dos meses
+                    datasets: [{
+                        label: 'Número de Saídas',
+                        data: data.valores, // Total de saídas por mês
+                        backgroundColor: ['#ff0100', '#af0004', '#690001', '#00097a', '#0141bc'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return `Saídas: ${tooltipItem.raw}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Mês'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Número de Saídas'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
+</script>
+
+        <script>
+            fetch('/saidastecnico')
+                .then(response => response.json())
+                .then(data => {
+                    const ctx = document.getElementById('graficotecnico').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: data.labels, // Usando a variável data ao invés de response
+                            datasets: [{
+                                data: data.valores, // Dados da consulta
+                                backgroundColor: ['#ff0100', '#af0004', '#690001', '#00097a', '#0141bc'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(tooltipItem) {
+                                            const label = tooltipItem.label || '';
+                                            const value = tooltipItem.raw || 0;
+                                            const total = data.valores.reduce((acc, val) => acc + val, 0); // Total de saídas
+                                            const percentage = ((value / total) * 100).toFixed(1);
+                                            return `${label}: ${value} (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
+        </script>
+
+<script>
+    fetch('/saidascai')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('graficocai').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: data.labels, // Usando a variável data ao invés de response
+                    datasets: [{
+                        data: data.valores, // Dados da consulta
+                        backgroundColor: ['#ff0100', '#af0004', '#690001', '#00097a', '#0141bc'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    const label = tooltipItem.label || '';
+                                    const value = tooltipItem.raw || 0;
+                                    const total = data.valores.reduce((acc, val) => acc + val, 0); // Total de saídas
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
+</script>
+
+<script>
+    fetch('/saidasfic')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('graficofic').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: data.labels, // Usando a variável data ao invés de response
+                    datasets: [{
+                        data: data.valores, // Dados da consulta
+                        backgroundColor: ['#ff0100', '#af0004', '#690001', '#00097a', '#0141bc'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    const label = tooltipItem.label || '';
+                                    const value = tooltipItem.raw || 0;
+                                    const total = data.valores.reduce((acc, val) => acc + val, 0); // Total de saídas
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
+</script>
+        
         <script>
             fetch('/dadosPendencias')
                 .then(response => response.json())
@@ -99,7 +306,7 @@
                             labels: ['Pendências Restantes', 'Pendências Lidas'],
                             datasets: [{
                                 data: [data.pendenciasRestantes, data.pendenciasLidas],
-                                backgroundColor: ['#FF6384', '#36A2EB'],
+                                backgroundColor: ['#af0004', '#00097a'],
                                 borderWidth: 0,
                             }]
                         },

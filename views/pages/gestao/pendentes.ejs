@@ -61,7 +61,7 @@
                 <td><%= pendencia.tipo_curso %></td>
                 <td><%= new Date(pendencia.data_saida).toLocaleDateString('pt-BR') || 'N/A' %></td> <!-- Formato de data -->
                 <td>
-                    <a href="/autorizaPendencia/<%= pendencia.cod_pendencia %>?tipo=<%= pendencia.tipo_pendencia %>" class="btn btn-blue btn-sm">Autorizar</a>
+                    <a href="/autorizaPendencia/<%= pendencia.cod_pendencia %>?tipo=<%= pendencia.tipo_pendencia %>" class="btn btn-blue btn-sm">Analisar</a>
                 </td>
             </tr>
             <% }); %>

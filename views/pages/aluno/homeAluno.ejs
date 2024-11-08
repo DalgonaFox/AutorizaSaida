@@ -3,128 +3,199 @@
 <html lang="pt-br">
 
 <%- include('../../partials/head', { title: 'Home' }) %>
-<%- include('../../partials/headerAluno', { activePage: 'home' }) %>
+  <%- include('../../partials/headerAluno', { activePage: 'home' }) %>
 
-<script>
-  function checkSession() {
-      fetch('/protected')
+    <script>
+      function checkSession() {
+        fetch('/protected')
           .then(response => {
-              if (response.status === 401) {
-                  alert('Sua sessão expirou. Por favor, faça login novamente.');
-                  // Redirecionar para a página de login ou home
-                  window.location.href = '/login'; // Altere para sua página de login
-              }
+            if (response.status === 401) {
+              alert('Sua sessão expirou. Por favor, faça login novamente.');
+              // Redirecionar para a página de login ou home
+              window.location.href = '/login'; // Altere para sua página de login
+            }
           });
-  }
+      }
 
-  // Verifica a sessão a cada 30 segundos
-  setInterval(checkSession, 30000);
-</script>
+      // Verifica a sessão a cada 30 segundos
+      setInterval(checkSession, 30000);
+    </script>
 
     <body>
-      <div class="container" style="width: 80%;">
-      <div style="min-height: 79%;">
-
-        <!--Bem-vindo-->
-        <% if (genero === 2) { %>
-          <h3 class="font-italic font-weight-bold mt-5 mb-5">Bem-vinda, <%= nome_aluno %>.</h3>
-          <% } else { %>
-            <h3 class="font-italic font-weight-bold mt-5 mb-5">Bem-vindo, <%= nome_aluno %>.</h3>
-          <% } %>
-
-
-        <div class="d-flex flex-column">
-          <!--Cards-->
-          <div class="d-flex justify-content-between">
-            <a class="requisicao mr-4" href="/requisicaoAluno">
-              <div class="card">
-                <img src="/images/frente_senai.png" class="card-img-top card-image"
-                  alt="Requisição de Saída Antecipada">
-                <div class="card-body text-center">
-                  <p class="card-text">Requisição de Saída Antecipada</p>
-                </div>
+      <!-- Modal -->
+      <!-- Modal de Sucesso -->
+      <% if (sendMessage) { %>
+        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">Sucesso!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-            </a>
-
-            <a class="requisicao mr-4" href="/justificarFaltaAluno">
-              <div class="card">
-                <img src="/images/SALAMEDICO.png" class="card-img-top card-image" alt="Justificar Falta com Atestado">
-                <div class="card-body text-center">
-                  <p class="card-text">Justificar Falta com Atestado</p>
-                </div>
+              <div class="modal-body">
+                <%= sendMessage %>
               </div>
-            </a>
-
-            <a class="requisicao" href="/justificarSaidaAluno">
-              <div class="card">
-                <img src="/images/corredor_senai.png" class="card-img-top card-image"
-                  alt="Justificar Saída com Atestado">
-                <div class="card-body text-center">
-                  <p class="card-text">Justificar Saída com Atestado</p>
-                </div>
-              </div>
-            </a>
-          </div>
-
-          <div class="mb-5 mt-4">
-            <!--Avisos-->
-            <div class="d-flex justify-content-between">
-              <div class="d-flex flex-column justify-content-between w-100 mr-5">
-
-                <div class="card">
-                  <div class="card-body">
-                    <h5 class="card-title">Justificar Saídas</h5>
-                    <% if (saidasInjustificadas > 1) { %>
-                    <p class="card-text">Você tem <%= saidasInjustificadas %> saídas antecipadas não justificadas. Deseja justificar com atestado?
-                    </p>
-                    <a href="/justificarSaidaAluno" class="btn btn-red">Sim</a>
-                    <%} else if (saidasInjustificadas === 1) { %>
-                      <p class="card-text">Você tem <%= saidasInjustificadas %> saída antecipada não justificada. Deseja justificar com atestado?
-                      </p>
-                      <a href="/justificarSaidaAluno" class="btn btn-red">Sim</a>
-                    <% } else { %>
-                      <p class="card-text">Você não tem nenhuma saída injustificada!
-                      </p>
-                      <a href="/justificarSaidaAluno" class="btn btn-red">Parabéns!
-                      </a>
-                    <% } %>
-                  </div>
-                </div>
-
-                <div class="card">
-                  <div class="card-body shadow">
-                    <h5 class="card-title">Saídas Antecipadas</h5>
-                    <% if (totalSaidas < 1) { %>
-                    <p class="card-text">Você não saiu antecipadamente nenhuma vez!</p>
-                    <%} else if (totalSaidas > 1) { %>
-                    <p class="card-text">Você saiu antecipadamente <%= totalSaidas %> vezes.</p>
-                    <a href="/historicoAluno" class="btn btn-red">Verificar</a>
-                    <% } else { %>
-                      <p class="card-text">Você saiu antecipadamente <%= totalSaidas %> vez.</p>
-                    <a href="/historicoAluno" class="btn btn-red">Verificar</a>
-                    <% } %>
-                  </div>
-                </div>
-              </div>
-
-              <!--Gráfico-->
-              <div>
-                <iframe class="grafico-saida shadow border"
-                  src="https://e.infogram.com/9f24c3a6-733c-41fc-8ea7-d40367798070?src=embed" scrolling="no"
-                  frameborder="0" style="border:none;"></iframe>
-              </div>
-
             </div>
           </div>
         </div>
 
-      </div>
-      </div>
+        <!-- Script para exibir o modal automaticamente -->
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+          });
+        </script>
+        <% } %>
 
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
-      <%- include('../../partials/footer') %>
+          <div class="container" style="width: 80%;">
+            <div style="min-height: 79%;">
+
+              <!--Bem-vindo-->
+              <% if (genero===2) { %>
+                <h3 class="font-italic font-weight-bold mt-5 mb-5 centralizarresponsivo">Bem-vinda, <%= nome_aluno %>.
+                </h3>
+                <% } else { %>
+                  <h3 class="font-italic font-weight-bold mt-5 mb-5 centralizarresponsivo">Bem-vindo, <%= nome_aluno %>.
+                  </h3>
+                  <% } %>
+
+
+                    <div class="d-flex flex-column">
+                      <!--Cards-->
+                      <div class="d-flex justify-content-between flex-wrap responsivohome">
+                        <a class="requisicao m-1" href="/requisicaoAluno">
+                          <div class="card">
+                            <img src="/images/frente_senai.png" class="card-img-top card-image"
+                              alt="Requisição de Saída Antecipada">
+                            <div class="card-body text-center">
+                              <p class="card-text">Requisição de Saída Antecipada</p>
+                            </div>
+                          </div>
+                        </a>
+
+                        <a class="requisicao m-1" href="/justificarFaltaAluno">
+                          <div class="card">
+                            <img src="/images/SALAMEDICO.png" class="card-img-top card-image"
+                              alt="Justificar Falta com Atestado">
+                            <div class="card-body text-center">
+                              <p class="card-text">Justificar Falta com Atestado</p>
+                            </div>
+                          </div>
+                        </a>
+
+                        <a class="requisicao m-1" href="/justificarSaidaAluno">
+                          <div class="card">
+                            <img src="/images/corredor_senai.png" class="card-img-top card-image"
+                              alt="Justificar Saída com Atestado">
+                            <div class="card-body text-center">
+                              <p class="card-text">Justificar Saída com Atestado</p>
+                            </div>
+                          </div>
+                        </a>
+                      </div>
+
+                      <div class="mb-5 mt-4 responsivohome d-flex">
+                        <!--Avisos-->
+                        <div class="d-flex justify-content-between w-100 responsivohome">
+                          <div class="d-flex flex-column justify-content-between mr-5 w-100">
+                            <div class="card m-1">
+                              <div class="card-body shadow">
+                                <h5 class="card-title">Justificar Saídas</h5>
+                                <% if (saidasInjustificadas> 1) { %>
+                                  <p class="card-text">Você tem <%= saidasInjustificadas %> saídas antecipadas não
+                                      justificadas. Deseja justificar com atestado?
+                                  </p>
+                                  <a href="/justificarSaidaAluno" class="btn btn-red">Sim</a>
+                                  <%} else if (saidasInjustificadas===1) { %>
+                                    <p class="card-text">Você tem <%= saidasInjustificadas %> saída antecipada não
+                                        justificada. Deseja justificar com atestado?
+                                    </p>
+                                    <a href="/justificarSaidaAluno" class="btn btn-red">Sim</a>
+                                    <% } else { %>
+                                      <p class="card-text">Você não tem nenhuma saída injustificada!
+                                      </p>
+                                      <a href="/justificarSaidaAluno" class="btn btn-red">Parabéns!
+                                      </a>
+                                      <% } %>
+                              </div>
+                            </div>
+
+                            <div class="card m-1">
+                              <div class="card-body shadow">
+                                <h5 class="card-title">Saídas Antecipadas</h5>
+                                <% if (totalSaidas < 1) { %>
+                                  <p class="card-text">Você não saiu antecipadamente nenhuma vez!</p>
+                                  <%} else if (totalSaidas> 1) { %>
+                                    <p class="card-text">Você saiu antecipadamente <%= totalSaidas %> vezes.</p>
+                                    <a href="/historicoAluno" class="btn btn-red">Verificar</a>
+                                    <% } else { %>
+                                      <p class="card-text">Você saiu antecipadamente <%= totalSaidas %> vez.</p>
+                                      <a href="/historicoAluno" class="btn btn-red">Verificar</a>
+                                      <% } %>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!--Gráfico-->
+                          <div class=" m-1 card col-md-3 p-3 shadow">
+                            <h5 class="card-title">Índice de Saídas</h5>
+                            <div class="grafico-container">
+                              <canvas id="graficoRosca"></canvas>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+
+            </div>
+          </div>
+
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          <script>
+            fetch('/saidasaluno')
+              .then(response => response.json())
+              .then(data => {
+                const ctx = document.getElementById('graficoRosca').getContext('2d');
+                new Chart(ctx, {
+                  type: 'doughnut',
+                  data: {
+                    labels: ['Saídas Restantes', 'Saídas Realizadas'],
+                    datasets: [{
+                      data: [data.saidasRestantes, data.saidasRealizadas],
+                      backgroundColor: ['#00097a', '#af0004'],
+                      borderWidth: 0,
+                    }]
+                  },
+                  options: {
+                    responsive: true,
+                    plugins: {
+                      legend: {
+                        position: 'top',
+                      },
+                      tooltip: {
+                        callbacks: {
+                          label: function (tooltipItem) {
+                            const label = tooltipItem.label || '';
+                            const value = tooltipItem.raw || 0;
+                            const total = data.total;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} (${percentage}%)`;
+                          }
+                        }
+                      }
+                    }
+                  }
+                });
+              })
+              .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
+          </script>
+
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+          <%- include('../../partials/footer') %>
     </body>
 
 </html>

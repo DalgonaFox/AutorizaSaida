@@ -9,6 +9,13 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const nodemailer = require("nodemailer");
 
+// Porta
+const port = 8080;
+app.listen(port, () => {
+    console.log(`Servidor rodando na porta ${port}`);
+    console.log(`Acesse pelo ip que eu mandar no zap + :${port}`);
+});
+
 // pasta public
 app.use(express.static(__dirname + '/public'));
 
@@ -16,19 +23,21 @@ app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-const port = process.env.PORT || 3001;
+// Configuração do banco de dados
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'tcc'
+});
 
-
-const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
-
-const db = mysql.createPool({
-host: process.env.DB_HOST,
-user: process.env.DB_USERNAME,
-password: process.env.DB_PASSWORD,
-database: process.env.DB_DBNAME,
-waitForConnections: true,
-connectionLimit: 10,
-queueLimit: 0
+// Conexão com o banco de dados
+db.connect((error) => {
+    if (error) {
+        console.log("Erro ao conectar com o banco de dados:", error);
+    } else {
+        console.log("Conectado ao MySQL");
+    }
 });
 
 // Sessão
@@ -53,64 +62,81 @@ app.get("/manutencao", (req, res) => {
 
 // Login
 app.get("/", (req, res) => {
-    res.render("index", { errorMessage: null, successMessage: null });
+    res.render("index", { errorMessage: null, successMessage: null, sendMessage: null });
 }); // oi milena
 
 
 // Esqueceu a senha
 app.post("/esquecerSenha", (req, res) => {
-    console.log('post encontrado');
+    console.log('Requisição de recuperação de senha recebida');
     const userMail = req.body.email;
 
     const query = `
-        SELECT rm AS ident FROM aluno WHERE email_aluno = ?
+        SELECT 'aluno' AS ident FROM aluno WHERE email_aluno = ?
         UNION
-        SELECT nif AS ident FROM gestor WHERE email_gestor = ?;
+        SELECT 'gestor' AS ident FROM gestor WHERE email_gestor = ?;
     `;
 
-    if (!userMail){
-        return res.render('index', {errorMessage: 'Por favor, preencha o campo.'});
-    } else {
-        db.query(query, [userMail, userMail], (error, res) => {
-            if (error) {
-                console.log("Erro ao executar a consulta no banco de dados:", error);
-            } 
+    db.query(query, [userMail, userMail], (error, results) => {
+        if (error) {
+            console.log("Erro ao executar a consulta no banco de dados:", error);
+        }
 
-            if (res.length > 0) {
-                const id = res[0].ident;
+        if (results.length === 0 || results[0].ident == null) {
+            console.log("E-mail não cadastrado");
+            return res.render('index', { errorMessage: 'Coloque um email válido!', successMessage: null, sendMessage: null });
+        } else {
+            // Identificação do tipo de usuário e definição do update
+            const ident = results[0].ident;
+            const tabela = ident === 'aluno' ? 'aluno' : 'gestor';
+            const campoEmail = ident === 'aluno' ? 'email_aluno' : 'email_gestor';
 
-                //Se o rm ou nif forem nulos, então não tem esse email no banco
-                if (id == null) {
-                    console.log("email não cadastrado")
+            // Configuração do transporte de e-mail
+            const transport = nodemailer.createTransport({
+                host: 'smtp.gmail.com',
+                port: 465,
+                secure: true,
+                auth: {
+                    user: 'autorizasaida@gmail.com',
+                    pass: 'abuusatljbqjvcpw',
+                }
+            });
+            console.log('Transporte de e-mail criado');
+
+            // Geração da nova senha
+            function gerarPassword() {
+                return Math.random().toString(36).slice(-8);
+            }
+            let novaSenha = gerarPassword();
+
+            // Atualização da senha e primeiro acesso na tabela correta
+            const updateQuery = `
+                UPDATE ${tabela} SET senha = ?, primeiro_acesso = true WHERE ${campoEmail} = ?
+            `;
+
+            db.query(updateQuery, [novaSenha, userMail], (updateError, updateResult) => {
+                if (updateError) {
+                    console.log("Erro ao atualizar senha:", updateError);
                 } else {
-                    //Cria o transporte do email
-                    const transport = nodemailer.createTransport({
-                        //Usa os termos do Google
-                        host: 'smtp.gmail.com',
-                        port: 465 , 
-                        secure: true,
-                        auth: {
-                        //Email do remetente
-                        user: 'autorizasaida@gmail.com',
-                        //Senha do sistema de segurança da conta
-                        pass: 'abuusatljbqjvcpw',
-                        }
-                    });
-                    console.log('transporte criado');
-
-                    //Envio do email
+                    // Envio do e-mail
                     transport.sendMail({
                         from: 'Autoriza Saída <autorizasaida@gmail.com>',
                         to: userMail,
-                        subject: 'Esqueceu a senha',
-                        html: '<h1>FOI O EMAIL???</h1>',
-                        text: 'FOI O EMAIL???'
-                    })
-                    console.log('email enviado!!');
-                }
-            }
-        });
-    }
+                        subject: 'Recuperar a senha',
+                        html: `<p>Olá, você pediu para recuperar a senha da sua conta. Aqui está a sua nova senha: ${novaSenha}</p>`,
+                        text: `Olá, você pediu para recuperar a senha da sua conta. Aqui está a sua nova senha: ${novaSenha}`
+                    }, (err, info) => {
+                        if (err) {
+                            console.log('Erro ao enviar e-mail:', err);
+                        } else {
+                            console.log('E-mail enviado com sucesso');
+                            return res.render('index', { errorMessage: null, successMessage: 'E-mail enviado com sucesso!', sendMessage: null });
+                        }
+                    });
+                }  
+            });
+        }
+    });
 });
 
 //Login reformado
@@ -161,10 +187,10 @@ app.post("/login", (req, res) => {
                 }
             } else {
                 // Se a senha estiver incorreta, renderize a página de login com uma mensagem de erro
-                return res.render('index', { errorMessage: 'Senha incorreta. Tente novamente.', successMessage: null });
+                return res.render('index', { errorMessage: 'Senha incorreta. Tente novamente.', successMessage: null});
             }
         } else {
-            return res.render('index', {errorMessage: 'Aluno não cadastrado.', successMessage: null}); // oii // ooi // ooii // oii
+            return res.render('index', {errorMessage: 'Aluno não cadastrado.', successMessage: null, sendMessage: null}); // oii // ooi // ooii // oii
         }
     });
 });
@@ -178,7 +204,7 @@ app.get("/primeiroAcesso", (req, res) => {
     if (!req.session.email_user) {
         return res.redirect('/');
     }
-    res.render("pages/aluno/primeiroAcesso");
+    res.render("pages/aluno/primeiroAcesso", { senhaMessage: null });
 });
 
 app.post('/primeiroAcesso', (req, res) => {
@@ -190,14 +216,14 @@ app.post('/primeiroAcesso', (req, res) => {
     } 
 
     if (nova_senha.trim() !== confirmacaoSenha.trim()) {
-        return res.send("A nova senha e a confirmação não coincidem.");
+        return res.render("pages/aluno/primeiroAcesso", { senhaMessage: "A nova senha e a confirmação não coincidem." });
     }
 
     const query = 'SELECT senha FROM aluno WHERE email_aluno = ?';
     db.query(query, [email_aluno], (error, results) => {
         if (error) {
             console.log("Erro ao buscar senha no banco de dados:", error);
-            return res.redirect("/Erro");
+            return res.render("pages/aluno/primeiroAcesso", { senhaMessage: "Erro ao buscar senha no banco de dados." });
         }
 
         if (results.length > 0) {
@@ -208,16 +234,16 @@ app.post('/primeiroAcesso', (req, res) => {
                 db.query(queryUpdate, [nova_senha.trim(), email_aluno], (error) => {
                     if (error) {
                         console.log("Erro ao atualizar a senha:", error);
-                        return res.redirect("/Erro");
+                        return res.render("pages/aluno/primeiroAcesso", { senhaMessage: "Erro ao atualizar a senha." });
                     }
-                    console.log("Senha atualizada com sucesso!");
+                    req.session.sendMessage = 'Senha atualizada com sucesso!';
                     return res.redirect('/homeAluno');
                 });
             } else {
-                return res.send("Senha atual incorreta.");
+                return res.render("pages/aluno/primeiroAcesso", { senhaMessage: "Senha atual incorreta." });
             }
         } else {
-            return res.send("Usuário não encontrado.");
+            return res.render("pages/aluno/primeiroAcesso", { senhaMessage: "Usuário não encontrado." });
         }
     });
 });
@@ -268,8 +294,9 @@ app.get("/homeAluno", (req, res) => {
                             return res.status(500).send('Erro ao encontrar o gênero.');
                         }
                         const genero = results[0].genero;
-
-                        res.render("pages/aluno/homeAluno", { nome_aluno, totalSaidas, saidasInjustificadas, genero });
+                        const sendMessage = req.session.sendMessage || null;
+                        req.session.sendMessage = null;
+                        res.render("pages/aluno/homeAluno", { nome_aluno, totalSaidas, saidasInjustificadas, genero, sendMessage });
                         console.log("Genero:", genero);
                     })
 
@@ -287,124 +314,120 @@ app.get('/historicoAluno', async (req, res) => {
     if (!req.session.email_user) {
         return res.redirect('/');
     }
+    
     const rm = req.session.rm;
-    try {
-        const { ordenar, justificativa } = req.query;
+    const { ordenar, justificativa } = req.query;
 
-        console.log("Parâmetros recebidos:", { ordenar, justificativa });
+    console.log("Parâmetros recebidos:", { ordenar, justificativa });
 
-        // Encapsulando toda a consulta UNION ALL em uma subquery
-        let historicoQuery = `
-            SELECT * FROM (
-                SELECT 
-                    a.nome_aluno AS nome_aluno,
-                    a.rm AS rm,
-                    c.tipo_curso AS tipo_curso,
-                    r.data_saida AS data_saida,
-                    js.cod_req AS justificativa,
-                    'Saída Antecipada' AS tipo_historico,
-                    r.cod_req AS cod_historico
-                FROM 
-                    requisicao r
-                JOIN 
-                    aluno a ON r.rm = a.rm
-                JOIN 
-                    curso c ON a.cod_curso = c.cod_curso
-                LEFT JOIN
-                    justsaida js ON r.cod_req = js.cod_req
-                WHERE 
-                    r.ciencia_gestor = TRUE
+    // Definindo a consulta base
+    let historicoQuery = `
+        SELECT * FROM (
+            SELECT 
+                a.nome_aluno AS nome_aluno,
+                a.rm AS rm,
+                c.tipo_curso AS tipo_curso,
+                r.data_saida AS data_saida,
+                js.cod_req AS justificativa,
+                'Saída Antecipada' AS tipo_historico,
+                r.cod_req AS cod_historico
+            FROM 
+                requisicao r
+            JOIN 
+                aluno a ON r.rm = a.rm
+            JOIN 
+                curso c ON a.cod_curso = c.cod_curso
+            LEFT JOIN
+                justsaida js ON r.cod_req = js.cod_req
+            WHERE 
+                r.ciencia_gestor = TRUE
 
-                UNION ALL
+            UNION ALL
 
-                SELECT 
-                    a.nome_aluno AS nome_aluno,
-                    a.rm AS rm,
-                    c.tipo_curso AS tipo_curso,
-                    r.data_saida AS data_saida,
-                    js.cod_req AS justificativa,
-                    'Justificativa de Saída' AS tipo_historico,
-                    js.cod_saida AS cod_historico
-                FROM 
-                    justsaida js
-                JOIN 
-                    requisicao r ON js.cod_req = r.cod_req
-                JOIN 
-                    aluno a ON js.rm = a.rm
-                JOIN 
-                    curso c ON a.cod_curso = c.cod_curso
-                WHERE 
-                    js.ciencia_gestor = TRUE
+            SELECT 
+                a.nome_aluno AS nome_aluno,
+                a.rm AS rm,
+                c.tipo_curso AS tipo_curso,
+                r.data_saida AS data_saida,
+                js.cod_req AS justificativa,
+                'Justificativa de Saída' AS tipo_historico,
+                js.cod_saida AS cod_historico
+            FROM 
+                justsaida js
+            JOIN 
+                requisicao r ON js.cod_req = r.cod_req
+            JOIN 
+                aluno a ON js.rm = a.rm
+            JOIN 
+                curso c ON a.cod_curso = c.cod_curso
+            WHERE 
+                js.ciencia_gestor = TRUE
 
-                UNION ALL
+            UNION ALL
 
-                SELECT 
-                    a.nome_aluno AS nome_aluno,
-                    a.rm AS rm,
-                    c.tipo_curso AS tipo_curso,
-                    jf.data_emissao AS data_saida,
-                    jf.arquivo AS justificativa,
-                    'Justificativa de Falta' AS tipo_historico,
-                    jf.cod_falta AS cod_historico
-                FROM 
-                    justfalta jf
-                JOIN 
-                    aluno a ON jf.rm = a.rm
-                JOIN 
-                    curso c ON a.cod_curso = c.cod_curso
-                WHERE 
-                    jf.ciencia_gestor = TRUE
-            ) AS historicos
-            WHERE historicos.rm = ?
-        `;
+            SELECT 
+                a.nome_aluno AS nome_aluno,
+                a.rm AS rm,
+                c.tipo_curso AS tipo_curso,
+                jf.data_emissao AS data_saida,
+                jf.arquivo AS justificativa,
+                'Justificativa de Falta' AS tipo_historico,
+                jf.cod_falta AS cod_historico
+            FROM 
+                justfalta jf
+            JOIN 
+                aluno a ON jf.rm = a.rm
+            JOIN 
+                curso c ON a.cod_curso = c.cod_curso
+            WHERE 
+                jf.ciencia_gestor = TRUE
+        ) AS historicos
+        WHERE historicos.rm = ?
+    `;
 
-        // Condições para o filtro de justificativa
-        let whereConditions = [];
+    // Condições para o filtro de justificativa
+    let whereConditions = [];
 
-        if (justificativa) {
-            if (justificativa === "saida") {
-                whereConditions.push("tipo_historico = 'Saída Antecipada'");
-            } else if (justificativa === "falta") {
-                whereConditions.push("tipo_historico = 'Justificativa de Falta'");
-            } else if (justificativa === "justsaida") {
-                whereConditions.push("tipo_historico = 'Justificativa de Saída'");
-            }
+    if (justificativa) {
+        if (justificativa === "saida") {
+            whereConditions.push("tipo_historico = 'Saída Antecipada'");
+        } else if (justificativa === "falta") {
+            whereConditions.push("tipo_historico = 'Justificativa de Falta'");
+        } else if (justificativa === "justsaida") {
+            whereConditions.push("tipo_historico = 'Justificativa de Saída'");
         }
+    }
 
-        // Adicionar as condições de filtro, se houver
-        if (whereConditions.length > 0) {
-            historicoQuery += " AND (" + whereConditions.join(" OR ") + ")";
-        }
+    // Adicionar as condições de filtro, se houver
+    if (whereConditions.length > 0) {
+        historicoQuery += " AND (" + whereConditions.join(" OR ") + ")";
+    }
 
-        // Ordenar os resultados, se necessário
-        if (ordenar) {
-            if (ordenar === "maisAntigo") {
-                historicoQuery += " ORDER BY data_saida ASC";
-            } else if (ordenar === "recente") {
-                historicoQuery += " ORDER BY data_saida DESC";
-            }
-        } else {
+    // Ordenar os resultados, se necessário
+    if (ordenar) {
+        if (ordenar === "maisAntigo") {
+            historicoQuery += " ORDER BY data_saida ASC";
+        } else if (ordenar === "recente") {
             historicoQuery += " ORDER BY data_saida DESC";
         }
-
-        console.log("Consulta SQL:", historicoQuery);
-
-        // Executar a consulta ao banco de dados
-        db.query(historicoQuery, [rm], (err, results) => {
-            if (err) {
-                console.error('Erro ao buscar o histórico:', err);
-                return res.status(500).send('Erro ao buscar o histórico.');
-            } else {
-                const totalHistoricos = results.length;
-                res.render('pages/aluno/historicoAluno', { historico: results, totalHistoricos });
-            }
-        });
-
-    } catch (error) {
-        console.error('Erro:', error);
-        res.status(500).send('Erro ao buscar histórico.');
+    } else {
+        historicoQuery += " ORDER BY data_saida DESC";
     }
+
+    console.log("Consulta SQL:", historicoQuery);
+
+    // Executar a consulta ao banco de dados
+    db.query(historicoQuery, [rm], (err, results) => {
+        if (err) {
+            console.error('Erro ao buscar o histórico:', err);
+            res.status(500).send('Erro ao buscar o histórico.');
+        } else {
+            const totalHistoricos = results.length;
+            res.render('pages/aluno/historicoAluno', { historico: results, totalHistoricos });
+        }
+    });
 });
+
 
 
 app.get('/detalhesHistorico/:id', (req, res) => {
@@ -423,18 +446,24 @@ app.get('/detalhesHistorico/:id', (req, res) => {
     }
 
     let selectQuery;
-    
+
     // Definir a query baseada no tipo de pendência
     if (tipo_historico === 'Saída Antecipada') {
         selectQuery = `
             SELECT r.cod_req AS cod_historico, a.nome_aluno, r.rm, c.nome_curso, t.nome_turma, r.data_saida, r.hora_saida, r.justificativa
-            FROM requisicao r JOIN aluno a ON r.rm = a.rm JOIN curso c ON a.cod_curso = c.cod_curso JOIN turma t ON a.cod_turma = t.cod_turma
+            FROM requisicao r
+            JOIN aluno a ON r.rm = a.rm
+            JOIN curso c ON a.cod_curso = c.cod_curso
+            JOIN turma t ON a.cod_turma = t.cod_turma
             WHERE r.cod_req = ?
         `;
     } else if (tipo_historico === 'Justificativa de Falta') {
         selectQuery = `
             SELECT f.cod_falta AS cod_historico, a.nome_aluno, f.rm, c.nome_curso, t.nome_turma, f.data_emissao AS data_saida, f.data_inicio, f.data_termino, f.observacao AS justificativa
-            FROM justfalta f JOIN aluno a ON f.rm = a.rm JOIN curso c ON a.cod_curso = c.cod_curso JOIN turma t ON a.cod_turma = t.cod_turma
+            FROM justfalta f
+            JOIN aluno a ON f.rm = a.rm
+            JOIN curso c ON a.cod_curso = c.cod_curso
+            JOIN turma t ON a.cod_turma = t.cod_turma
             WHERE f.cod_falta = ?
         `;
     } else if (tipo_historico === 'Justificativa de Saída') {
@@ -461,8 +490,8 @@ app.get('/detalhesHistorico/:id', (req, res) => {
         }
 
         // Renderizar a página com os dados da pendência
-        const historico = results[0];
-        res.render('pages/aluno/detalhesHistorico', { historico:results, tipo_historico });
+        const historico = results[0]; // Pega o primeiro item do array de resultados
+        res.render('pages/aluno/detalhesHistorico', { historico, tipo_historico });
     });
 });
 
@@ -680,6 +709,11 @@ app.get('/justificarSaidaAluno', (req, res) => {
     });
 });
 
+app.get('/uploadSaida', (req, res) => {
+    if (!req.session.email_user) {
+        return res.redirect('/');
+    };
+});
 
 app.post('/uploadSaida', upload.single('arquivo'), (req, res) => {
     const formType = req.body.formType;
@@ -704,7 +738,7 @@ app.post('/uploadSaida', upload.single('arquivo'), (req, res) => {
         }
 
         if (results.length === 0) {
-            return res.status(400).send('Código de requisição inválido.');
+            return res.render('/uploadSaida', {successMessage: 'Erro ao processar formulário, ou arquivo muito pesado'});
         }
 
         const data_envio = results[0].data_saida; // Data da saída recuperada
@@ -720,12 +754,14 @@ app.post('/uploadSaida', upload.single('arquivo'), (req, res) => {
             const values = [cod_req, rm, observacao, arquivoBuffer, ciencia_gestor, data_envio];
             const sql = 'INSERT INTO justsaida (cod_req, rm, observacao, arquivo, ciencia_gestor, data_envio) VALUES (?, ?, ?, ?, ?, ?)';
 
+
             db.query(sql, values, (err, results) => {
                 if (err) {
                     console.error('Erro ao inserir dados no banco:', err);
                     res.status(500).send('Erro ao processar o formulário.');
                 } else {
                     console.log('Formulário enviado com sucesso!');
+                    req.session.sendMessage = 'Formulário enviado com sucesso!';
                     return res.redirect('/homeAluno');
                 }
             });
@@ -765,33 +801,53 @@ app.post('/uploadFalta', upload.single('arquivo'), (req, res) => {
     const cod_turma = req.body.cod_turma;
     const ciencia_gestor = 0;
     const data_envio = req.body.data_envio;
-    const arquivo = req.file ? req.file.path : null;
 
-    if (!arquivo) {
+    console.log('Dados recebidos do formulário:', {
+        formType, observacao, rm, data_emissao, data_inicio, data_termino, cod_turma, ciencia_gestor, data_envio
+    });
+
+    if (!req.file) {
         console.error('Nenhum arquivo enviado.');
         return res.status(400).send('Nenhum arquivo enviado.');
     }
 
+    // Caminho do arquivo
+    const arquivoPath = req.file.path;
+    console.log('Arquivo salvo temporariamente em:', arquivoPath);
+
+    // Ler o arquivo como um buffer
     fs.readFile(arquivoPath, (err, arquivoBuffer) => {
         if (err) {
             console.error('Erro ao ler o arquivo:', err);
             return res.status(500).send('Erro ao ler o arquivo.');
         }
 
-    const values = [rm, cod_turma, data_emissao, data_inicio, data_termino, observacao, arquivoBuffer, ciencia_gestor, data_envio];
-    const sql = 'INSERT INTO justfalta (rm, cod_turma, data_emissao, data_inicio, data_termino, observacao, arquivo, ciencia_gestor, data_envio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        // Preparar valores para o INSERT
+        const values = [rm, cod_turma, data_emissao, data_inicio, data_termino, observacao, arquivoBuffer, ciencia_gestor, data_envio];
+        const sql = 'INSERT INTO justfalta (rm, cod_turma, data_emissao, data_inicio, data_termino, observacao, arquivo, ciencia_gestor, data_envio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-    db.query(sql, values, (err, results) => {
-        if (err) {
-            console.error('Erro ao inserir dados no banco:', err);
-            res.status(500).send('Erro ao processar o formulário.');
-        } else {
-            console.log('Formulário enviado com sucesso!', results);
-            res.redirect('/homeAluno');
-        }
-    })
+        console.log('Preparando para inserir dados no banco de dados:', values);
+
+        db.query(sql, values, (err, results) => {
+            console.error('Erro ao inserir dados no banco:', err)
+            if (err) {
+                console.error('Erro ao inserir dados no banco:', err);
+                res.status(500).send('Erro ao processar o formulário.');
+            } else {
+                console.log('Formulário enviado com sucesso! Resultados:', results);
+                
+                // Excluir o arquivo temporário após o upload bem-sucedido
+                fs.unlink(arquivoPath, (err) => {
+                    if (err) console.error('Erro ao excluir o arquivo temporário:', err);
+                    else console.log('Arquivo temporário excluído com sucesso.');
+                });
+                req.session.sendMessage = 'Formulário enviado com sucesso!';
+                return res.redirect('/homeAluno');
+            }
+        });
     });
 });
+
 
 
 //RequisicãoSaida
@@ -814,6 +870,7 @@ app.post('/requisicao', (req, res) => {
         } else {
             console.log('Formulário enviado com sucesso!');
             console.log(results)
+            req.session.sendMessage = 'Formulário enviado com sucesso! Você receberá um e-mail quando sua saída for autorizada.'
             return res.redirect('/homeAluno');
         }
     });
@@ -855,53 +912,46 @@ app.get("/mudarSenhaAluno", (req, res) => {
     if (!req.session.email_user) {
         return res.redirect('/');
     }
-    res.render("pages/aluno/mudarSenhaAluno");
+    res.render("pages/aluno/mudarSenhaAluno", { senhaMessage: null });
 });
 
 app.post('/mudarSenhaAluno', (req, res) => {
     const { senhaAtual, nova_senha, confirmacaoSenha } = req.body;
     const email_aluno = req.session.email_user;
 
-    console.log("Requisição para mudar senha recebida");
     if (!req.session.email_user) {
         return res.redirect('/');
     } 
 
     if (nova_senha.trim() !== confirmacaoSenha.trim()) {
-        return res.send("A nova senha e a confirmação não coincidem.");
+        return res.render("pages/aluno/mudarSenhaAluno", { senhaMessage: "A nova senha e a confirmação não coincidem." });
     }
 
-
-    console.log("Buscando senha atual no banco de dados...");
     const query = 'SELECT senha FROM aluno WHERE email_aluno = ?';
     db.query(query, [email_aluno], (error, results) => {
         if (error) {
             console.log("Erro ao buscar senha no banco de dados:", error);
-            return res.send("Erro ao buscar senha no banco de dados");
+            return res.render("pages/aluno/mudarSenhaAluno", { senhaMessage: "Erro ao buscar senha no banco de dados." });
         }
 
         if (results.length > 0) {
             const senhaDB = results[0].senha;
 
-            console.log("Senha atual do banco de dados:", senhaDB);
-
             if (senhaAtual.trim() === senhaDB) {
-                console.log("Senha atual validada. Atualizando senha...");
-
                 const queryUpdate = 'UPDATE aluno SET senha = ? WHERE email_aluno = ?';
                 db.query(queryUpdate, [nova_senha.trim(), email_aluno], (error) => {
                     if (error) {
                         console.log("Erro ao atualizar a senha:", error);
-                        return res.send("Erro ao atualizar a senha");
+                        return res.render("pages/aluno/mudarSenhaAluno", { senhaMessage: "Erro ao atualizar a senha." });
                     }
-                    console.log("Senha atualizada com sucesso!");
-                    return res.redirect("/");
+                    req.session.sendMessage = 'Senha atualizada com sucesso!';
+                    return res.redirect('/homeAluno');
                 });
             } else {
-                return res.send("Senha atual incorreta.");
+                return res.render("pages/aluno/mudarSenhaAluno", { senhaMessage: "Senha atual incorreta." });
             }
         } else {
-            return res.send("Usuário não encontrado.");
+            return res.render("pages/aluno/mudarSenhaAluno", { senhaMessage: "Usuário não encontrado." });
         }
     });
 });
@@ -913,26 +963,26 @@ app.get("/primeiroacessoGestao", (req, res) => {
     if (!req.session.email_user) {
         return res.redirect('/');
     }
-    res.render("pages/gestao/primeiroacessoGestao");
+    res.render("pages/gestao/primeiroacessoGestao", { senhaMessage: null });
 });
 
 app.post('/primeiroacessoGestao', (req, res) => {
     const { senhaAtual, nova_senha, confirmacaoSenha } = req.body;
     const email_gestor = req.session.email_user; // Email do gestor armazenado na sessão
 
-    if (!email_gestor) {
-        return res.send("Usuário não autenticado. Faça login novamente.");
-    }
+    if (!req.session.email_user) {
+        return res.redirect('/');
+    } 
 
     if (nova_senha.trim() !== confirmacaoSenha.trim()) {
-        return res.send("A nova senha e a confirmação não coincidem.");
+        return res.render("pages/aluno/primeiroacessoGestao", { senhaMessage: "A nova senha e a confirmação não coincidem." });
     }
 
     const query = 'SELECT senha FROM gestor WHERE email_gestor = ?';
     db.query(query, [email_gestor], (error, results) => {
         if (error) {
             console.log("Erro ao buscar senha no banco de dados:", error);
-            return res.redirect("/Erro");
+            return res.render("pages/aluno/primeiroacessoGestao", { senhaMessage: "Erro ao buscar senha no banco de dados." });
         }
 
         if (results.length > 0) {
@@ -943,20 +993,17 @@ app.post('/primeiroacessoGestao', (req, res) => {
                 db.query(queryUpdate, [nova_senha.trim(), email_gestor], (error) => {
                     if (error) {
                         console.log("Erro ao atualizar a senha:", error);
-                        return res.redirect("/Erro");
+                        return res.render("pages/aluno/primeiroacessoGestao", { senhaMessage: "Erro ao atualizar a senha." });
                     }
-                    console.log("Senha atualizada com sucesso!");
+                    req.session.sendMessage = 'Senha atualizada com sucesso!';
                     return res.redirect('/homeGestao');
                 });
             } else {
-                return res.send("Senha atual incorreta.");
+                return res.render("pages/aluno/primeiroacessoGestao", { senhaMessage: "Senha atual incorreta." });
             }
         } else {
-            alert("Usuário não encontrado.");
+            return res.render("pages/aluno/primeiroacessoGestao", { senhaMessage: "Usuário não encontrado." });
         }
-
-        console.log("E-mail do gestor na sessão:", email_gestor);
-
     });
 });
 
@@ -1028,11 +1075,13 @@ app.get("/homeGestao", async (req, res) => {
                     } else {
                         const total = results[0].total;
                         console.log("Total:", total)
-                        const successMessage = req.session.successMessage;
+                        const successMessage = req.session.successMessage || null;
                         req.session.successMessage = null;
+                        const sendMessage = req.session.sendMessage || null;
+                        req.session.sendMessage = null;
 
                         // Renderiza a view 'homeGestao.ejs' passando os dados
-                        res.render("pages/gestao/homeGestao", { nome_gestao, totalPendencias, genero, successMessage, total});
+                        res.render("pages/gestao/homeGestao", { nome_gestao, totalPendencias, genero, successMessage, sendMessage, total});
                         console.log("Gênero:", genero);
                             }
                 })
@@ -1213,6 +1262,184 @@ app.get("/dadosPendencias", (req, res) => {
     });
 });
 
+app.get("/periodoano", (req, res) => {
+    const query = `
+        SELECT 
+            MONTH(data_saida) AS mes,
+            COUNT(cod_req) AS totalSaidas
+        FROM 
+            requisicao
+        WHERE 
+            YEAR(data_saida) = YEAR(CURDATE()) -- Filtra para o ano atual
+        GROUP BY 
+            MONTH(data_saida)
+        ORDER BY 
+            mes;
+    `;
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error("Erro ao buscar saídas por mês:", err);
+            return res.status(500).json({ error: "Erro ao buscar saídas por mês" });
+        }
+
+        // Prepara os dados para o gráfico
+        const data = {
+            labels: Array.from({ length: 12 }, (_, i) => new Date(0, i).toLocaleString('default', { month: 'long' })), // Labels com nomes dos meses
+            valores: Array(12).fill(0) // Inicializa com zero para cada mês
+        };
+
+        results.forEach(row => {
+            data.valores[row.mes - 1] = row.totalSaidas; // Preenche o valor correspondente ao mês
+        });
+
+        res.json(data);
+    });
+});
+
+
+
+app.get("/saidasaluno", (req, res) => {
+    const rm = req.session.rm;
+    const totalQuery = `
+        SELECT
+            15 AS total,
+            COUNT(CASE WHEN ciencia_gestor = 1 THEN 1 END) AS saidasRealizadas,
+            15 - COUNT(CASE WHEN ciencia_gestor = 1 THEN 1 END) AS saidasRestantes
+        FROM requisicao
+        WHERE rm = ?;
+    `;
+
+
+    db.query(totalQuery, rm, (err, results) => {
+        if (err) {
+            console.error('Erro ao buscar saídas:', err);
+            return res.status(500).json({ error: 'Erro ao buscar saídas' });
+        } else {
+            console.log(results)
+        }
+        const data = {
+            total: results[0].total,
+            saidasRestantes: results[0].saidasRestantes,
+            saidasRealizadas: results[0].saidasRealizadas
+        };
+        res.json(data);
+    });
+});
+
+app.get("/saidascai", (req, res) => {
+    const totalQuery = `
+        SELECT 
+            curso.nome_curso AS nomeCurso,
+            COUNT(requisicao.cod_req) AS totalSaidas,
+            ROW_NUMBER() OVER (ORDER BY COUNT(requisicao.cod_req) DESC) AS ranking
+        FROM 
+            requisicao
+        JOIN 
+            aluno ON requisicao.rm = aluno.rm
+        JOIN 
+            curso ON aluno.cod_curso = curso.cod_curso
+        WHERE 
+            curso.tipo_curso = 'Bacharelado'
+        GROUP BY 
+            curso.nome_curso
+        ORDER BY 
+            totalSaidas DESC
+        LIMIT 5;
+    `;
+    
+    db.query(totalQuery, (err, results) => {
+        if (err) {
+            console.error('Erro ao buscar saídas:', err);
+            return res.status(500).json({ error: 'Erro ao buscar saídas' });
+        } else {
+            console.log(results);
+        }
+
+        const data = {
+            labels: results.map(row => row.nomeCurso), // Cursos
+            valores: results.map(row => row.totalSaidas), // Total de saídas
+        };
+    
+        res.json(data);
+    });
+});
+
+app.get("/saidasfic", (req, res) => {
+    const totalQuery = `
+        SELECT 
+            curso.nome_curso AS nomeCurso,
+            COUNT(requisicao.cod_req) AS totalSaidas,
+            ROW_NUMBER() OVER (ORDER BY COUNT(requisicao.cod_req) DESC) AS ranking
+        FROM 
+            requisicao
+        JOIN 
+            aluno ON requisicao.rm = aluno.rm
+        JOIN 
+            curso ON aluno.cod_curso = curso.cod_curso
+        WHERE 
+            curso.tipo_curso = 'Bacharelado'
+        GROUP BY 
+            curso.nome_curso
+        ORDER BY 
+            totalSaidas DESC
+        LIMIT 5;
+    `;
+    
+    db.query(totalQuery, (err, results) => {
+        if (err) {
+            console.error('Erro ao buscar saídas:', err);
+            return res.status(500).json({ error: 'Erro ao buscar saídas' });
+        } else {
+            console.log(results);
+        }
+
+        const data = {
+            labels: results.map(row => row.nomeCurso), // Cursos
+            valores: results.map(row => row.totalSaidas), // Total de saídas
+        };
+    
+        res.json(data);
+    });
+});
+
+app.get("/saidastecnico", (req, res) => {
+    const totalQuery = `
+        SELECT 
+            curso.nome_curso AS nomeCurso,
+            COUNT(requisicao.cod_req) AS totalSaidas,
+            ROW_NUMBER() OVER (ORDER BY COUNT(requisicao.cod_req) DESC) AS ranking
+        FROM 
+            requisicao
+        JOIN 
+            aluno ON requisicao.rm = aluno.rm
+        JOIN 
+            curso ON aluno.cod_curso = curso.cod_curso
+        WHERE 
+            curso.tipo_curso = 'Bacharelado'
+        GROUP BY 
+            curso.nome_curso
+        ORDER BY 
+            totalSaidas DESC
+        LIMIT 5;
+    `;
+    
+    db.query(totalQuery, (err, results) => {
+        if (err) {
+            console.error('Erro ao buscar saídas:', err);
+            return res.status(500).json({ error: 'Erro ao buscar saídas' });
+        } else {
+            console.log(results);
+        }
+
+        const data = {
+            labels: results.map(row => row.nomeCurso), // Cursos
+            valores: results.map(row => row.totalSaidas), // Total de saídas
+        };
+    
+        res.json(data);
+    });
+});
 
 
 //Pendentes
@@ -1501,8 +1728,8 @@ app.get('/cursos', (req, res) => {
         if (error) {
             console.log('Houve um erro ao procurar os cursos')
         } else {
-            console.log('Cursos:', results);
-            res.render('pages/gestao/cursos', { cursos: results })
+            const codCurso = results.length > 0 ? results[0].codCurso : null;
+            res.render('pages/gestao/cursos', { cursos: results, codCurso });
         }
     })
 });
@@ -1565,31 +1792,25 @@ app.get("/mudarSenhaGestao", (req, res) => {
     if (!req.session.email_user) {
         return res.redirect('/');
     }
-    res.render("pages/gestao/mudarSenhaGestao");
+    res.render("pages/gestao/mudarSenhaGestao", { senhaMessage: null });
 });
 
 app.post('/mudarSenhaGestao', (req, res) => {
     const { senhaAtual, nova_senha, confirmacaoSenha } = req.body;
     const email_gestor = req.session.email_user; // Email do gestor armazenado na sessão
-
-
-    console.log("Requisição para mudar senha recebida");
-    if (!email_gestor) {
-        console.log("Usuário não autenticado.");
-        return res.send("Usuário não autenticado. Faça login novamente.");
-    }
+    if (!req.session.email_user) {
+        return res.redirect('/');
+    } 
 
     if (nova_senha.trim() !== confirmacaoSenha.trim()) {
-        return res.send("A nova senha e a confirmação não coincidem.");
+        return res.render("pages/gestao/mudarSenhaGestao", { senhaMessage: "A nova senha e a confirmação não coincidem." });
     }
 
-
-    console.log("Buscando senha atual no banco de dados...");
     const query = 'SELECT senha FROM gestor WHERE email_gestor = ?';
     db.query(query, [email_gestor], (error, results) => {
         if (error) {
             console.log("Erro ao buscar senha no banco de dados:", error);
-            return res.send("Erro ao buscar senha no banco de dados");
+            return res.render("pages/gestao/mudarSenhaGestao", { senhaMessage: "Erro ao buscar senha no banco de dados." });
         }
 
         if (results.length > 0) {
@@ -1604,16 +1825,16 @@ app.post('/mudarSenhaGestao', (req, res) => {
                 db.query(queryUpdate, [nova_senha.trim(), email_gestor], (error) => {
                     if (error) {
                         console.log("Erro ao atualizar a senha:", error);
-                        return res.send("Erro ao atualizar a senha");
+                        return res.render("pages/gestao/mudarSenhaGestao", { senhaMessage: "Erro ao atualizar a senha." });
                     }
-                    console.log("Senha atualizada com sucesso!");
-                    return res.redirect("/");
+                    req.session.sendMessage = 'Senha atualizada com sucesso!';
+                    return res.redirect('/homeGestao');
                 });
             } else {
-                return res.send("Senha atual incorreta.");
+                return res.render("pages/gestao/mudarSenhaGestao", { senhaMessage: "Senha atual incorreta." });
             }
         } else {
-            return res.send("Usuário não encontrado.");
+            return res.render("pages/gestao/mudarSenhaGestao", { senhaMessage: "Usuário não encontrado." });
         }
     });
 });
@@ -1651,6 +1872,7 @@ app.get('/turma', (req, res) => {
             const turmas = results[0];
             res.render('pages/gestao/turma', {
                 turmas: results,
+                cod_turma: turmas.cod_turma,
                 nome_curso: turmas.nome_curso,
                 tipo_curso: turmas.tipo_curso,
                 turno: turmas.turno,
@@ -1701,10 +1923,220 @@ app.post('/cadastroCurso', (req, res) => {
     );
 });
 
+app.post('/excluirCurso', (req, res) => {
+    const { codCurso } = req.body;
+    console.log('codCurso:', codCurso);
+
+    // Queries para exclusão em cascata
+    const excluirJustFalta = `
+        DELETE FROM justfalta
+        WHERE rm IN (SELECT rm FROM aluno WHERE cod_curso = ?);
+    `;
+
+    const excluirJustSaida = `
+        DELETE FROM justsaida
+        WHERE rm IN (SELECT rm FROM aluno WHERE cod_curso = ?);
+    `;
+
+    const excluirRequisicao = `
+        DELETE FROM requisicao
+        WHERE rm IN (SELECT rm FROM aluno WHERE cod_curso = ?);
+    `;
+
+    const excluirInfoResp = `
+        DELETE FROM inforesp
+        WHERE rm IN (SELECT rm FROM aluno WHERE cod_curso = ?);
+    `;
+
+    const excluirInfoEmpresa = `
+        DELETE FROM infotrabalho
+        WHERE rm IN (SELECT rm FROM aluno WHERE cod_curso = ?);
+    `;
+
+    const excluirAluno = `
+        DELETE FROM aluno
+        WHERE cod_curso = ?;
+    `;
+
+    const excluirTurma = `
+        DELETE FROM turma WHERE cod_curso = ?;
+    `;
+
+    const excluirCurso = `
+        DELETE FROM curso WHERE cod_curso = ?;
+    `;
+
+    // Executa as queries na ordem correta
+    db.query(excluirJustFalta, [codCurso], (error, results) => {
+        if (error) {
+            console.log('Erro ao excluir justificativas de falta:', error);
+            return res.status(500).send('Erro ao excluir justificativas de falta');
+        }
+        console.log('Justificativas de falta excluídas com sucesso.');
+
+        db.query(excluirJustSaida, [codCurso], (error, results) => {
+            if (error) {
+                console.log('Erro ao excluir justificativas de saída:', error);
+                return res.status(500).send('Erro ao excluir justificativas de saída');
+            }
+            console.log('Justificativas de saída excluídas com sucesso.');
+
+            db.query(excluirRequisicao, [codCurso], (error, results) => {
+                if (error) {
+                    console.log('Erro ao excluir requisições:', error);
+                    return res.status(500).send('Erro ao excluir requisições');
+                }
+                console.log('Requisições excluídas com sucesso.');
+
+                db.query(excluirInfoResp, [codCurso], (error, results) => {
+                    if (error) {
+                        console.log('Erro ao excluir dados do responsável:', error);
+                        return res.status(500).send('Erro ao excluir dados do responsável');
+                    }
+                    console.log('Dados do responsável excluídos com sucesso.');
+
+                    db.query(excluirInfoEmpresa, [codCurso], (error, results) => {
+                        if (error) {
+                            console.log('Erro ao excluir dados da empresa:', error);
+                            return res.status(500).send('Erro ao excluir dados da empresa');
+                        }
+                        console.log('Dados da empresa excluídos com sucesso.');
+
+                        db.query(excluirAluno, [codCurso], (error, results) => {
+                            if (error) {
+                                console.log('Erro ao excluir aluno:', error);
+                                return res.status(500).send('Erro ao excluir aluno');
+                            }
+                            console.log('Alunos excluídos com sucesso.');
+
+                            db.query(excluirTurma, [codCurso], (error, results) => {
+                                if (error) {
+                                    console.log('Erro ao excluir turma:', error);
+                                    return res.status(500).send('Erro ao excluir turma');
+                                }
+                                console.log('Turmas excluídas com sucesso.');
+
+                                db.query(excluirCurso, [codCurso], (error, results) => {
+                                    if (error) {
+                                        console.log('Erro ao excluir curso:', error);
+                                        return res.status(500).send('Erro ao excluir curso');
+                                    }
+                                    console.log('Curso excluído com sucesso.');
+                                    res.redirect('/cursos');
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
+
+
+
+app.post('/excluirTurmas', (req, res) => {
+    const { cod_turma } = req.body;
+    console.log('cod_turma:', cod_turma);
+
+    // Queries para exclusão em cascata
+    const excluirJustFalta = `
+        DELETE FROM justfalta
+        WHERE cod_turma = ?;
+    `;
+
+    const excluirJustSaida = `
+        DELETE FROM justsaida
+        WHERE rm IN (SELECT rm FROM aluno WHERE cod_turma = ?);
+    `;
+
+    const excluirRequisicao = `
+        DELETE FROM requisicao
+        WHERE rm IN (SELECT rm FROM aluno WHERE cod_turma = ?);
+    `;
+
+    const excluirInfoResp = `
+        DELETE FROM inforesp
+        WHERE rm IN (SELECT rm FROM aluno WHERE cod_turma = ?);
+    `;
+
+    const excluirInfoEmpresa = `
+        DELETE FROM infotrabalho
+        WHERE rm IN (SELECT rm FROM aluno WHERE cod_turma = ?);
+    `;
+
+    const excluirAluno = `
+        DELETE FROM aluno
+        WHERE cod_turma = ?;
+    `;
+
+    const excluirTurmas = `
+        DELETE FROM turma WHERE cod_turma = ?;
+    `;
+
+    // Executa as queries na ordem correta
+    db.query(excluirJustFalta, [cod_turma], (error, results) => {
+        if (error) {
+            console.log('Erro ao excluir justificativas de falta:', error);
+            return res.status(500).send('Erro ao excluir justificativas de falta');
+        }
+        console.log('Justificativas de falta excluídas com sucesso.');
+
+        db.query(excluirJustSaida, [cod_turma], (error, results) => {
+            if (error) {
+                console.log('Erro ao excluir justificativas de saída:', error);
+                return res.status(500).send('Erro ao excluir justificativas de saída');
+            }
+            console.log('Justificativas de saída excluídas com sucesso.');
+
+            db.query(excluirRequisicao, [cod_turma], (error, results) => {
+                if (error) {
+                    console.log('Erro ao excluir requisições:', error);
+                    return res.status(500).send('Erro ao excluir requisições');
+                }
+                console.log('Requisições excluídas com sucesso.');
+
+                db.query(excluirInfoResp, [cod_turma], (error, results) => {
+                    if (error) {
+                        console.log('Erro ao excluir dados do responsável:', error);
+                        return res.status(500).send('Erro ao excluir dados do responsável');
+                    }
+                    console.log('Dados do responsável excluídos com sucesso.');
+
+                    db.query(excluirInfoEmpresa, [cod_turma], (error, results) => {
+                        if (error) {
+                            console.log('Erro ao excluir dados da empresa:', error);
+                            return res.status(500).send('Erro ao excluir dados da empresa');
+                        }
+                        console.log('Dados da empresa excluídos com sucesso.');
+
+                        db.query(excluirAluno, [cod_turma], (error, results) => {
+                            if (error) {
+                                console.log('Erro ao excluir aluno:', error);
+                                return res.status(500).send('Erro ao excluir aluno');
+                            }
+                            console.log('Alunos excluídos com sucesso.');
+
+                            db.query(excluirTurmas, [cod_turma], (error, results) => {
+                                if (error) {
+                                    console.log('Erro ao excluir turma:', error);
+                                    return res.status(500).send('Erro ao excluir turma');
+                                }
+                                console.log('Turmas excluídas com sucesso.');
+                                res.redirect('/cursos');
+    
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
 
 
 app.post('/cadastro1Turma', (req, res) => {
-    const { nome_turma, cod_curso } = req.body;
+    const {nome_turma, cod_curso} = req.body;
     
     console.log("Nome da turma:", nome_turma);
     console.log("Código do curso:", cod_curso);
@@ -1724,10 +2156,27 @@ app.post('/cadastro1Turma', (req, res) => {
     });
 });
 
+app.post('/cadastroTurma', (req, res) => {
+    const nome_turma = req.body.nome_turma;
+    const cod_curso = req.body.codCurso;
+    
+    console.log("Nome da turma:", nome_turma);
+    console.log("Código do curso:", cod_curso);
 
+    if (!nome_turma || !cod_curso) {
+        return res.status(400).send('Todos os campos devem ser preenchidos!');
+    }
 
-
-
+    db.query(`INSERT INTO turma (nome_turma, cod_curso) VALUES (?, ?)`, [nome_turma, cod_curso], (error, results) => {
+        if (error) {
+            res.status(500).send('Erro ao cadastrar turma');
+            console.log(error);
+        } else {
+            console.log(`Turma ${nome_turma} cadastrada com sucesso.`);
+            return res.redirect(`/cursos`);
+        }
+    });
+});
 
 //CadastroAluno
 app.get('/cadastroAluno', (req, res) => {
@@ -1877,22 +2326,54 @@ app.get("/listaAlunos", (req, res) => {
         return res.redirect('/');
     }
     const cod_turma = req.query.cod_turma;
-
-    console.log("cod_turma:", cod_turma);
-
-    let query = ` SELECT aluno.rm, aluno.nome_aluno, aluno.tel_aluno, turma.nome_turma, 
-        COUNT(requisicao.cod_req) AS saidas_count
-        FROM aluno 
-        INNER JOIN turma ON aluno.cod_turma = turma.cod_turma
-        LEFT JOIN requisicao ON aluno.rm = requisicao.rm AND requisicao.cod_turma = aluno.cod_turma`;
+    const ordenar = req.query.ordenar;
+    const situacao = req.query.situacao; // Recebendo o filtro de situação
+    
+    // Base da query
+    let query = `SELECT aluno.rm, aluno.nome_aluno, aluno.tel_aluno, turma.nome_turma, 
+                 COUNT(requisicao.cod_req) AS saidas_count
+                 FROM aluno
+                 INNER JOIN turma ON aluno.cod_turma = turma.cod_turma
+                 LEFT JOIN requisicao ON aluno.rm = requisicao.rm AND requisicao.cod_turma = aluno.cod_turma`;
+    
     const params = [];
-
+    const whereConditions = []; // Array para armazenar condições de filtro
+    
+    // Filtro por turma
     if (cod_turma) {
-        query += ' WHERE aluno.cod_turma = ?'; // Filtrar pela turma
+        whereConditions.push('aluno.cod_turma = ?');
         params.push(cod_turma);
     }
+    
+    // Filtro de situação baseado na quantidade de saídas
+    if (situacao) {
+        console.log("Aplicando filtro de situação:", situacao);
+        if (situacao === "alerta") {
+            whereConditions.push("COUNT(requisicao.cod_req) >= 15");
+        } else if (situacao === "irregular") {
+            whereConditions.push("COUNT(requisicao.cod_req) > 5 AND COUNT(requisicao.cod_req) < 15");
+        } else if (situacao === "regular") {
+            whereConditions.push("COUNT(requisicao.cod_req) <= 5");
+        }
+    }
 
-    query += ' GROUP BY aluno.rm';
+    // Adicionar condições de filtro à query
+    if (whereConditions.length > 0) {
+        query += " WHERE " + whereConditions.join(" AND ");
+    }
+    
+    // Agrupamento e ordenação
+    query += " GROUP BY aluno.rm";
+    
+    if (ordenar) {
+        if (ordenar === "maisAntigo") {
+            query += " ORDER BY MIN(requisicao.data_saida) ASC";
+        } else if (ordenar === "recente") {
+            query += " ORDER BY MAX(requisicao.data_saida) DESC";
+        }
+    } else {
+        query += " ORDER BY MAX(requisicao.data_saida) DESC";
+    }
 
     db.query(query, params, (error, results) => {
         if (error) {
@@ -1900,7 +2381,7 @@ app.get("/listaAlunos", (req, res) => {
             return res.send("Erro ao buscar alunos");
         }
 
-        res.render("pages/gestao/listaAlunos", { listaAlunos: results, cod_turma }); // Passar a lista de alunos
+        res.render("pages/gestao/listaAlunos", { listaAlunos: results, cod_turma });
     });
 });
 
@@ -2123,6 +2604,85 @@ app.post('/pesquisaGestao', (req, res) => {
     } else { res.redirect(`/pesquisaGestao?query=${encodeURIComponent(query)}`); }
 
 });
+
+
+// Rota para pesquisa do aluno
+app.get('/pesquisa1', (req, res) => {
+    const query = req.query.query;
+
+    if (!query) {
+        return res.status(400).json({ error: 'Parâmetro de pesquisa ausente' });
+    }
+
+    let sqlQuery;
+    let params;
+
+    if (!isNaN(query)) {
+        sqlQuery = `
+            SELECT nome_aluno, rm
+            FROM aluno 
+            WHERE rm = ?
+            LIMIT 10
+        `;
+        params = [parseInt(query)];
+    } else {
+        sqlQuery = `
+            SELECT nome_aluno, rm
+            FROM aluno 
+            WHERE nome_aluno LIKE ?
+            LIMIT 10
+        `;
+        params = [`%${query}%`];
+    }
+
+    db.query(sqlQuery, params, (error, results) => {
+        if (error) {
+            console.error('Erro na pesquisa:', error);
+            return res.status(500).json({ error: 'Erro no servidor' });
+        }
+        res.json(results);
+    });
+});
+
+// Rota para mover aluno
+app.post('/moverAlunoTurma/:rm', (req, res) => {
+    const rm = req.body.rm;
+    const cod_turma = req.body.cod_turma;
+
+    // Primeiro, verifique se a turma com o cod_turma existe
+    db.query('SELECT * FROM turma WHERE cod_turma = ?', [cod_turma], (err, results) => {
+        if (err) {
+            return res.status(500).send('Erro ao verificar a turma.');
+        }
+        if (results.length === 0) {
+            // Se a turma não existir
+            return res.status(404).send('Turma não encontrada.');
+        }
+
+        // Agora, verifique se o aluno existe no banco de dados
+        db.query('SELECT cod_turma, nome_aluno FROM aluno WHERE rm = ?', [rm], (err, results) => {
+            if (err) {
+                return res.status(500).send('Erro ao verificar aluno.');
+            }
+            if (results.length === 0) {
+                // Se o aluno não for encontrado
+                return res.status(404).send('Aluno não encontrado.');
+            } else {
+                // Aluno encontrado, agora faça o UPDATE
+                const atualizar = 'UPDATE aluno SET cod_turma = ? WHERE rm = ?';
+                db.query(atualizar, [cod_turma, rm], (updateErr) => {
+                    if (updateErr) {
+                        return res.status(500).json({ error: updateErr.message });
+                    }
+                    // Resposta final após a atualização bem-sucedida
+                    res.send(`Aluno ${results[0].nome_aluno} movido com sucesso para a turma ${cod_turma}`);
+                });
+            }
+        });
+    });
+});
+
+
 
 
 //Sair do perfil

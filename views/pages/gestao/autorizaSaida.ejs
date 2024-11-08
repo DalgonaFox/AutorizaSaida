@@ -10,7 +10,7 @@
       <a href="/pendentes" class="text-dark mb-3 d-block">
         <h3><i class="bi bi-arrow-left"></i></h3>
       </a>
-      <h2 style="font-family: Inter; text-align: center; margin-bottom: 20px;">Autorizar <%= tipo_pendencia %></h2>
+      <h2 style="font-family: Inter; text-align: center; margin-bottom: 20px;">Verificar <%= tipo_pendencia %></h2>
 
       <form action="/autorizar-saida/<%= pendencia.cod_pendencia %>?tipo=<%= tipo_pendencia %>" method="POST">
         <div class="d-flex justify-content-between">
@@ -70,8 +70,8 @@
             <div class="col-md-8">
               <label for="data-inicio">Data de Início e Término</label>
               <div class="d-flex">
-                <input type="date" id="data-inicio" name="hora" class="form-control d-inline-block w-50 mr-2" 
-                       value="<%= pendencia.data_inicio ? pendencia.data_inicio.toISOString().split('T')[0] : '' %>" readonly>
+                <input type="date" id="data-inicio" name="hora_saida" class="form-control d-inline-block w-50 mr-2" 
+                       value="<%= pendencia.hora_saida ? pendencia.hora_saida.toISOString().split('T')[0] : '' %>" readonly>
                 <input type="date" id="data-termino" name="data_termino" class="form-control d-inline-block w-50 ml-2" 
                        value="<%= pendencia.data_termino ? pendencia.data_termino.toISOString().split('T')[0] : '' %>" readonly>
               </div>            
@@ -84,7 +84,7 @@
           </div>
 
           <div class="d-flex justify-content-start">
-            <a href="/uploads/justsaida/<%= pendencia.cod_pendencia %>" type="submit" class="btn btn-red btn-lg">Baixe o seu arquivo</a>
+            <a href="/uploads/justfalta/<%= pendencia.cod_pendencia %>" type="submit" class="btn btn-red btn-lg">Baixe o seu arquivo</a>
           </div>
 
           <div class="form-check mt-3">
@@ -105,7 +105,7 @@
           </div>
   
           <div class="form-group">
-            <label for="justificativa">Justificativa</label>
+            <label for="justificativa">Observações</label>
             <textarea id="justificativa" name="justificativa" class="form-control" readonly><%= pendencia.justificativa %></textarea>
           </div>
 

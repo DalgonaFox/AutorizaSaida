@@ -6,6 +6,28 @@
 <%- include('../../partials/headerAluno', { activePage: '' }) %>
 
   <body>
+    <% if (senhaMessage) { %>
+      <div class="modal fade" id="senhaModal" tabindex="-1" aria-labelledby="senhaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="senhaModalLabel">Erro</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <%= senhaMessage %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Script para exibir o modal automaticamente -->
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          var senhaModal = new bootstrap.Modal(document.getElementById('senhaModal'));
+          senhaModal.show();
+        });
+      </script>
+    <% } %>
     <div class="container">
       <div class="card shadow m-5 p-5 w-50 primeiro-acesso">
         <div class="form-container">
@@ -15,15 +37,15 @@
           <form action="/mudarSenhaAluno" method="post" style="width: 100%; padding: 5%; position: center;">
             <div class="form-group wrapper">
               <label for="novaSenha">Senha Atual</label>
-              <input type="password" class="form-control icon" id="password" name="senhaAtual" placeholder="Senha atual">
+              <input type="password" class="form-control icon" id="password" name="senhaAtual" placeholder="Senha atual" required>
             </div>
             <div class="form-group wrapper">
               <label for="novaSenha">Nova Senha</label>
-              <input type="password" class="form-control icon" id="password" name="nova_senha" placeholder="Nova senha">
+              <input type="password" class="form-control icon" id="password" name="nova_senha" placeholder="Nova senha" required>
             </div>
             <div class="form-group wrapper">
               <label for="novaSenha">Confirmação da Nova Senha</label>
-              <input type="password" class="form-control icon" id="password" name="confirmacaoSenha" placeholder="Digite novamente sua nova senha">
+              <input type="password" class="form-control icon" id="password" name="confirmacaoSenha" placeholder="Digite novamente sua nova senha" required>
             </div>
             <div class="justify-content-end d-flex">
    

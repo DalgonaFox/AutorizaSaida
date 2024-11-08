@@ -2,7 +2,7 @@
   "name": "justificafalta",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ejs",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,6 +19,7 @@
     "express-ejs-layouts": "^2.5.1",
     "express-fileupload": "^1.5.1",
     "express-session": "^1.18.0",
+    "hummus": "^1.0.117",
     "jsonwebtoken": "^9.0.2",
     "mailtrap": "^3.4.0",
     "multer": "^1.4.5-lts.1",

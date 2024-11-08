@@ -136,7 +136,17 @@ INSERT INTO genero (cod_genero, nome_genero) values
 INSERT INTO curso (nome_curso, tipo_curso, turno) VALUES 
 ('Engenharia da Computação', 'Bacharelado', 'Manhã'),
 ('Administração', 'Bacharelado', 'Noite'),
-('Direito', 'Bacharelado', 'Tarde');
+('Direito', 'Bacharelado', 'Tarde'),
+('Eletroeletrônica', 'Técnico', 'Manhã'),
+('Eletroeletrônica', 'Técnico', 'Tarde'),
+('Eletroeletrônica', 'Técnico', 'Noite'),
+('Logística', 'Técnico', 'Manhã'),
+('Logística', 'Técnico', 'Tarde'),
+('Logística', 'Técnico', 'Noite'),
+('Mecânica', 'Técnico', 'Manhã'),
+('Mecânica', 'Técnico', 'Tarde'),
+('Mecânica', 'Técnico', 'Noite');
+
 
 INSERT INTO turma (nome_turma, cod_curso) VALUES 
 ('Turma A', 1),
