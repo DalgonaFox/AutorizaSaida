@@ -29,6 +29,7 @@
             <button id="filtrarBtn" class="btn btn-red btn-sm">Filtrar</button>
         </div>
     </div>
+    <% if (historico && historico.length> 0) { %>
       <table class="table mt-5">
         <thead>
           <tr>
@@ -74,6 +75,9 @@
     <% }); %>
 </tbody>
       </table>
+      <% } else { %>
+        <p>Nenhum histórico registrado.</p>
+        <% } %>
       <div class="texto d-flex w-100 justify-content-between mt-4">
         <h4>Total de Registros: <%= totalHistoricos %></h4>
       </div>

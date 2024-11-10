@@ -65,13 +65,13 @@
               <div class="col-md-8">
                 <label for="data-inicio">Data de Início e Término</label>
                 <div class="d-flex">
-                  <input type="date" id="data-inicio" name="data_inicio" class="form-control" class="d-inline-block w-25" value="<%= historico.data_inicio.toISOString().split('T')[0] %>" disabled>
-                  <input type="date" id="data-termino" name="data_termino" class="form-control" class="d-inline-block w-25" value="<%= historico.data_termino.toISOString().split('T')[0] %>" disabled>
+                  <input type="date" id="data-inicio" name="data_inicio" class="form-control d-inline-block w-50 mr-2" value="<%= historico.data_inicio.toISOString().split('T')[0] %>" disabled>
+                  <input type="date" id="data-termino" name="data_termino" class="form-control d-inline-block w-50 ml-2" value="<%= historico.data_termino.toISOString().split('T')[0] %>" disabled>
                 </div>
               </div>
             </div>
   
-            <div class="form-group">
+            <div class="form-group mt-3">
               <label for="observacoes">Observações</label>
               <textarea id="observacoes" name="observacoes" class="form-control" disabled><%= historico.justificativa %></textarea>
             </div>

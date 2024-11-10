@@ -93,6 +93,40 @@
                         </div>
 
                     </div>
+                    <form action="/excluirAluno" method="POST">
+                        <input name="rm" type="hidden" value="<%= rm %>">
+                      <button id="excluirAlunoBtn" class="btn btn-lg btn-red">Excluir Aluno</button>
+                        </form>
+    
+                        <script>
+                            document.getElementById('excluirAlunoBtn').addEventListener('click', () => {
+                                // Confirmação antes de excluir
+                                if (confirm('Tem certeza de que deseja excluir este aluno?')) {
+                                    // Envia o RM do aluno no corpo da requisição
+                                    fetch('/excluirAluno', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            rm: '<%= rm %>' // Insere o RM do aluno dinamicamente
+                                        })
+                                    })
+                                    .then(response => {
+                                        if (response.ok) {
+                                            alert('Aluno excluído com sucesso.');
+                                            window.location.href = '/cursos'; // Redireciona após exclusão
+                                        } else {
+                                            alert('Erro ao excluir o aluno.');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Erro:', error);
+                                        alert('Erro ao excluir o aluno.');
+                                    });
+                                }
+                            });
+                        </script>
                 </div>
             </div>
             <div class="card mt-5 mb-5 mr-5 w-25">

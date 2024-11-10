@@ -26,9 +26,9 @@
               <select class="form-select w-100 h-50 text-muted" name="cod_turma" id="cod_turma">
                 <option selected>Selecione a Turma</option>
                 <% turmas.forEach((turma) => { %>
-                  <option value="<%= cod_turma %>"><%= turma.nome_turma %></option>     
+                  <option value="<%= turma.cod_turma %>"><%= turma.nome_turma %></option>
                 <% }) %>
-              </select>
+              </select>              
       
 
               </select>
@@ -106,24 +106,19 @@
 
           <div class="row justify-content-start w-100">
             <% if (turmas && turmas.length > 0) { %>
-            <% turmas.forEach((turma)=> { %>
-              <script>console.log("Gerando link para cod_turma:", "<%= turma.cod_turma %>");</script>
-              <div class="mb-3" style="width: 428px; height: 375px;">
-                <a class="card text-decoration-none" href="/listaAlunos?cod_turma=<%= turma.cod_turma %>">
-                  <div class="card">
-                    <img class="card-img-top" src="/images/curso.png" alt="Card image cap">
-                    <div class="card-body">
-                      <h6>
-                        <%= turma.nome_turma %>
-                      </h6>
-                      <p class="card-text">
-                        <%= turma.nome_curso %> - <%= turma.turno %>
-                      </p>
+              <% turmas.forEach((turma) => { %>
+                <div class="mb-3" style="width: 428px; height: 375px;">
+                  <a class="card text-decoration-none" href="/listaAlunos?cod_turma=<%= turma.cod_turma %>">
+                    <div class="card">
+                      <img class="card-img-top" src="/images/curso.png" alt="Card image cap">
+                      <div class="card-body">
+                        <h6><%= turma.nome_turma %></h6>
+                        <p class="card-text"><%= turma.nome_curso %> - <%= turma.turno %></p>
+                      </div>
                     </div>
-                  </div>
-                </a>
-              </div>
-              <% }); %>
+                  </a>
+                </div>
+              <% }) %>              
               <% } else { %>
                 <h2 class="modal-title fs-5" id="exampleModalLabel">Não há turmas cadastradas.</h2>
               <% } %>

@@ -1,3 +1,4 @@
+drop database tcc;
 CREATE DATABASE tcc;
 USE tcc;
 
@@ -30,7 +31,7 @@ nome_aluno varchar (255) not null,
 cpf  varchar (11) not null UNIQUE,
 data_nasc date not null,
 email_aluno varchar (255) not null UNIQUE,
-senha varchar (8) not null,
+senha varchar (15) not null,
 tel_aluno varchar (11) not null UNIQUE,
 primeiro_acesso boolean default true,
 cod_genero int not null,
@@ -76,7 +77,7 @@ create table gestor(
 nif int primary key,
 nome_gestor varchar (250) not null,
 email_gestor varchar(255) not null UNIQUE,
-senha varchar (8) not null,
+senha varchar (15) not null,
 tel_gestor varchar (11) not null UNIQUE,
 cargo varchar(255) not null,
 primeiro_acesso boolean default true,
@@ -133,38 +134,6 @@ INSERT INTO genero (cod_genero, nome_genero) values
 (2, 'Feminino'),
 (3, 'Prefiro não dizer');
  
-INSERT INTO curso (nome_curso, tipo_curso, turno) VALUES 
-('Engenharia da Computação', 'Bacharelado', 'Manhã'),
-('Administração', 'Bacharelado', 'Noite'),
-('Direito', 'Bacharelado', 'Tarde'),
-('Eletroeletrônica', 'Técnico', 'Manhã'),
-('Eletroeletrônica', 'Técnico', 'Tarde'),
-('Eletroeletrônica', 'Técnico', 'Noite'),
-('Logística', 'Técnico', 'Manhã'),
-('Logística', 'Técnico', 'Tarde'),
-('Logística', 'Técnico', 'Noite'),
-('Mecânica', 'Técnico', 'Manhã'),
-('Mecânica', 'Técnico', 'Tarde'),
-('Mecânica', 'Técnico', 'Noite');
-
-
-INSERT INTO turma (nome_turma, cod_curso) VALUES 
-('Turma A', 1),
-('Turma B', 2),
-('Turma C', 3);
-
-INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, cod_genero, email_aluno, senha, tel_aluno, cod_curso, cod_turma) VALUES 
-(1001, 'Pedro Costa', '23456789012', '2010-07-19', 1, 'pedro.costa@mail.com', 'senha123', '21999999999', 1, 1),
-(1002, 'Maria Silva', '12345678901', '2009-05-15', 2, 'maria.silva@mail.com', 'senha456', '21988888888', 2, 2),
-(1003, 'Lucas Almeida Jr', '34567890123', '2011-09-21', 1, 'lucas.almeida.jr@mail.com', 'senha789', '21977777777', 3, 3),
-(1004, 'João Pereira', '45678901234', '2008-03-10', 1, 'joao.pereira@mail.com', 'senha012', '21966666666', 1, 1),
-(1005, 'Fernanda Oliveira Jr', '56789012345', '2007-11-30', 2, 'fernanda.oliveira.jr@mail.com', 'senha345', '21955555555', 2, 2),
-(1006, 'Juliana Ferreira', '67890123456', '2009-04-05', 2, 'juliana.ferreira@mail.com', 'senha678', '21944444444', 3, 3),
-(1007, 'Roberto Souza Jr', '78901234567', '2010-12-18', 3, 'roberto.souza.jr@mail.com', 'senha901', '21933333333', 1, 1),
-(1008, 'Mariana Lima Jr', '89012345678', '2008-07-07', 3, 'mariana.lima.jr@mail.com', 'senha234', '21922222222', 2, 2),
-(1009, 'Ricardo Mendes Jr', '90123456789', '2011-10-13', 1, 'ricardo.mendes.jr@mail.com', 'senha567', '21911111111', 3, 3),
-(1010, 'Patricia Rocha Jr', '01234567890', '2007-02-22', 2, 'patricia.rocha.jr@mail.com', 'senha890', '21900000000', 1, 1);
-
 INSERT INTO responsavel (nome_resp, email_resp, tel_resp) VALUES 
 ('Ana Costa', 'ana.costa@mail.com', '21987654321'),
 ('José Silva', 'jose.silva@mail.com', '21987654322'),
@@ -189,6 +158,56 @@ INSERT INTO empresa (nome_empresa, email_empresa, tel_empresa) VALUES
 ('Logística Avançada', 'contato@logisticaavancada.com', '2133322241'),
 ('Indústria Forte', 'contato@industriaforte.com', '2133322242');
 
+INSERT INTO gestor (nif, nome_gestor, email_gestor, senha, tel_gestor, cargo, cod_genero) VALUES 
+(101, 'João Souza', 'joao.souza@mail.com', 'gestor123', '21977777777', 'Coordenador', 1),
+(102, 'Luciana Lima', 'luciana.lima@mail.com', 'gestor123', '21966666666', 'Diretora', 2),
+(103, 'Washington Paiva', 'wpaiva@docente.senai.br', 'gestor123', '11999999999', 'Professor', 1);
+
+INSERT INTO curso (cod_curso, nome_curso, tipo_curso, turno) VALUES
+(10, 'Logística', 'Técnico', 'Manhã'),
+(11, 'Eletroeletrônica', 'Técnico', 'Manhã'),
+(12, 'Mecânica', 'Técnico', 'Manhã'),
+(13, 'Assistente Administrativo', 'CAI', 'Tarde'),
+(14, 'Assistente Administrativo', 'CAI', 'Noite'),
+(15, 'Auxiliar de Operação Ferroviária', 'CAI', 'Noite'),
+(16, 'Eletricista de Manutenção Eletroeletrônica', 'CAI', 'Noite'),
+(17, 'Manobrador Ferroviário', 'CAI', 'Manhã'),
+(18, 'Mecânico de Manutenção', 'CAI', 'Noite'),
+(19, 'Mecânico de Usinagem', 'CAI', 'Manhã'),
+(20, 'Operador de Processos Químicos', 'CAI', 'Manhã'),
+(21, 'Soldador', 'CAI', 'Noite'),
+(22, 'Fundamentos do Python 1', 'FIC', 'Noite'),
+(23, 'Auxiliar de Suprimentos', 'FIC', 'Tarde'),
+(24, 'Microsoft Power BI', 'FIC', 'Noite'),
+(25, 'Análise e Desenvolvimento de Sistemas', 'Técnico', 'Noite');
+
+INSERT INTO turma (cod_turma, nome_turma, cod_curso) VALUES
+(1, 'TS1', 21),
+(2, 'TAA1', 13),
+(3, 'TA1', 14),
+(4, 'TAOF1', 15),
+(5, 'TAS1', 23),
+(6, 'TDS1', 25),
+(7, 'TEE1', 11),
+(8, 'TEME1', 16),
+(9, 'TFP1', 22),
+(10, 'TL1', 10),
+(11, 'TMF1', 17),
+(12, 'TMM1', 12),
+(13, 'TMU1', 19),
+(14, 'TOPQ1', 20),
+(15, 'TPBI1', 24);
+
+INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, email_aluno, senha, tel_aluno, primeiro_acesso, cod_genero, cod_curso, cod_turma) VALUES
+(1001, 'Mariana Chaves', '47474474499', '2007-04-27', 'mariana.marcondesfc@gmail.com', 'senha123', '119456137', 1, 2, 25, 6),
+(1002, 'Sabrina Vilela Raimundo', '47414424898', '2007-05-24', 'sabrinavilela007@gmail.com', 'senha123', '1195684863', 1, 2, 25, 6),
+(1003, 'João Pedro Bueno', '47424279787', '2006-08-10', 'buenodasilva@gmail.com', 'senha123', '1198754321', 1, 2, 25, 6),
+(1004, 'Milena Oliveira', '56782395623', '2006-11-03', 'mila.olisantos@gmail.com', 'senha123', '11923461234', 1, 2, 25, 6),
+(1005, 'Isadora Bezerra de Oliveira', '4098754321', '2007-07-10', 'isadora.oliveira5@aluno.senai.br', 'senha123', '11923426754', 1, 2, 25, 6),
+(1006, 'Laura Rodrigues Marinho', '58295737193', '2006-11-07', 'laura.marinho12@aluno.senai.br', 'senha123', '11923456754', 1, 2, 25, 6),
+(1007, 'Eduardo Irineu', '40987123476', '2006-08-01', 'eduardo.irineu@aluno.senai.br', 'senha123', '11909876543', 1, 2, 25, 6),
+(9485, 'Washington Paiva', '91293872649', '1984-10-15', 'wpaiva@docente.senai.br', 'senha123', '11988826337', 0, 1, 25, 6);
+
 INSERT INTO inforesp (rm, cod_resp) VALUES 
 (1001, 1),
 (1002, 2),
@@ -198,32 +217,4 @@ INSERT INTO inforesp (rm, cod_resp) VALUES
 
 INSERT INTO infotrabalho (rm, cod_empresa) VALUES 
 (1006, 5),
-(1007, 6),
-(1008, 7),
-(1009, 8),
-(1010, 9);
-
-INSERT INTO gestor (nif, nome_gestor, email_gestor, senha, tel_gestor, cargo, cod_genero) VALUES 
-(101, 'João Souza', 'joao.souza@mail.com', 'senha789', '21977777777', 'Coordenador', 1),
-(102, 'Luciana Lima', 'luciana.lima@mail.com', 'senha321', '21966666666', 'Diretora', 2);
-
-INSERT INTO requisicao (rm, cod_turma, data_saida, hora_saida, justificativa, ciencia_gestor) VALUES 
-(1001, 1, '2024-09-12', '14:00:00', 'Consulta médica', TRUE),
-(1002, 2, '2024-09-11', '10:00:00', 'Compromisso familiar', TRUE);
-
-INSERT INTO justsaida (cod_req, rm, observacao, ciencia_gestor, data_envio) VALUES 
-(1, 1001, 'Saída para consulta médica aprovada.', FALSE, '2024-09-13'),
-(2, 1002, 'Compromisso familiar justificado.', FALSE, '2024-09-13');
-
-INSERT INTO justfalta (rm, cod_turma, data_emissao, data_inicio, data_termino, observacao, ciencia_gestor, data_envio) VALUES 
-(1003, 1, '2024-09-10', '2024-09-08', '2024-09-10', 'Falta justificada por motivos de saúde.', FALSE, '2024-09-10'),
-(1004, 2, '2024-09-12', '2024-09-11', '2024-09-12', 'Falta justificada por compromissos familiares.', FALSE, '2024-09-12');
-
-INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, cod_genero, email_aluno, senha, tel_aluno, cod_curso, cod_turma) VALUES 
-(1011, 'Milena Oliveira', '41112223334', '2005-11-03', 2, 'milena.oliveira@mail.com', 'milena12', '12234567890', 3, 3);
-
-INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, cod_genero, email_aluno, senha, tel_aluno, cod_curso, cod_turma) VALUES 
-(1012, 'Sabrina Oliveira', '11122233145', '2005-11-03', 2, 'sabrina.oliveira@mail.com', 'sabrina1', '12234567891', 3, 3);
-
-INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, cod_genero, email_aluno, senha, tel_aluno, cod_curso, cod_turma) VALUES 
-(1013, 'Sabrina Vilela', '11122233345', '2005-11-03', 2, 'sabrina.vilela@mail.com', 'sabrina1', '12234567830', 3, 3);
+(1007, 6);

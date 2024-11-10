@@ -9,19 +9,11 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const nodemailer = require("nodemailer");
 
-const port = process.env.PORT || 3001;
-
-
-const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
-
-const db = mysql.createPool({
-host: process.env.DB_HOST,
-user: process.env.DB_USERNAME,
-password: process.env.DB_PASSWORD,
-database: process.env.DB_DBNAME,
-waitForConnections: true,
-connectionLimit: 10,
-queueLimit: 0
+// Porta
+const port = 8080;
+app.listen(port, () => {
+    console.log(`Servidor rodando na porta ${port}`);
+    console.log(`Acesse pelo ip que eu mandar no zap + :${port}`);
 });
 
 // pasta public
@@ -30,6 +22,23 @@ app.use(express.static(__dirname + '/public'));
 // pasta views
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+// Configuração do banco de dados
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'tcc'
+});
+
+// Conexão com o banco de dados
+db.connect((error) => {
+    if (error) {
+        console.log("Erro ao conectar com o banco de dados:", error);
+    } else {
+        console.log("Conectado ao MySQL");
+    }
+});
 
 // Sessão
 app.use(session({
@@ -1261,7 +1270,7 @@ app.get("/periodoano", (req, res) => {
         FROM 
             requisicao
         WHERE 
-            YEAR(data_saida) = YEAR(CURDATE()) -- Filtra para o ano atual
+            YEAR(data_saida) = YEAR(CURDATE()) AND ciencia_gestor = 1
         GROUP BY 
             MONTH(data_saida)
         ORDER BY 
@@ -1331,7 +1340,7 @@ app.get("/saidascai", (req, res) => {
         JOIN 
             curso ON aluno.cod_curso = curso.cod_curso
         WHERE 
-            curso.tipo_curso = 'Bacharelado'
+            curso.tipo_curso = 'CAI'
         GROUP BY 
             curso.nome_curso
         ORDER BY 
@@ -1369,7 +1378,7 @@ app.get("/saidasfic", (req, res) => {
         JOIN 
             curso ON aluno.cod_curso = curso.cod_curso
         WHERE 
-            curso.tipo_curso = 'Bacharelado'
+            curso.tipo_curso = 'FIC'
         GROUP BY 
             curso.nome_curso
         ORDER BY 
@@ -1407,7 +1416,7 @@ app.get("/saidastecnico", (req, res) => {
         JOIN 
             curso ON aluno.cod_curso = curso.cod_curso
         WHERE 
-            curso.tipo_curso = 'Bacharelado'
+            curso.tipo_curso = 'Técnico'
         GROUP BY 
             curso.nome_curso
         ORDER BY 
@@ -1623,8 +1632,6 @@ app.post('/autorizar-saida/:id', (req, res) => {
     const email = req.body.email;
     const nome = req.body.nome;
     const genero = req.body.genero;
-    let data = req.body.data;
-    let hora = req.body.hora;
 
     if (!tipo_pendencia || !['Saída Antecipada', 'Justificativa de Falta', 'Justificativa de Saída'].includes(tipo_pendencia)) {
         return res.status(400).send('Tipo de pendência inválido.');
@@ -1636,21 +1643,6 @@ app.post('/autorizar-saida/:id', (req, res) => {
     if (!nome) {
         return res.send('nome não encontrado.');
     }
-
-    // Definir pronome com base no gênero
-    let pronome;
-    if (genero === '2') {
-        pronome = "A aluna";
-    } else {
-        pronome = "O aluno";
-    }
-
-    // Formatando a data no estilo dd/mm/yyyy
-    const [year, month, day] = data.split('-');
-    data = `${day}/${month}/${year}`;
-
-    // Remover segundos da hora, deixando apenas hh:mm
-    hora = hora.slice(0, 5);
 
     let updateQuery;
     if (tipo_pendencia === 'Saída Antecipada') {
@@ -1665,8 +1657,31 @@ app.post('/autorizar-saida/:id', (req, res) => {
         if (err) {
             console.error('Erro ao autorizar pendência:', err);
             return res.status(500).send('Erro ao autorizar pendência.');
-        }
-        if (tipo_pendencia === 'Saída Antecipada') {
+        } else if (tipo_pendencia === 'Saída Antecipada') {
+            let data = req.body.data;
+            let hora = req.body.hora;
+
+            if (!data) {
+                return res.status(400).send('Data não encontrada.');
+            }
+            if (!hora) {
+                return res.status(400).send('Hora não encontrada.');
+            }
+        
+            // Definir pronome com base no gênero
+            let pronome;
+            if (genero === '2') {
+                pronome = "A aluna";
+            } else {
+                pronome = "O aluno";
+            }
+        
+            // Formatando a data no estilo dd/mm/yyyy
+            const [year, month, day] = data.split('-');
+            data = `${day}/${month}/${year}`;
+
+            hora = hora.slice(0, 5);
+
             const transport = nodemailer.createTransport({
                 host: 'smtp.gmail.com',
                 port: 465, 
@@ -1830,7 +1845,7 @@ app.post('/mudarSenhaGestao', (req, res) => {
     });
 });
 
-//Turmas
+// Turmas
 app.get('/turma', (req, res) => {
     if (!req.session.email_user) {
         return res.redirect('/');
@@ -1844,7 +1859,7 @@ app.get('/turma', (req, res) => {
     console.log('cod_curso recebido:', codCurso);
 
     const query = `
-      SELECT turma.nome_turma, turma.cod_turma, curso.nome_curso, curso.tipo_curso, curso.turno
+      SELECT turma.nome_turma as nome_turma, turma.cod_turma, curso.nome_curso, curso.tipo_curso, curso.turno
       FROM turma
       JOIN curso ON turma.cod_curso = curso.cod_curso
       WHERE turma.cod_curso = ?
@@ -1859,25 +1874,16 @@ app.get('/turma', (req, res) => {
 
         console.log('Resultados da consulta:', results);
 
-        if (results.length > 0) {
-            const turmas = results[0];
-            res.render('pages/gestao/turma', {
-                turmas: results,
-                cod_turma: turmas.cod_turma,
-                nome_curso: turmas.nome_curso,
-                tipo_curso: turmas.tipo_curso,
-                turno: turmas.turno,
-                codCurso
-            });
-        } else {
-            res.render('pages/gestao/turma', {
-                turmas: [],
-                tipo_curso: null,
-                turno: null
-            });
-        }
+        res.render('pages/gestao/turma', {
+            turmas: results, // Passa todos os resultados
+            codCurso: codCurso,
+            nome_curso: results.length > 0 ? results[0].nome_curso : null, // Defina o nome do curso a partir do primeiro resultado
+            tipo_curso: results.length > 0 ? results[0].tipo_curso : null,
+            turno: results.length > 0 ? results[0].turno : null
+        });
     });
 });
+
 
 
 //Cadastros
@@ -2125,6 +2131,92 @@ app.post('/excluirTurmas', (req, res) => {
     });
 });
 
+app.post('/excluirAluno', (req, res) => {
+    const rm = req.body.rm;
+    console.log(rm);
+
+    // Queries para exclusão em cascata
+    const excluirJustFalta = `
+        DELETE FROM justfalta
+        WHERE rm = ?;
+    `;
+
+    const excluirJustSaida = `
+        DELETE FROM justsaida
+        WHERE rm IN (SELECT rm FROM aluno WHERE rm = ?);
+    `;
+
+    const excluirRequisicao = `
+        DELETE FROM requisicao
+        WHERE rm IN (SELECT rm FROM aluno WHERE rm = ?);
+    `;
+
+    const excluirInfoResp = `
+        DELETE FROM inforesp
+        WHERE rm IN (SELECT rm FROM aluno WHERE rm = ?);
+    `;
+
+    const excluirInfoEmpresa = `
+        DELETE FROM infotrabalho
+        WHERE rm IN (SELECT rm FROM aluno WHERE rm = ?);
+    `;
+
+    const excluirAluno = `
+        DELETE FROM aluno
+        WHERE rm = ?;
+    `;
+
+    // Executa as queries na ordem correta
+    db.query(excluirJustFalta, [rm], (error, results) => {
+        if (error) {
+            console.log('Erro ao excluir justificativas de falta:', error);
+            return res.status(500).send('Erro ao excluir justificativas de falta');
+        }
+        console.log('Justificativas de falta excluídas com sucesso.');
+
+        db.query(excluirJustSaida, [rm], (error, results) => {
+            if (error) {
+                console.log('Erro ao excluir justificativas de saída:', error);
+                return res.status(500).send('Erro ao excluir justificativas de saída');
+            }
+            console.log('Justificativas de saída excluídas com sucesso.');
+
+            db.query(excluirRequisicao, [rm], (error, results) => {
+                if (error) {
+                    console.log('Erro ao excluir requisições:', error);
+                    return res.status(500).send('Erro ao excluir requisições');
+                }
+                console.log('Requisições excluídas com sucesso.');
+
+                db.query(excluirInfoResp, [rm], (error, results) => {
+                    if (error) {
+                        console.log('Erro ao excluir dados do responsável:', error);
+                        return res.status(500).send('Erro ao excluir dados do responsável');
+                    }
+                    console.log('Dados do responsável excluídos com sucesso.');
+
+                    db.query(excluirInfoEmpresa, [rm], (error, results) => {
+                        if (error) {
+                            console.log('Erro ao excluir dados da empresa:', error);
+                            return res.status(500).send('Erro ao excluir dados da empresa');
+                        }
+                        console.log('Dados da empresa excluídos com sucesso.');
+
+                        db.query(excluirAluno, [rm], (error, results) => {
+                            if (error) {
+                                console.log('Erro ao excluir aluno:', error);
+                                return res.status(500).send('Erro ao excluir aluno');
+                            }
+                            console.log('Aluno excluído com sucesso.');
+                            res.redirect('/cursos');
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
+
 
 app.post('/cadastro1Turma', (req, res) => {
     const {nome_turma, cod_curso} = req.body;
@@ -2169,6 +2261,20 @@ app.post('/cadastroTurma', (req, res) => {
     });
 });
 
+// Rota para buscar turmas com base no curso selecionado
+app.get('/turmas/:cursoId', (req, res) => {
+    const cursoId = req.params.cursoId;
+
+    db.query('SELECT * FROM turma WHERE cod_curso = ?', [cursoId], (error, turmas) => {
+        if (error) {
+            console.error(error);
+            return res.status(500).send('Erro ao buscar turmas');
+        }
+        res.json(turmas); // Envia as turmas como JSON
+    });
+});
+
+
 //CadastroAluno
 app.get('/cadastroAluno', (req, res) => {
     if (!req.session.email_user) {
@@ -2179,22 +2285,27 @@ app.get('/cadastroAluno', (req, res) => {
         if (error) {
             console.error(error);
             return res.status(500).send('Erro ao buscar genero');
-        }
-
-        db.query('SELECT * FROM curso', (error, cursos) => {
+        } else {
+            console.log('generos encontrados com sucesso!')
+            db.query('SELECT * FROM curso', (error, cursos) => {
             if (error) {
                 console.error(error);
                 return res.status(500).send('Erro ao buscar cursos');
-            }
-
-            db.query('SELECT * FROM turma', (error, turmas) => {
+            } else {
+                console.log('cursos encontrados com sucesso!')
+               db.query('SELECT * FROM turma', (error, turmas) => {
                 if (error) {
                     console.error(error);
                     return res.status(500).send('Erro ao buscar turmas');
+                } else {
+                    console.log('turmas encontrados com sucesso!')
+                   res.render("pages/gestao/cadastroAluno", { cursos, turmas, genero }); 
                 }
-                res.render("pages/gestao/cadastroAluno", { cursos, turmas, genero });
-            });
+                
+            }); 
+            } 
         });
+    }
     });
 });
 
@@ -2300,70 +2411,35 @@ app.post('/cadastroAluno', (req, res) => {
     }
 });
 
-app.get('/turmas/:cursoId', (req, res) => {
-    const cursoId = req.params.cursoId;
-
-    db.query('SELECT * FROM turma WHERE cod_curso = ?', [cursoId], (error, results) => {
-        if (error) {
-            return res.status(500).send('Erro ao buscar turmas');
-        }
-        res.json(results); // Retorna as turmas como um JSON
-    });
-});
-
 //ListaAlunos
 app.get("/listaAlunos", (req, res) => {
     if (!req.session.email_user) {
         return res.redirect('/');
     }
     const cod_turma = req.query.cod_turma;
-    const ordenar = req.query.ordenar;
-    const situacao = req.query.situacao; // Recebendo o filtro de situação
-    
-    // Base da query
-    let query = `SELECT aluno.rm, aluno.nome_aluno, aluno.tel_aluno, turma.nome_turma, 
-                 COUNT(requisicao.cod_req) AS saidas_count
-                 FROM aluno
-                 INNER JOIN turma ON aluno.cod_turma = turma.cod_turma
-                 LEFT JOIN requisicao ON aluno.rm = requisicao.rm AND requisicao.cod_turma = aluno.cod_turma`;
-    
-    const params = [];
-    const whereConditions = []; // Array para armazenar condições de filtro
-    
-    // Filtro por turma
-    if (cod_turma) {
-        whereConditions.push('aluno.cod_turma = ?');
-        params.push(cod_turma);
-    }
-    
-    // Filtro de situação baseado na quantidade de saídas
-    if (situacao) {
-        console.log("Aplicando filtro de situação:", situacao);
-        if (situacao === "alerta") {
-            whereConditions.push("COUNT(requisicao.cod_req) >= 15");
-        } else if (situacao === "irregular") {
-            whereConditions.push("COUNT(requisicao.cod_req) > 5 AND COUNT(requisicao.cod_req) < 15");
-        } else if (situacao === "regular") {
-            whereConditions.push("COUNT(requisicao.cod_req) <= 5");
-        }
-    }
+    const situacao = req.query.situacao;
 
-    // Adicionar condições de filtro à query
-    if (whereConditions.length > 0) {
-        query += " WHERE " + whereConditions.join(" AND ");
-    }
-    
-    // Agrupamento e ordenação
-    query += " GROUP BY aluno.rm";
-    
-    if (ordenar) {
-        if (ordenar === "maisAntigo") {
-            query += " ORDER BY MIN(requisicao.data_saida) ASC";
-        } else if (ordenar === "recente") {
-            query += " ORDER BY MAX(requisicao.data_saida) DESC";
-        }
-    } else {
-        query += " ORDER BY MAX(requisicao.data_saida) DESC";
+    // Base da query
+    let query = `
+        SELECT 
+            aluno.rm, 
+            aluno.nome_aluno, 
+            aluno.tel_aluno, 
+            turma.nome_turma, 
+            (SELECT COUNT(*) FROM requisicao WHERE requisicao.rm = aluno.rm AND requisicao.cod_turma = aluno.cod_turma) AS saidas_count
+        FROM 
+            aluno
+        INNER JOIN 
+            turma ON aluno.cod_turma = turma.cod_turma
+        WHERE 
+            turma.cod_turma = ?
+    `;
+
+    const params = [cod_turma];
+
+    // Filtro de situação
+    if (situacao) {
+        query += ` AND (SELECT COUNT(*) FROM requisicao WHERE requisicao.rm = aluno.rm AND requisicao.cod_turma = aluno.cod_turma) ${situacao}`;
     }
 
     db.query(query, params, (error, results) => {
@@ -2372,7 +2448,7 @@ app.get("/listaAlunos", (req, res) => {
             return res.send("Erro ao buscar alunos");
         }
 
-        res.render("pages/gestao/listaAlunos", { listaAlunos: results, cod_turma });
+        res.render("pages/gestao/listaAlunos", { listaAlunos: results, cod_turma});
     });
 });
 
@@ -2640,33 +2716,34 @@ app.post('/moverAlunoTurma/:rm', (req, res) => {
     const rm = req.body.rm;
     const cod_turma = req.body.cod_turma;
 
-    // Primeiro, verifique se a turma com o cod_turma existe
-    db.query('SELECT * FROM turma WHERE cod_turma = ?', [cod_turma], (err, results) => {
+    // Primeiro, verifique se a turma com o cod_turma existe e obtenha o cod_curso
+    db.query('SELECT cod_curso FROM turma WHERE cod_turma = ?', [cod_turma], (err, results) => {
         if (err) {
             return res.status(500).send('Erro ao verificar a turma.');
         }
         if (results.length === 0) {
-            // Se a turma não existir
             return res.status(404).send('Turma não encontrada.');
         }
 
+        const cod_curso = results[0].cod_curso;
+
         // Agora, verifique se o aluno existe no banco de dados
-        db.query('SELECT cod_turma, nome_aluno FROM aluno WHERE rm = ?', [rm], (err, results) => {
+        db.query('SELECT * FROM aluno WHERE rm = ?', [rm], (err, results) => {
             if (err) {
                 return res.status(500).send('Erro ao verificar aluno.');
             }
             if (results.length === 0) {
-                // Se o aluno não for encontrado
                 return res.status(404).send('Aluno não encontrado.');
             } else {
                 // Aluno encontrado, agora faça o UPDATE
-                const atualizar = 'UPDATE aluno SET cod_turma = ? WHERE rm = ?';
-                db.query(atualizar, [cod_turma, rm], (updateErr) => {
+                const atualizar = 'UPDATE aluno SET cod_turma = ?, cod_curso = ? WHERE rm = ?';
+                db.query(atualizar, [cod_turma, cod_curso, rm], (updateErr) => {
                     if (updateErr) {
                         return res.status(500).json({ error: updateErr.message });
                     }
                     // Resposta final após a atualização bem-sucedida
-                    res.send(`Aluno ${results[0].nome_aluno} movido com sucesso para a turma ${cod_turma}`);
+                    console.log(`Aluno ${results[0].nome_aluno} movido com sucesso para a turma ${cod_turma}`);
+                    return res.redirect('/cursos');
                 });
             }
         });

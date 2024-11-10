@@ -206,7 +206,7 @@ body {
 }
 
 .requisicao:hover {
-    transform: scale(1.05);
+    transform: scale(0.5);
     text-decoration: none;
 }
 
@@ -365,8 +365,8 @@ body {
         justify-content: center;
     }
 
-    .table {
-        height: 20%;
+    .filtro{
+       background-color: yellow;
     }
 }
 
