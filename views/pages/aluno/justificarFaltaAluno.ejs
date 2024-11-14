@@ -1,0 +1,68 @@
+<!--Justificar Falta do Aluno-->
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<%- include('../../partials/head', { title: 'Justificar Falta' }) %>
+  <%- include('../../partials/headerAluno', { activePage: '' }) %>
+
+    <body class="background" style="background-image: url(../images/SALAMEDICO.png);">
+      <div class="container">
+        <div class="card w-75 shadow" style="padding: 40px;">
+          <a href="/homeAluno" class="text-dark">
+            <h3><i class="bi bi-arrow-left"></i></h3>
+          </a>
+          <h2 style="font-family: Inter; text-align: center; margin-bottom: 40px;">Justificar Falta com Documento</h2>
+          <p style="font-family: Inter; text-align: center; margin-bottom: 10px;">
+            Esse é um formulário feito para a inserção de atestado que justifica uma falta durante um dia inteiro.
+          </p>
+          <p style="font-family: Inter; text-align: center; margin-bottom: 50px;">
+            Insira a seguir a data de emissão do atestado, data de início e de término dos abonos, se desejar, uma
+            observação, e insira o seu arquivo digitalizado (pode ser uma foto ou um arquivo escaneado).
+          </p>
+          <form class='saida-form' action='/uploadFalta' method="post" enctype="multipart/form-data">
+            <input type="hidden" name="cod_turma" value="<%= cod_turma %>">
+            <input type="hidden" id="data" name="data_envio" value="<%= data_envio %>" style="width: 48%;" readonly>
+            <input type="hidden" name="formType" value="justificarFalta">
+            <div class="form-group">
+              <div class="row">
+                <div class="col-md-4">
+                  <label for="data-emissao">Data de Emissão</label>
+                  <input type="date" id="data-emissao" name="data_emissao" class="form-control">
+                </div>
+                <div class="col-md-8">
+                  <label for="data-inicio">Data de Início e Término</label>
+                  <div class="d-flex">
+                    <input type="date" id="data-inicio" name="data_inicio"
+                      class="form-control d-inline-block w-50 mr-2">
+                    <input type="date" id="data-termino" name="data_termino"
+                      class="form-control d-inline-block w-50 ml-2">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="observacoes">Observações</label>
+              <textarea id="observacoes" name="observacoes" class="form-control"
+                placeholder="Insira as observações que considerar necessárias..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="exampleFormControlFile1">Faça upload do seu documento abaixo (apenas arquivos PDF serão
+                aceitos.)</label>
+              <input type="file" class="form-control-file" name="arquivo" id="exampleFormControlFile1">
+            </div>
+            <div class="d-flex justify-content-between align-items-start">
+              <button type="reset" class="btn btn-gray btn-lg">Limpar</button>
+              <button type="submit" class="btn btn-red btn-lg">Enviar</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+      <%- include('../../partials/footer') %>
+    </body>
+
+</html>

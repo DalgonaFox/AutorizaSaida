@@ -1,0 +1,97 @@
+<!--Requisição de Saída do Aluno-->
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<%- include('../../partials/head', { title: 'Requisição de Saída' }) %>
+  <%- include('../../partials/headerAluno', { activePage: '' }) %>
+
+    <body class="background" style="background-image: url(../images/frente_senai.png);">
+      <!-- Modal -->
+      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Cadastrar Curso</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+
+            <div class="modal-body d-flex flex-column justify-content-center">
+              <form action='/cadastroCurso' method="post">
+                <div class="d-flex">
+                  <div class="form-group w-100 mr-4">
+                    <label for="data">Nome do Curso</label>
+                    <div>
+                      <input type="text" class="form-control w-100" name="nome_curso" id="nome_curso" required>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex pb-3">
+                  <div class="form-group w-50 mr-4">
+                    <label for="tipoC">Tipo do Curso</label>
+                    <select class="form-select w-100 h-50 text-muted" name="tipo_curso" id="tipo_curso">
+                      <option selected>Selecione o Curso</option>
+                      <option value="Técnico">Técnico</option>
+                      <option value="CAI">CAI</option>
+                      <option value="FIC">FIC</option>
+                    </select>
+                  </div>
+                  <div class="form-group w-50">
+                    <label for="turmC">Turno</label>
+                    <select class="form-select w-100 h-50 text-muted" name="turno" id="turno">
+                      <option selected>Selecione o Turno</option>
+                      <option value="Manhã">Manhã</option>
+                      <option value="Tarde">Tarde</option>
+                      <option value="Noite">Noite</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-red btn-lg">Cadastrar Curso</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="card w-75 shadow" style="padding: 40px;">
+          <a href="/homeAluno" class="text-dark">
+            <h3><i class="bi bi-arrow-left"></i></h3>
+          </a>
+          <h2 style="font-family: Inter; text-align: center; margin-bottom: 40px;">Requisição de Saída Antecipada</h2>
+          <p style="font-family: Inter; text-align: center; margin-bottom: 50px;">
+            Insira o horário desejado e uma justificativa que explique o motivo de sua saída antecipada.
+          </p>
+          <form class='saida-form' action='/requisicao' method="post">
+            <input type="hidden" name="formType" value="requisicao">
+            <input type="hidden" name="cod_turma" value="<%= cod_turma %>">
+            <div class="form-group">
+              <label for="data">Data e Hora da Saída</label>
+              <div class="d-flex justify-content-between">
+                <input type="date" id="data" name="data_saida" class="form-control" value="<%= data_saida %>"
+                  style="width: 48%;" readonly>
+                <input type="time" id="hora" name="hora_saida" class="form-control" style="width: 48%;">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="justificativa">Justificativa</label>
+              <textarea id="justificativa" name="justificativa" class="form-control"
+                placeholder="Justifique a saída antecipada aqui..."></textarea>
+            </div>
+            <div class="d-flex justify-content-between">
+              <button type="reset" class="btn btn-gray btn-lg">Limpar</button>
+              <button type="submit" class="btn btn-red btn-lg">Enviar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+      <%- include('../../partials/footer') %>
+    </body>
+
+</html>

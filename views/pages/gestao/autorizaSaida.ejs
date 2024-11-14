@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<%- include('../../partials/head', { title: 'Autorizar Saída' }) %>
+  <%- include('../../partials/headerGestao', { activePage: '' }) %>
+
+    <body>
+      <div class="container">
+        <div class="card w-75 shadow m-5" style="padding: 40px;">
+          <a href="/pendentes" class="text-dark mb-3 d-block">
+            <h3><i class="bi bi-arrow-left"></i></h3>
+          </a>
+          <h2 style="font-family: Inter; text-align: center; margin-bottom: 20px;">Verificar <%= tipo_pendencia %>
+          </h2>
+
+          <form action="/autorizar-saida/<%= pendencia.cod_pendencia %>?tipo=<%= tipo_pendencia %>" method="POST">
+            <div class="d-flex justify-content-between">
+              <input type="hidden" name="genero" value="<%= genero %>">
+              <div class="form-group w-75 mr-4">
+                <label for="nome">Nome</label>
+                <input type="text" class="form-control w-100" name="nome" value="<%= nome %>" readonly>
+              </div>
+
+              <div class="form-group w-25">
+                <label for="rm">RM</label>
+                <input type="text" class="form-control w-100" value="<%= pendencia.rm %>" readonly>
+              </div>
+            </div>
+
+            <div class="d-flex">
+              <div class="form-group w-75 mr-4">
+                <label for="curso">Curso</label>
+                <input type="text" class="form-control w-100" value="<%= pendencia.nome_curso %>" readonly>
+              </div>
+
+              <div class="form-group w-25">
+                <label for="turma">Turma</label>
+                <input type="text" class="form-control w-100" value="<%= pendencia.nome_turma || 'N/A' %>" readonly>
+              </div>
+            </div>
+
+            <% if (tipo_pendencia==='Saída Antecipada' ) { %>
+              <input type="hidden" name="email" value="<%= email %>">
+              <div class="form-group">
+                <label for="data">Data e Hora da Saída</label>
+                <div class="d-flex justify-content-between">
+                  <input type="date" id="data" name="data" class="form-control mr-4"
+                    value="<%= pendencia.data_saida.toISOString().split('T')[0] %>" readonly>
+                  <input type="time" id="hora" name="hora" class="form-control" value="<%= pendencia.hora_saida %>"
+                    readonly>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="justificativa">Justificativa</label>
+                <textarea id="justificativa" name="justificativa" class="form-control"
+                  readonly><%= pendencia.justificativa %></textarea>
+              </div>
+
+              <div class="form-check mt-3">
+                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" required>
+                <label class="form-check-label" for="flexCheckDefault">
+                  Declaro que li e autorizo o aluno a sair antecipadamente.
+                </label>
+              </div>
+
+              <% } else if (tipo_pendencia==='Justificativa de Falta' ) { %>
+                <input type="hidden" name="email" value="<%= email %>">
+                <div class="row">
+                  <div class="col-md-4">
+                    <label for="data-emissao">Data de Emissão</label>
+                    <input type="date" id="data-emissao" name="data_emissao" class="form-control"
+                      value="<%= pendencia.data_saida.toISOString().split('T')[0] %>" readonly>
+                  </div>
+                  <div class="col-md-8">
+                    <label for="data-inicio">Data de Início e Término</label>
+                    <div class="d-flex">
+                      <input type="date" id="data-inicio" name="hora_saida"
+                        class="form-control d-inline-block w-50 mr-2"
+                        value="<%= pendencia.hora_saida ? pendencia.hora_saida.toISOString().split('T')[0] : '' %>"
+                        readonly>
+                      <input type="date" id="data-termino" name="data_termino"
+                        class="form-control d-inline-block w-50 ml-2"
+                        value="<%= pendencia.data_termino ? pendencia.data_termino.toISOString().split('T')[0] : '' %>"
+                        readonly>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group mt-3">
+                  <label for="observacoes">Observações</label>
+                  <textarea id="observacoes" name="observacoes" class="form-control"
+                    readonly><%= pendencia.justificativa %></textarea>
+                </div>
+
+                <div class="d-flex justify-content-start">
+                  <a href="/uploads/justfalta/<%= pendencia.cod_pendencia %>" type="submit"
+                    class="btn btn-red btn-lg">Baixe o seu arquivo</a>
+                </div>
+
+                <div class="form-check mt-3">
+                  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" required>
+                  <label class="form-check-label" for="flexCheckDefault">
+                    Declaro ciência à justificativa de falta.
+                  </label>
+                </div>
+
+                <% } else { %>
+                  <input type="hidden" name="email" value="<%= email %>">
+                  <div class="form-group">
+                    <label for="data">Data e Hora da Saída</label>
+                    <div class="d-flex justify-content-between">
+                      <input type="date" id="data" name="data" class="form-control mr-2"
+                        value="<%= pendencia.data_saida.toISOString().split('T')[0] %>" readonly>
+                      <input type="time" id="hora" name="hora" class="form-control ml-2"
+                        value="<%= pendencia.hora_saida %>" readonly>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="justificativa">Observações</label>
+                    <textarea id="justificativa" name="justificativa" class="form-control"
+                      readonly><%= pendencia.justificativa %></textarea>
+                  </div>
+
+                  <div class="d-flex justify-content-start">
+                    <!-- <label for="justificativa">Baixe o seu arquivo de justificativa abaixo</label> -->
+                    <a href="/uploads/justsaida/<%= pendencia.cod_pendencia %>" type="submit"
+                      class="btn btn-red btn-lg">Baixe o seu arquivo</a>
+                  </div>
+
+                  <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" required>
+                    <label class="form-check-label" for="flexCheckDefault">
+                      Declaro ciência à justificativa de saída antecipada.
+                    </label>
+                  </div>
+
+                  <% } %>
+
+                    <!-- Botão de envio -->
+                    <div class="d-flex justify-content-end mt-4">
+                      <form action="/emailCiencia" method="GET">
+                        <button id="emailCiente" type="submit" class="btn btn-success btn-lg">Ciente</button>
+                      </form>
+                    </div>
+          </form>
+        </div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+      <%- include('../../partials/footer') %>
+    </body>
+
+</html>
