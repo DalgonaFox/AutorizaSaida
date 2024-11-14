@@ -50,6 +50,10 @@ app.get("/manutencao", (req, res) => {
     res.render("manutencao");
 });
 
+app.get("/membros", (req, res) => {
+    res.render("membros");
+});
+
 // Login
 app.get("/", (req, res) => {
     res.render("index", { errorMessage: null, successMessage: null, sendMessage: null });
