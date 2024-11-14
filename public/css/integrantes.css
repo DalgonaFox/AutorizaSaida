@@ -1,0 +1,116 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background: linear-gradient(0deg, #BD0003, #2F2C79 );
+    color: #fff;
+    padding: 20px;
+}
+
+/* Cabeçalho */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+header h1 {
+    font-size: 2.5em;
+    color: #fff;
+}
+
+header p {
+    font-size: 1.2em;
+    color: #fff;
+}
+
+/* Seção dos Integrantes */
+.team {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.team-member {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.team-member img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.member-info {
+    max-width: 100%;
+}
+
+.member-info h3 {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.member-info p {
+    font-size: 1.1em;
+    color: #555;
+}
+
+.member-info strong {
+    color: #333;
+}
+
+/* Seção do TCC */
+.tcc {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.tcc h2 {
+    font-size: 2em;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.tcc p {
+    font-size: 1.2em;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.download-btn {
+    font-size: 1.2em;
+    background-color: red;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    display: inline-block;
+}
+
+.download-btn:hover {
+    background-color: #2F2C79;
+    transform: scale(1.05);
+}
+
+
+/* Rodapé */
+footer {
+    text-align: center;
+    font-size: 0.9em;
+    color: #fff;
+    margin-top: 50px;
+}

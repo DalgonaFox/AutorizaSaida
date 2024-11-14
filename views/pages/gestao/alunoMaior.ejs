@@ -3,108 +3,164 @@
 <html lang="pt-br">
 
 <%- include('../../partials/head', { title: 'Perfil do Aluno' }) %>
-<%- include('../../partials/headerGestao', { activePage: '' }) %>
+    <%- include('../../partials/headerGestao', { activePage: '' }) %>
 
-<body>
-    <div class="d-flex justify-content-between">
-        <div class="d-flex w-100">
-            <div class="card shadow m-5 p-4 d-flex justify-content-center align-items-center w-100">
-                <div class="d-block justify-content-center">
-                    <img class="profilePicture mt-4" src="/images/user.png" alt="Foto de Perfil">
-                </div>
-                <h1 class="nome text-center font-italic font-weight-bold mt-3"><%= nome_aluno %></h1>
-                <div class="info pb-4">
-                    <div class="dividir d-flex justify-content-between">
-                        <div class="campo">
-                            <div class="card pb-2 pt-2 pl-2 pr-5">
-                                <label for="formGroupExampleInput" class="form-label font-weight-bold">Curso</label>
-                                <p><%= nome_curso %></p>
-                            </div>
+        <body>
+            <div class="d-flex justify-content-between">
+                <div class="d-flex w-100">
+                    <div class="card shadow m-5 p-4 d-flex justify-content-center align-items-center w-100">
+                        <div class="d-block justify-content-center">
+                            <img class="profilePicture mt-4" src="/images/user.png" alt="Foto de Perfil">
                         </div>
-
-                        <div class="campo">
-                            <div class="card pb-2 pt-2 pl-2 pr-5">
-                                <label for="formGroupExampleInput" class="form-label font-weight-bold">CPF</label>
-                                <p><%= cpf %></p>
-                            </div>
-                        </div>
-
-                        <div class="campo">
-                            <div class="card pb-2 pt-2 pl-2 pr-5">
-                                <label for="formGroupExampleInput" class="form-label font-weight-bold">RM</label>
-                                <p><%= rm %></p>
-                            </div>
-                        </div>
-
-                        <div class="campo">
-                            <div class="card pb-2 pt-2 pl-2 pr-5">
-                                <label for="formGroupExampleInput" class="form-label font-weight-bold">Telefone</label>
-                                <p><%= tel_aluno %></p>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="dividir d-flex justify-content-between">
-                        <div class="campo">
-                            <div class="card pb-2 pt-2 pl-2 pr-5">
-                                <label for="formGroupExampleInput" class="form-label font-weight-bold">Turma</label>
-                                <p><%= nome_turma %></p>
-                            </div>
-                        </div>
-
-                        <div class="campo">
-                            <div class="card pb-2 pt-2 pl-2 pr-5">
-                                <label for="formGroupExampleInput" class="form-label font-weight-bold">Data de
-                                    Nascimento</label>
-                                <p><%= new Date(data_nasc).toLocaleDateString('pt-BR') %></p>
-                            </div>
-                        </div>
-
-                        <div class="campo">
-                            <div class="card pb-2 pt-2 pl-2 pr-5">
-                                <label for="formGroupExampleInput" class="form-label font-weight-bold">E-mail</label>
-                                <p><%= email_aluno %></p>
-                            </div>
-                        </div>
-                  </div>
-
-                </div>
-            </div>
-            <div class="card mt-5 mb-5 mr-5 w-25">
-                <div class="card-body">
-                    <h5 class="card-title">Saídas Recentes</h5>
-                    <% if (saidas.length> 0) { %>
-                        <% saidas.slice(0, 5).forEach(function(saida) { %>
-                            <div class="card mt-5 mb-5 mr-5">
-                                <div class="card-body">
-                                    <p class="card-text">
-                                        Data: <%= new Date(saida.data_saida).toLocaleDateString('pt-BR') %><br>
-                                            Horário: <%= saida.hora_saida ? saida.hora_saida
-                                                : "Horário não registrado" %>
-                                    </p>
-                                    <a href="#" class="btn btn-red btn-sm">Detalhes</a>
+                        <h1 class="nome text-center font-italic font-weight-bold mt-3">
+                            <%= nome_aluno %>
+                        </h1>
+                        <div class="info pb-4">
+                            <div class="dividir d-flex justify-content-between">
+                                <div class="campo">
+                                    <div class="card pb-2 pt-2 pl-2 pr-5">
+                                        <label for="formGroupExampleInput"
+                                            class="form-label font-weight-bold">Curso</label>
+                                        <p>
+                                            <%= nome_curso %>
+                                        </p>
+                                    </div>
                                 </div>
+
+                                <div class="campo">
+                                    <div class="card pb-2 pt-2 pl-2 pr-5">
+                                        <label for="formGroupExampleInput"
+                                            class="form-label font-weight-bold">CPF</label>
+                                        <p>
+                                            <%= cpf %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="campo">
+                                    <div class="card pb-2 pt-2 pl-2 pr-5">
+                                        <label for="formGroupExampleInput"
+                                            class="form-label font-weight-bold">RM</label>
+                                        <p>
+                                            <%= rm %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="campo">
+                                    <div class="card pb-2 pt-2 pl-2 pr-5">
+                                        <label for="formGroupExampleInput"
+                                            class="form-label font-weight-bold">Telefone</label>
+                                        <p>
+                                            <%= tel_aluno %>
+                                        </p>
+                                    </div>
+                                </div>
+
                             </div>
 
-                        <% }) %>
-                    <% } else { %>
-                        <div class="card mt-5 mb-5 mr-5">
-                            <div class="card-body">
-                                <h5 class="card-title">Nenhuma saída recente</h5>
+                            <div class="dividir d-flex justify-content-between w-100">
+                                <div class="campo">
+                                    <div class="card pb-2 pt-2 pl-2 pr-5">
+                                        <label for="formGroupExampleInput"
+                                            class="form-label font-weight-bold">Turma</label>
+                                        <p>
+                                            <%= nome_turma %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="campo">
+                                    <div class="card pb-2 pt-2 pl-2 pr-5">
+                                        <label for="formGroupExampleInput" class="form-label font-weight-bold">Data de
+                                            Nascimento</label>
+                                        <p>
+                                            <%= new Date(data_nasc).toLocaleDateString('pt-BR') %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="campo">
+                                    <div class="card pb-2 pt-2 pl-2 pr-5">
+                                        <label for="formGroupExampleInput"
+                                            class="form-label font-weight-bold">E-mail</label>
+                                        <p>
+                                            <%= email_aluno %>
+                                        </p>
+                                    </div>
+                                </div>
+
                             </div>
+                            <form action="/excluirAluno" method="POST">
+                                <input name="rm" type="hidden" value="<%= rm %>">
+                                <button id="excluirAlunoBtn" class="btn btn-lg btn-red">Excluir Aluno</button>
+                            </form>
+
+                            <script>
+                                document.getElementById('excluirAlunoBtn').addEventListener('click', () => {
+                                    // Confirmação antes de excluir
+                                    if (confirm('Tem certeza de que deseja excluir este aluno?')) {
+                                        // Envia o RM do aluno no corpo da requisição
+                                        fetch('/excluirAluno', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({
+                                                rm: '<%= rm %>' // Insere o RM do aluno dinamicamente
+                                            })
+                                        })
+                                            .then(response => {
+                                                if (response.ok) {
+                                                    alert('Aluno excluído com sucesso.');
+                                                    window.location.href = '/cursos'; // Redireciona após exclusão
+                                                } else {
+                                                    alert('Erro ao excluir o aluno.');
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Erro:', error);
+                                                alert('Erro ao excluir o aluno.');
+                                            });
+                                    }
+                                });
+                            </script>
                         </div>
-                    <% } %>
+                    </div>
+                    <div class="card mt-5 mb-5 mr-5 w-25">
+                        <div class="card-body">
+                            <h5 class="card-title">Saídas Recentes</h5>
+                            <% if (saidas.length> 0) { %>
+                                <% saidas.slice(0, 5).forEach(function(saida) { %>
+                                    <div class="card mt-5 mb-5 mr-5">
+                                        <div class="card-body">
+                                            <p class="card-text">
+                                                Data: <%= new Date(saida.data_saida).toLocaleDateString('pt-BR') %><br>
+                                                    Horário: <%= saida.hora_saida ? saida.hora_saida
+                                                        : "Horário não registrado" %>
+                                            </p>
+                                            <a href="#" class="btn btn-red btn-sm">Detalhes</a>
+                                        </div>
+                                    </div>
+
+                                    <% }) %>
+                                        <% } else { %>
+                                            <div class="card mt-5 mb-5 mr-5">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Nenhuma saída recente</h5>
+                                                </div>
+                                            </div>
+                                            <% } %>
+                        </div>
+                    </div>
                 </div>
+
             </div>
-        </div>
 
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-            crossorigin="anonymous"></script>
-        <%- include('../../partials/footer') %>
-    </body>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+                crossorigin="anonymous"></script>
+            <%- include('../../partials/footer') %>
+        </body>
 
 </html>

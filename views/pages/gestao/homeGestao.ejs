@@ -3,339 +3,355 @@
 <html lang="pt-br">
 
 <%- include('../../partials/head', { title: 'Home' }) %>
-<%- include('../../partials/headerGestao', { activePage: 'homegestao' }) %>
+    <%- include('../../partials/headerGestao', { activePage: 'homegestao' }) %>
 
-<body>
-    <% if (sendMessage) { %>
-        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="successModalLabel">Sucesso!</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <%= sendMessage %>
-              </div>
-            </div>
-          </div>
-        </div>
-      
-        <!-- Script para exibir o modal automaticamente -->
-        <script>
-          document.addEventListener("DOMContentLoaded", function() {
-            var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-            successModal.show();
-          });
-        </script>
-      <% } %>
-    <div class="container-fluid" style="width: 80%; min-height: 83.1vh;">
-        <div style="min-height: 79%;">
-            <!--Bem-vindo-->
-            <% if (genero === 2) { %>
-                    <h3 class="font-italic font-weight-bold mt-5 mb-5">Bem-vinda, <%= nome_gestao %>. </h3>
-                <% } else { %>
-                    <h3 class="font-italic font-weight-bold mt-5 mb-5">Bem-vindo, <%= nome_gestao %>. </h3>
-                <% } %>
-                
-                <% if (successMessage) { %>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <%= successMessage %>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                <% } %>
-            <div class="d-flex mb-5 justify-content-between">
-
-                <% if (total > 0) { %>
-                    <div class="card mr-3 p-3 shadow">
-                        <h5 class="card-title">Pendências do dia</h5>
-                        <div class="grafico-container">
-                            <canvas id="graficoRosca"></canvas>
-                        </div>  
-                    </div>
-                <% } else { %>
-                    <div class="card mr-3 p-3 shadow">
-                        <h5 class="card-title">Pendências do dia</h5>
-                        <p>Não há pendências hoje!</p>
-                    </div>
-                <% } %>
-
-                <div class="card mr-3 p-3 w-50 shadow">
-                    <h5 class="card-title text-center">Períodos do ano com maiores índices de saída</h5>
-                    <div class="grafico-container">
-                        <canvas id="graficoperiodoano"></canvas>
-                    </div>  
-                </div>
-        
-
-                <!--Avisos-->
-                <div class="d-flex flex-column pb-5">
-                    <div class="card card-saida mb-5 shadow">
-                        <div class="card-body">
-                            <% if (totalPendencias > 0) { %>
-                                    <h5 class="card-title">Você tem <%= totalPendencias %> pendências restantes</h5>
-                                    <a href="/pendentes" class="btn btn-red">Verificar</a>
-                            <% } else { %>
-                                <h5 class="card-title">Você não tem nenhuma pendência!</h5>
-                            <% } %>
-    
-                        </div>
-                    </div>
-                    <div class="card card-saida shadow">
-                        <div class="card-body">
-                            <h5 class="card-title">Deseja cadastrar um novo aluno?</h5>
-                            <a href="/cadastroAluno" class="btn btn-red">Cadastrar</a>
+        <body>
+            <% if (sendMessage) { %>
+                <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="successModalLabel">Sucesso!</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <%= sendMessage %>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-    
-            </div>
-            <div class="d-flex justify-content-between mb-4">
-                <!--Trio de Gráficos-->
-                <div class="card mr-3 p-3 shadow" style="width: 30%;">
-                    <h5 class="card-title text-center">Cursos Técnicos com maior índice de saída</h5>
-                    <div class="d-flex justify-content-center">
-                        <div class="grafico-container w-75">
-                            <canvas id="graficotecnico"></canvas>
+                <!-- Script para exibir o modal automaticamente -->
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                        successModal.show();
+                    });
+                </script>
+                <% } %>
+                    <div class="container-fluid" style="width: 80%; min-height: 83.1vh;">
+                        <div style="min-height: 79%;">
+                            <!--Bem-vindo-->
+                            <% if (genero===2) { %>
+                                <h3 class="font-italic font-weight-bold mt-5 mb-5">Bem-vinda, <%= nome_gestao %>. </h3>
+                                <% } else { %>
+                                    <h3 class="font-italic font-weight-bold mt-5 mb-5">Bem-vindo, <%= nome_gestao %>.
+                                    </h3>
+                                    <% } %>
+
+                                        <% if (successMessage) { %>
+                                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                <%= successMessage %>
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                            </div>
+                                            <% } %>
+                                                <div class="d-flex mb-5 justify-content-between">
+
+                                                    <% if (total> 0) { %>
+                                                        <div class="card mr-3 p-3 shadow">
+                                                            <h5 class="card-title">Pendências do dia</h5>
+                                                            <div class="grafico-container">
+                                                                <canvas id="graficoRosca"></canvas>
+                                                            </div>
+                                                        </div>
+                                                        <% } else { %>
+                                                            <div class="card mr-3 p-3 shadow">
+                                                                <h5 class="card-title">Pendências do dia</h5>
+                                                                <p>Não há pendências hoje!</p>
+                                                            </div>
+                                                            <% } %>
+
+                                                                <div class="card mr-3 p-3 w-50 shadow">
+                                                                    <h5 class="card-title text-center">Períodos do ano
+                                                                        com maiores índices de saída</h5>
+                                                                    <div class="grafico-container">
+                                                                        <canvas id="graficoperiodoano"></canvas>
+                                                                    </div>
+                                                                </div>
+
+
+                                                                <!--Avisos-->
+                                                                <div class="d-flex flex-column pb-5">
+                                                                    <div class="card card-saida mb-5 shadow">
+                                                                        <div class="card-body">
+                                                                            <% if (totalPendencias> 0) { %>
+                                                                                <h5 class="card-title">Você tem <%=
+                                                                                        totalPendencias %> pendências
+                                                                                        restantes</h5>
+                                                                                <a href="/pendentes"
+                                                                                    class="btn btn-red">Verificar</a>
+                                                                                <% } else { %>
+                                                                                    <h5 class="card-title">Você não tem
+                                                                                        nenhuma pendência!</h5>
+                                                                                    <% } %>
+
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="card card-saida shadow">
+                                                                        <div class="card-body">
+                                                                            <h5 class="card-title">Deseja cadastrar um
+                                                                                novo aluno?</h5>
+                                                                            <a href="/cadastroAluno"
+                                                                                class="btn btn-red">Cadastrar</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+
+                                                </div>
+                                                <div class="d-flex justify-content-between mb-4">
+                                                    <!--Trio de Gráficos-->
+                                                    <div class="card mr-3 p-3 shadow" style="width: 30%;">
+                                                        <h5 class="card-title text-center">Cursos Técnicos com maior
+                                                            índice de saída</h5>
+                                                        <div class="d-flex justify-content-center">
+                                                            <div class="grafico-container w-75">
+                                                                <canvas id="graficotecnico"></canvas>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="card mr-3 p-3 shadow" style="width: 30%;">
+                                                        <h5 class="card-title text-center">CAI com maior índice de saída
+                                                        </h5>
+                                                        <div class="d-flex justify-content-center">
+                                                            <div class="grafico-container w-75">
+                                                                <canvas id="graficocai"></canvas>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="card p-3 shadow" style="width: 30%;">
+                                                        <h5 class="card-title text-center">Cursos FIC com maior índice
+                                                            de saída</h5>
+                                                        <div class="d-flex justify-content-center">
+                                                            <div class="grafico-container w-75">
+                                                                <canvas id="graficofic"></canvas>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
                         </div>
                     </div>
-                      
-                </div>
 
-                <div class="card mr-3 p-3 shadow" style="width: 30%;">
-                    <h5 class="card-title text-center">CAI com maior índice de saída</h5>
-                    <div class="d-flex justify-content-center">
-                    <div class="grafico-container w-75">
-                        <canvas id="graficocai"></canvas>
-                    </div> 
-                    </div>
-                </div>
-
-                <div class="card p-3 shadow" style="width: 30%;">
-                    <h5 class="card-title text-center">Cursos FIC com maior índice de saída</h5>
-                    <div class="d-flex justify-content-center">
-                    <div class="grafico-container w-75">
-                        <canvas id="graficofic"></canvas>
-                    </div> 
-                    </div>
-                </div>
-                
-            </div>
-        </div>
-    </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            fetch('/periodoano')
-                .then(response => response.json())
-                .then(data => {
-                    const ctx = document.getElementById('graficoperiodoano').getContext('2d');
-                    new Chart(ctx, {
-                type: 'bar', // Gráfico de colunas
-                data: {
-                    labels: data.labels, // Nomes dos meses
-                    datasets: [{
-                        label: 'Número de Saídas',
-                        data: data.valores, // Total de saídas por mês
-                        backgroundColor: ['#ff0100', '#af0004', '#690001', '#00097a', '#0141bc'],
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    return `Saídas: ${tooltipItem.raw}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Mês'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Número de Saídas'
-                            },
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        })
-        .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
-</script>
-
-        <script>
-            fetch('/saidastecnico')
-                .then(response => response.json())
-                .then(data => {
-                    const ctx = document.getElementById('graficotecnico').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'pie',
-                        data: {
-                            labels: data.labels, // Usando a variável data ao invés de response
-                            datasets: [{
-                                data: data.valores, // Dados da consulta
-                                backgroundColor: ['#ff0100', '#af0004', '#690001', '#00097a', '#0141bc'],
-                                borderWidth: 0
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    position: 'top',
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(tooltipItem) {
-                                            const label = tooltipItem.label || '';
-                                            const value = tooltipItem.raw || 0;
-                                            const total = data.valores.reduce((acc, val) => acc + val, 0); // Total de saídas
-                                            const percentage = ((value / total) * 100).toFixed(1);
-                                            return `${label}: ${value} (${percentage}%)`;
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script>
+                        fetch('/periodoano')
+                            .then(response => response.json())
+                            .then(data => {
+                                const ctx = document.getElementById('graficoperiodoano').getContext('2d');
+                                new Chart(ctx, {
+                                    type: 'bar', // Gráfico de colunas
+                                    data: {
+                                        labels: data.labels, // Nomes dos meses
+                                        datasets: [{
+                                            label: 'Número de Saídas',
+                                            data: data.valores, // Total de saídas por mês
+                                            backgroundColor: ['#ff0100', '#af0004', '#690001', '#00097a', '#0141bc'],
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'top',
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function (tooltipItem) {
+                                                        return `Saídas: ${tooltipItem.raw}`;
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        scales: {
+                                            x: {
+                                                title: {
+                                                    display: true,
+                                                    text: 'Mês'
+                                                }
+                                            },
+                                            y: {
+                                                title: {
+                                                    display: true,
+                                                    text: 'Número de Saídas'
+                                                },
+                                                beginAtZero: true
+                                            }
                                         }
                                     }
-                                }
-                            }
-                        }
-                    });
-                })
-                .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
-        </script>
+                                });
+                            })
+                            .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
+                    </script>
 
-<script>
-    fetch('/saidascai')
-        .then(response => response.json())
-        .then(data => {
-            const ctx = document.getElementById('graficocai').getContext('2d');
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: data.labels, // Usando a variável data ao invés de response
-                    datasets: [{
-                        data: data.valores, // Dados da consulta
-                        backgroundColor: ['#ff0100', '#af0004', '#690001', '#00097a', '#0141bc'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    const label = tooltipItem.label || '';
-                                    const value = tooltipItem.raw || 0;
-                                    const total = data.valores.reduce((acc, val) => acc + val, 0); // Total de saídas
-                                    const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        })
-        .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
-</script>
-
-<script>
-    fetch('/saidasfic')
-        .then(response => response.json())
-        .then(data => {
-            const ctx = document.getElementById('graficofic').getContext('2d');
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: data.labels, // Usando a variável data ao invés de response
-                    datasets: [{
-                        data: data.valores, // Dados da consulta
-                        backgroundColor: ['#ff0100', '#af0004', '#690001', '#00097a', '#0141bc'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    const label = tooltipItem.label || '';
-                                    const value = tooltipItem.raw || 0;
-                                    const total = data.valores.reduce((acc, val) => acc + val, 0); // Total de saídas
-                                    const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        })
-        .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
-</script>
-        
-        <script>
-            fetch('/dadosPendencias')
-                .then(response => response.json())
-                .then(data => {
-                    const ctx = document.getElementById('graficoRosca').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['Pendências Restantes', 'Pendências Lidas'],
-                            datasets: [{
-                                data: [data.pendenciasRestantes, data.pendenciasLidas],
-                                backgroundColor: ['#af0004', '#00097a'],
-                                borderWidth: 0,
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    position: 'top',
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(tooltipItem) {
-                                            const label = tooltipItem.label || '';
-                                            const value = tooltipItem.raw || 0;
-                                            const total = data.totalPendencias;
-                                            const percentage = ((value / total) * 100).toFixed(1);
-                                            return `${label}: ${value} (${percentage}%)`;
+                    <script>
+                        fetch('/saidastecnico')
+                            .then(response => response.json())
+                            .then(data => {
+                                const ctx = document.getElementById('graficotecnico').getContext('2d');
+                                new Chart(ctx, {
+                                    type: 'pie',
+                                    data: {
+                                        labels: data.labels, // Usando a variável data ao invés de response
+                                        datasets: [{
+                                            data: data.valores, // Dados da consulta
+                                            backgroundColor: ['#ff0100', '#af0004', '#690001', '#00097a', '#0141bc'],
+                                            borderWidth: 0
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'top',
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function (tooltipItem) {
+                                                        const label = tooltipItem.label || '';
+                                                        const value = tooltipItem.raw || 0;
+                                                        const total = data.valores.reduce((acc, val) => acc + val, 0); // Total de saídas
+                                                        const percentage = ((value / total) * 100).toFixed(1);
+                                                        return `${label}: ${value} (${percentage}%)`;
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
-                                }
-                            }
-                        }
-                    });
-                })
-                .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
-        </script>
-    
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-        <%- include('../../partials/footer') %>
-</body>
+                                });
+                            })
+                            .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
+                    </script>
+
+                    <script>
+                        fetch('/saidascai')
+                            .then(response => response.json())
+                            .then(data => {
+                                const ctx = document.getElementById('graficocai').getContext('2d');
+                                new Chart(ctx, {
+                                    type: 'pie',
+                                    data: {
+                                        labels: data.labels, // Usando a variável data ao invés de response
+                                        datasets: [{
+                                            data: data.valores, // Dados da consulta
+                                            backgroundColor: ['#ff0100', '#af0004', '#690001', '#00097a', '#0141bc'],
+                                            borderWidth: 0
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'top',
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function (tooltipItem) {
+                                                        const label = tooltipItem.label || '';
+                                                        const value = tooltipItem.raw || 0;
+                                                        const total = data.valores.reduce((acc, val) => acc + val, 0); // Total de saídas
+                                                        const percentage = ((value / total) * 100).toFixed(1);
+                                                        return `${label}: ${value} (${percentage}%)`;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            })
+                            .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
+                    </script>
+
+                    <script>
+                        fetch('/saidasfic')
+                            .then(response => response.json())
+                            .then(data => {
+                                const ctx = document.getElementById('graficofic').getContext('2d');
+                                new Chart(ctx, {
+                                    type: 'pie',
+                                    data: {
+                                        labels: data.labels, // Usando a variável data ao invés de response
+                                        datasets: [{
+                                            data: data.valores, // Dados da consulta
+                                            backgroundColor: ['#ff0100', '#af0004', '#690001', '#00097a', '#0141bc'],
+                                            borderWidth: 0
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'top',
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function (tooltipItem) {
+                                                        const label = tooltipItem.label || '';
+                                                        const value = tooltipItem.raw || 0;
+                                                        const total = data.valores.reduce((acc, val) => acc + val, 0); // Total de saídas
+                                                        const percentage = ((value / total) * 100).toFixed(1);
+                                                        return `${label}: ${value} (${percentage}%)`;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            })
+                            .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
+                    </script>
+
+                    <script>
+                        fetch('/dadosPendencias')
+                            .then(response => response.json())
+                            .then(data => {
+                                const ctx = document.getElementById('graficoRosca').getContext('2d');
+                                new Chart(ctx, {
+                                    type: 'doughnut',
+                                    data: {
+                                        labels: ['Pendências Restantes', 'Pendências Lidas'],
+                                        datasets: [{
+                                            data: [data.pendenciasRestantes, data.pendenciasLidas],
+                                            backgroundColor: ['#af0004', '#00097a'],
+                                            borderWidth: 0,
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'top',
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function (tooltipItem) {
+                                                        const label = tooltipItem.label || '';
+                                                        const value = tooltipItem.raw || 0;
+                                                        const total = data.totalPendencias;
+                                                        const percentage = ((value / total) * 100).toFixed(1);
+                                                        return `${label}: ${value} (${percentage}%)`;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            })
+                            .catch(error => console.error('Erro ao carregar dados para o gráfico:', error));
+                    </script>
+
+                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+                        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+                        crossorigin="anonymous"></script>
+                    <%- include('../../partials/footer') %>
+        </body>
 
 </html>

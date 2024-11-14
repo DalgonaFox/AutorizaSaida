@@ -11,19 +11,15 @@
           .then(response => {
             if (response.status === 401) {
               alert('Sua sessão expirou. Por favor, faça login novamente.');
-              // Redirecionar para a página de login ou home
-              window.location.href = '/login'; // Altere para sua página de login
+              window.location.href = '/login';
             }
           });
       }
 
-      // Verifica a sessão a cada 30 segundos
       setInterval(checkSession, 30000);
     </script>
 
     <body>
-      <!-- Modal -->
-      <!-- Modal de Sucesso -->
       <% if (sendMessage) { %>
         <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
           <div class="modal-dialog">
@@ -39,7 +35,6 @@
           </div>
         </div>
 
-        <!-- Script para exibir o modal automaticamente -->
         <script>
           document.addEventListener("DOMContentLoaded", function () {
             var successModal = new bootstrap.Modal(document.getElementById('successModal'));
@@ -51,7 +46,6 @@
           <div class="container" style="width: 80%;">
             <div style="min-height: 79%;">
 
-              <!--Bem-vindo-->
               <% if (genero===2) { %>
                 <h3 class="font-italic font-weight-bold mt-5 mb-5 centralizarresponsivo">Bem-vinda, <%= nome_aluno %>.
                 </h3>
@@ -62,7 +56,6 @@
 
 
                     <div class="d-flex flex-column">
-                      <!--Cards-->
                       <div class="d-flex justify-content-between flex-wrap responsivohome">
                         <a class="requisicao m-1" href="/requisicaoAluno">
                           <div class="card">
@@ -94,9 +87,27 @@
                           </div>
                         </a>
                       </div>
+                      <script
+                        src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
+                      <script>
+                       document.addEventListener("DOMContentLoaded", function () {
+                          const jsConfetti = new JSConfetti();
 
+                          function showConfetti() {
+                            jsConfetti.addConfetti({
+                              confettiNumber: 100,
+                              confettiRadius: 7,
+                            });
+                          }
+
+                          const parabenizarBtn = document.querySelector(".btn-parabenizar");
+                          if (parabenizarBtn) {
+                            parabenizarBtn.addEventListener("click", showConfetti);
+                          }
+                        });
+                      </script>
                       <div class="mb-5 mt-4 responsivohome d-flex">
-                        <!--Avisos-->
+
                         <div class="d-flex justify-content-between w-100 responsivohome">
                           <div class="d-flex flex-column justify-content-between mr-5 w-100">
                             <div class="card m-1">
@@ -115,8 +126,7 @@
                                     <% } else { %>
                                       <p class="card-text">Você não tem nenhuma saída injustificada!
                                       </p>
-                                      <a href="/justificarSaidaAluno" class="btn btn-red">Parabéns!
-                                      </a>
+                                      <button class="btn btn-red btn-parabenizar">Parabéns!</button>
                                       <% } %>
                               </div>
                             </div>
@@ -137,7 +147,6 @@
                             </div>
                           </div>
 
-                          <!--Gráfico-->
                           <div class=" m-1 card col-md-3 p-3 shadow">
                             <h5 class="card-title">Índice de Saídas</h5>
                             <div class="grafico-container">
@@ -152,6 +161,7 @@
             </div>
           </div>
 
+          <script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
           <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
           <script>
             fetch('/saidasaluno')
