@@ -104,6 +104,7 @@ header p {
 .download-btn:hover {
     background-color: #2F2C79;
     transform: scale(1.05);
+    text-decoration: none;
 }
 
 
