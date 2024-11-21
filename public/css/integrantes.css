@@ -78,13 +78,17 @@ header p {
     margin-bottom: 40px;
 }
 
-.tcc h2 {
+.metade {
+    width: 50%;
+}
+
+.metade h2 {
     font-size: 2em;
     color: #fff;
     margin-bottom: 20px;
 }
 
-.tcc p {
+.metade p {
     font-size: 1.2em;
     color: #fff;
     margin-bottom: 20px;
