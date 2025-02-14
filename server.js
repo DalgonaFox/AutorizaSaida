@@ -9,12 +9,12 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const nodemailer = require("nodemailer");
 
-const port = process.env.PORT || 3001;
+//const port = process.env.PORT || 3001;
 
 
-const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+//const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
-const db = mysql.createPool({
+/* const db = mysql.createPool({
 host: process.env.DB_HOST,
 user: process.env.DB_USERNAME,
 password: process.env.DB_PASSWORD,
@@ -22,6 +22,30 @@ database: process.env.DB_DBNAME,
 waitForConnections: true,
 connectionLimit: 10,
 queueLimit: 0
+}); */
+
+// Porta
+const port = 8080;
+app.listen(port, () => {
+    console.log(`Servidor rodando na porta ${port}`);
+    console.log(`Acesse pelo ip que eu mandar no zap + :${port}`);
+});
+
+// Configuração do banco de dados
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'tcc'
+});
+
+// Conexão com o banco de dados
+db.connect((error) => {
+    if (error) {
+        console.log("Erro ao conectar com o banco de dados:", error);
+    } else {
+        console.log("Conectado ao MySQL");
+    }
 });
 
 // Pasta public
