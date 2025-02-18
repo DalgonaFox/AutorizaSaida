@@ -2,7 +2,7 @@
 Um sistema para requisição de saída antecipada de alunos e inserção de atestado médico, com gerenciamento de turmas e cursos.
 
 ## Sobre o Projeto
-O JustificaSaida é um sistema web que facilita a solicitação e aprovação de saídas antecipadas de alunos em escolas. Ele permite que alunos façam pedidos de saída, enviem justificativas (como atestados médicos) e que os administradores analisem e aprovem as requisições.
+O AutorizaSaída SENAI é um sistema web que facilita a solicitação e aprovação de saídas antecipadas de alunos em escolas. Ele permite que alunos façam pedidos de saída, enviem justificativas (como atestados médicos) e que os administradores analisem e aprovem as requisições.
 > Este projeto foi realizado como o Projeto de Conclusão do Curso Técnico em Desenvolvimento de Sistemas pelo SENAI. Para acessar o documento com o TCC completo, clique [aqui](https://autoriza.onrender.com/membros)
 
 ## Funcionalidades
@@ -69,4 +69,4 @@ Caso tenha dúvidas ou sugestões, entre em contato:
 - Sabrina Vilela Raimundo.
 
 ### Orientador
-- Washington Silvestre de Paiva
+- Washington Silvestre de Paiva.
