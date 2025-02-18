@@ -21,21 +21,21 @@ Antes de rodar o projeto, certifique-se de ter instalado:
 
 ## Instalação
 
-1. Clonando o Repositório
+### Clonando o Repositório
 - Use os seguintes comandos no Git Bash, já dentro da pasta onde você deseja clonar o projeto:
 > git clone https://github.com/DalgonaFox/AutorizaSaida.git
 
-2. Instalando Dependências
+### Instalando Dependências
 - Abra seu editor de código e abra a pasta onde o projeto está.
 - Use o comando a seguir no seu terminal (Pode ser tanto pelo editor de código como pelo prompt de comando):
 > npm install express express-session multer fs mysql2 body-parser path nodemailer
 
-3. Configurando o Banco de Dados
+### Configurando o Banco de Dados
 - Ligue o XAMPP, e habilite o MySQL na porta 3306.
 - Crie uma conexão no MySQL Workbench chamado AutorizaSaida. Defina o username como root, sem senha e deixe o hostname como locahost.
 - Abra o arquivo "milena.sql" na pasta "bd" desse projeto, e execute (no botão de raio, no topo).
 
-4. Rodando o Projeto
+### Rodando o Projeto
 - No terminal, use o comando a seguir (certifique-se de estar dentro da pasta do projeto):
 > node server.js
 - Abra o sistema pelo link "localhost:8080" em seu navegador.
