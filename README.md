@@ -58,7 +58,7 @@ Caso tenha dúvidas ou sugestões, entre em contato:
 - LinkedIn: [Milena Oliveira Santos](https://www.linkedin.com/in/milena-oliveira-santos-432611278/).
 
 ## Créditos
-###Equipe
+### Equipe
 - Eduardo Irineu da Silva;
 - Isadora Bezerra de Oliveira;
 - João Aparecido Lima Dantas;
@@ -68,5 +68,5 @@ Caso tenha dúvidas ou sugestões, entre em contato:
 - Milena Oliveira Santos;
 - Sabrina Vilela Raimundo.
 
-###Orientador
+### Orientador
 - Washington Silvestre de Paiva
