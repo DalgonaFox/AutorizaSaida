@@ -52,6 +52,6 @@ O projeto foi desenvolvido com as seguintes tecnologias:
 
 ## Contato
 Caso tenha dúvidas ou sugestões, entre em contato:
-- Email: mila.olisantos@gmail.com
-- GitHub: DalgonaFox
-- LinkedIn: Milena Oliveira Santos
+- Email: mila.olisantos@gmail.com;
+- GitHub: [DalgonaFox](https://github.com/DalgonaFox);
+- LinkedIn: [Milena Oliveira Santos](https://www.linkedin.com/in/milena-oliveira-santos-432611278/).
