@@ -23,6 +23,7 @@ Antes de rodar o projeto, certifique-se de ter instalado:
 1. Clonando o Repositório
 Use os seguintes comandos no Git Bash, já dentro da pasta onde você deseja clonar o projeto:
 > git clone https://github.com/DalgonaFox/AutorizaSaida.git
+
 > cd justificasaida
 
 2. Instalando Dependências
