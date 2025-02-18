@@ -161,7 +161,8 @@ INSERT INTO empresa (nome_empresa, email_empresa, tel_empresa) VALUES
 INSERT INTO gestor (nif, nome_gestor, email_gestor, senha, tel_gestor, cargo, cod_genero) VALUES 
 (101, 'João Souza', 'joao.souza@mail.com', 'gestor123', '21977777777', 'Coordenador', 1),
 (102, 'Luciana Lima', 'luciana.lima@mail.com', 'gestor123', '21966666666', 'Diretora', 2),
-(103, 'Washington Paiva', 'wpaiva@docente.senai.br', 'gestor123', '11999999999', 'Professor', 1);
+(103, 'Washington Paiva', 'wpaiva@docente.senai.br', 'gestor123', '11999999999', 'Professor', 1),
+(104, 'GestorTeste', 'gestorteste@mail.com', 'gestor123', '11922838213', 'Teste', 1);
 
 INSERT INTO curso (cod_curso, nome_curso, tipo_curso, turno) VALUES
 (10, 'Logística', 'Técnico', 'Manhã'),
@@ -206,7 +207,8 @@ INSERT INTO aluno (rm, nome_aluno, cpf, data_nasc, email_aluno, senha, tel_aluno
 (1005, 'Isadora Bezerra de Oliveira', '4098754321', '2007-07-10', 'isadora.oliveira5@aluno.senai.br', 'senha123', '11923426754', 1, 2, 25, 6),
 (1006, 'Laura Rodrigues Marinho', '58295737193', '2006-11-07', 'laura.marinho12@aluno.senai.br', 'senha123', '11923456754', 1, 2, 25, 6),
 (1007, 'Eduardo Irineu', '40987123476', '2006-08-01', 'eduardo.irineu@aluno.senai.br', 'senha123', '11909876543', 1, 2, 25, 6),
-(9485, 'Washington Paiva', '91293872649', '1984-10-15', 'wpaiva@docente.senai.br', 'senha123', '11988826337', 0, 1, 25, 6);
+(1008, 'Washington Paiva', '91293872649', '1984-10-15', 'washingtonpaiva@senai.br', 'senha123', '11988826337', 0, 1, 25, 6),
+(1009, 'AlunoTeste', '00000000000', '2000-10-15', 'alunoteste@mail.com', 'senha123', '11982226337', 0, 1, 25, 6);
 
 INSERT INTO inforesp (rm, cod_resp) VALUES 
 (1001, 1),

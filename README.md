@@ -15,13 +15,14 @@ Antes de rodar o projeto, certifique-se de ter instalado:
 - Node.js 18+;
 - MySQL Workbench;
 - XAMPP;
+- Git Bash;
 - Algum editor de código (Recomendo o Visual Studio Code).
 
 ## Instalação
 
 ###1. Clonando o Repositório
-Use os seguintes comandos no terminal (Prompt de comando no Windows):
-> git clone https://github.com/seu-usuario/justificasaida.git
+Use os seguintes comandos no Git Bash, já dentro da pasta onde você deseja clonar o projeto:
+> git clone https://github.com/DalgonaFox/AutorizaSaida.git
 > cd justificasaida
 
 ###2. Instalando Dependências
@@ -39,8 +40,9 @@ No terminal, use o comando a seguir:
 Abra o sistema pelo link "localhost:8080" em seu navegador.
 
 ## Como Usar
-Aluno: Faça login e envie uma solicitação de saída.
-Administrador: Acesse o painel de gestão, veja as requisições e aprove ou rejeite.
+Aluno: Faça login com o e-mail 'alunoteste@mail.com' e a senha 'senha123' e envie uma solicitação de saída, por exemplo.
+Administrador: Acesse o painel de gestão com o e-mail 'gestorteste@mail.com' e a senha 'gestor123', veja as requisições e aprove ou rejeite.
+> Sugestão: No perfil do gestor, cadastre um aluno com o seu e-mail. Teste entrar nesse usuário criado como aluno, envie formulários e depois autorize com o gestor. Você receberá um e-mail de que sua saída foi autorizada! Você também pode tentar trocar sua senha, e irá receber um e-mail com uma senha aleatória para você alterar ao logar novamente!
 
 ## Tecnologias
 O projeto foi desenvolvido com as seguintes tecnologias:
