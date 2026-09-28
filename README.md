@@ -65,14 +65,13 @@ O projeto foi desenvolvido com as seguintes tecnologias:
 - Banco de Dados: MySQL.
 
 ## Créditos
-### Equipe
+O trabalho foi desenvolvido por mim e mais 7 colegas de classe do SENAI:
 - Eduardo Irineu da Silva;
 - Isadora Bezerra de Oliveira;
 - João Aparecido Lima Dantas;
 - João Pedro Bueno da Silva;
 - Laura Rodrigues Marinho;
 - Mariana Marcondes Filomeno Chaves;
-- Milena Oliveira Santos;
 - Sabrina Vilela Raimundo.
 
 ### Orientador
